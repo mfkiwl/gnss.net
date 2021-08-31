@@ -41,8 +41,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Parsers\RTCMv3\RtcmV3Helper.cs" />
+    <Compile Include="Parsers\RTCMv3\RtcmV3Header.cs" />
+    <Compile Include="Parsers\RTCMv3\Msgs\RtcmV3Message1002.cs" />
+    <Compile Include="Parsers\RTCMv3\Msgs\RtcmV3MessageBase.cs" />
+    <Compile Include="Tools\ISerializable.cs" />
+    <Compile Include="Parsers\RTCMv3\RtcmV3Parser.cs" />
+    <Compile Include="Tools\Crc24.cs" />
+    <Compile Include="Parsers\IGnssParser.cs" />
+    <Compile Include="Parsers\RTCMv3\RtcmV3Preamble.cs" />
+    <Compile Include="Tools\BitOperationHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
