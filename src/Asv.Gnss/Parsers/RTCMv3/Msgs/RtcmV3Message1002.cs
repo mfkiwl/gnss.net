@@ -21,6 +21,8 @@ namespace Asv.Gnss
 
     public class RtcmV3Observation
     {
+
+
         public double cp;
         public double cp2;
         public double pr;
@@ -37,11 +39,30 @@ namespace Asv.Gnss
     }
 
 
-    public class RtcmV3Message1002: RtcmV3MessageBase
+    public class RtcmV3Message1001 : RtcmV3ObservableMessageBase
+    {
+
+
+        public RtcmV3Message1001(RtcmV3Preamble preamble, RtcmV3ObservableHeader header) : base(preamble, header)
+        {
+        }
+
+        public override void Serialize(byte[] buffer, uint startIndex = 0)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Deserialize(byte[] buffer, uint startIndex = 0)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class RtcmV3Message1002: RtcmV3ObservableMessageBase
     {
         private readonly int _week;
 
-        public RtcmV3Message1002(RtcmV3Preamble preamble, RtcmV3Header header, int week) : base(preamble, header)
+        public RtcmV3Message1002(RtcmV3Preamble preamble, RtcmV3ObservableHeader header, int week) : base(preamble, header)
         {
             _week = week;
         }
@@ -72,7 +93,7 @@ namespace Asv.Gnss
 
             var gpstime = RtcmV3Helper.GetFromGps(week, tow);
 
-            lasttow = tow;
+            var lasttow = tow;
             for (var a = 0; a < nsat; a++)
             {
                 var ob = new RtcmV3Observation();
@@ -86,7 +107,7 @@ namespace Asv.Gnss
                 i += 1;
                 ob.raw.pr1 = BitOperationHelper.GetBitU(buffer, i, 24);
                 i += 24;
-                ob.raw.ppr1 = getbits(buffer, i, 20);
+                ob.raw.ppr1 = BitOperationHelper.GetBits(buffer, i, 20);
                 i += 20;
                 ob.raw.lock1 = (byte)BitOperationHelper.GetBitU(buffer, i, 7);
                 i += 7;

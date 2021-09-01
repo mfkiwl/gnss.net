@@ -93,9 +93,9 @@ namespace Asv.Gnss
 
         private void ParsePacket(byte[] data, RtcmV3Preamble preamble)
         {
-            var head = new RtcmV3Header();
+            var head = new RtcmV3ObservableHeader();
             head.Deserialize(data);
-            RtcmV3MessageBase packet;
+            RtcmV3ObservableMessageBase packet;
             switch (head.MessageNumber)
             {
                 case 1002:

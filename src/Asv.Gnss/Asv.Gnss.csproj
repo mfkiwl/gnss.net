@@ -42,9 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Parsers\RTCMv3\RtcmV3Helper.cs" />
-    <Compile Include="Parsers\RTCMv3\RtcmV3Header.cs" />
+    <Compile Include="Parsers\RTCMv3\RtcmV3ObservableHeader.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\RtcmV3Message1002.cs" />
-    <Compile Include="Parsers\RTCMv3\Msgs\RtcmV3MessageBase.cs" />
+    <Compile Include="Parsers\RTCMv3\Msgs\RtcmV3ObservableMessageBase.cs" />
     <Compile Include="Tools\ISerializable.cs" />
     <Compile Include="Parsers\RTCMv3\RtcmV3Parser.cs" />
     <Compile Include="Tools\Crc24.cs" />
