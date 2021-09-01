@@ -10,16 +10,16 @@
         /// Serialize object to buffer
         /// </summary>
         /// <param name="buffer"></param>
-        /// <param name="offset"></param>
-        /// <returns>writed bytes</returns>
-        int Serialize(byte[] buffer, int offset);
+        /// <param name="offsetBits"></param>
+        /// <returns>writed bits!</returns>
+        uint Serialize(byte[] buffer, uint offsetBits);
         /// <summary>
         /// Deserialize object from buffer
         /// </summary>
         /// <param name="buffer"></param>
-        /// <param name="offset"></param>
-        /// <returns></returns>
-        int Deserialize(byte[] buffer, int offset);
+        /// <param name="offsetBits"></param>
+        /// <returns>readed bits! count</returns>
+        uint Deserialize(byte[] buffer, uint offsetBits);
     }
 
     
@@ -37,12 +37,12 @@
             return 1024 * 2;
         }
 
-        public int Serialize(byte[] buffer, int offset)
+        public uint Serialize(byte[] buffer, uint offset)
         {
             throw new System.NotImplementedException();
         }
 
-        public int Deserialize(byte[] buffer, int offset)
+        public uint Deserialize(byte[] buffer, uint offsetBits)
         {
             throw new System.NotImplementedException();
         }

@@ -327,5 +327,26 @@ namespace Asv.Gnss
                 data &= ~(1 << (int)(len - 1)); /* set sign bit */
             SetBitU(buff, pos, len, (uint)data);
         }
+
+        public static ushort GetRtcmV3PacketLength(byte[] buffer, uint offsetBits)
+        {
+            return (ushort)GetBitU(buffer, offsetBits + 14 /* preamble-8bit + reserved-6bit */, 10 /* length-10bit */);
+        }
+
+        public static uint CalculateCrc(byte[] buffer, uint payloadLength, uint offsetBits = 0)
+        {
+            return Crc24.Calc(buffer, offsetBits + payloadLength + 3 /* preamble-8bit + reserved-6bit + length-10bit */, 0);
+        }
+
+        public static ulong ReadCrc(byte[] buffer, uint payloadLength, uint offsetBits = 0)
+        {
+            return GetBitU(buffer, offsetBits + payloadLength * 8 /*bit in bytes*/, 24 /* crc length 3*8=24 bit*/);
+        }
+
+        public static ushort ReadMessageNumber(byte[] data, uint offsetBits = 0)
+        {
+            return (ushort)GetBitU(data, offsetBits + 24/* preamble-8bit + reserved-6bit + length-10bit */, 12);
+            
+        }
     }
 }
