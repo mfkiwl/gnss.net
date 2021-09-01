@@ -40,27 +40,27 @@ namespace Asv.Gnss
         {
             uint i = 24 + startIndex;
 
-            MessageNumber = (ushort)BitOperationHelper.GetBitU(buffer, i, 12);
+            MessageNumber = (ushort)RtcmV3Helper.GetBitU(buffer, i, 12);
             i += 12; /* message no */
-            ReferenceStationId = (ushort)BitOperationHelper.GetBitU(buffer, i, 12);
+            ReferenceStationId = (ushort)RtcmV3Helper.GetBitU(buffer, i, 12);
             i += 12; /* ref station id */
             if (MessageNumber < 1009 || MessageNumber > 1012)
             {
-                Epoch = BitOperationHelper.GetBitU(buffer, i, 30);
+                Epoch = RtcmV3Helper.GetBitU(buffer, i, 30);
                 i += 30; /* gps epoch time */
             }
             else
             {
-                Epoch = BitOperationHelper.GetBitU(buffer, i, 27);
+                Epoch = RtcmV3Helper.GetBitU(buffer, i, 27);
                 i += 27; /* glonass epoch time */
             }
-            Sync = (byte)BitOperationHelper.GetBitU(buffer, i, 1);
+            Sync = (byte)RtcmV3Helper.GetBitU(buffer, i, 1);
             i += 1; /* synchronous gnss flag */
-            NumberOfSat = (byte)BitOperationHelper.GetBitU(buffer, i, 5);
+            NumberOfSat = (byte)RtcmV3Helper.GetBitU(buffer, i, 5);
             i += 5; /* no of satellites */
-            SmoothIndicator = (byte)BitOperationHelper.GetBitU(buffer, i, 1);
+            SmoothIndicator = (byte)RtcmV3Helper.GetBitU(buffer, i, 1);
             i += 1; /* smoothing indicator */
-            SmoothInterval = (byte)BitOperationHelper.GetBitU(buffer, i, 3);
+            SmoothInterval = (byte)RtcmV3Helper.GetBitU(buffer, i, 3);
             i += 3; /* smoothing interval */
         }
 
@@ -68,19 +68,19 @@ namespace Asv.Gnss
         {
             uint i = 24;
 
-            BitOperationHelper.SetBitU(buffer, i, 12, MessageNumber);
+            RtcmV3Helper.SetBitU(buffer, i, 12, MessageNumber);
             i += 12; /* message no */
-            BitOperationHelper.SetBitU(buffer, i, 12, ReferenceStationId);
+            RtcmV3Helper.SetBitU(buffer, i, 12, ReferenceStationId);
             i += 12; /* ref station id */
-            BitOperationHelper.SetBitU(buffer, i, 30, Epoch);
+            RtcmV3Helper.SetBitU(buffer, i, 30, Epoch);
             i += 30; /* gps epoch time */
-            BitOperationHelper.SetBitU(buffer, i, 1, Sync);
+            RtcmV3Helper.SetBitU(buffer, i, 1, Sync);
             i += 1; /* synchronous gnss flag */
-            BitOperationHelper.SetBitU(buffer, i, 5, NumberOfSat);
+            RtcmV3Helper.SetBitU(buffer, i, 5, NumberOfSat);
             i += 5; /* no of satellites */
-            BitOperationHelper.SetBitU(buffer, i, 1, SmoothIndicator);
+            RtcmV3Helper.SetBitU(buffer, i, 1, SmoothIndicator);
             i += 1; /* smoothing indicator */
-            BitOperationHelper.SetBitU(buffer, i, 3, SmoothInterval);
+            RtcmV3Helper.SetBitU(buffer, i, 3, SmoothInterval);
             i += 3; /* smoothing interval */
         }
     }

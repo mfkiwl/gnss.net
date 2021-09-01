@@ -50,7 +50,6 @@
     <Compile Include="Tools\Crc24.cs" />
     <Compile Include="Parsers\IGnssParser.cs" />
     <Compile Include="Parsers\RTCMv3\RtcmV3Preamble.cs" />
-    <Compile Include="Tools\BitOperationHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

@@ -69,7 +69,7 @@ namespace Asv.Gnss
                     _buffer[_payloadByteReaded + 3] = data;
                     _payloadByteReaded += 3;
                     var originalCrc = Crc24.Calc(_buffer, _payloadByteReaded, 0);
-                    var sourceCrc = BitOperationHelper.GetBitU(_buffer, _payloadByteReaded * 8 /*bit in bytes*/,24 /* crc length 3 byte*/);
+                    var sourceCrc = RtcmV3Helper.GetBitU(_buffer, _payloadByteReaded * 8 /*bit in bytes*/,24 /* crc length 3 byte*/);
                     if (originalCrc == sourceCrc)
                     {
                         ParsePacket(_buffer, _preamble);

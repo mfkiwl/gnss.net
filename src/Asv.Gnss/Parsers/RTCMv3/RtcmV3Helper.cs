@@ -4,6 +4,7 @@ namespace Asv.Gnss
 {
     public static class RtcmV3Helper
     {
+        public const byte SyncByte = 0xD3;
         /// <summary>
         /// rtcm ver.3 unit of gps pseudorange (m)
         /// </summary>
@@ -190,6 +191,141 @@ namespace Asv.Gnss
             dif = time - datum.AddDays(weeks * 7);
 
             seconds = dif.TotalSeconds;
+        }
+
+        public static void ecef2pos(double[] r, ref double[] pos)
+        {
+            double e2 = FE_WGS84 * (2.0 - FE_WGS84), r2 = Dot(r, r, 2), z, zk, v = RE_WGS84, sinp;
+
+            for (z = r[2], zk = 0.0; Math.Abs(z - zk) >= 1E-4;)
+            {
+                zk = z;
+                sinp = z / Math.Sqrt(r2 + z * z);
+                v = RE_WGS84 / Math.Sqrt(1.0 - e2 * sinp * sinp);
+                z = r[2] + v * e2 * sinp;
+            }
+            pos[0] = r2 > 1E-12 ? Math.Atan(z / Math.Sqrt(r2)) : (r[2] > 0.0 ? Math.PI / 2.0 : -Math.PI / 2.0);
+            pos[1] = r2 > 1E-12 ? Math.Atan2(r[1], r[0]) : 0.0;
+            pos[2] = Math.Sqrt(r2 + z * z) - v;
+        }
+
+        public static void pos2ecef(double[] pos, ref double[] r)
+        {
+            double sinp = Math.Sin(pos[0]),
+                cosp = Math.Cos(pos[0]),
+                sinl = Math.Sin(pos[1]),
+                cosl = Math.Cos(pos[1]);
+            double e2 = FE_WGS84 * (2.0 - FE_WGS84), v = RE_WGS84 / Math.Sqrt(1.0 - e2 * sinp * sinp);
+
+            r[0] = (v + pos[2]) * cosp * cosl;
+            r[1] = (v + pos[2]) * cosp * sinl;
+            r[2] = (v * (1.0 - e2) + pos[2]) * sinp;
+        }
+
+        public static double Dot(double[] a, double[] b, int n)
+        {
+            var c = 0.0;
+
+            while (--n >= 0) c += a[n] * b[n];
+            return c;
+        }
+
+        public static uint GetBitU(byte[] buff, uint pos, uint len)
+        {
+            uint bits = 0;
+            uint i;
+            for (i = pos; i < pos + len; i++)
+                bits = (uint)((bits << 1) + ((buff[i / 8] >> (int)(7 - i % 8)) & 1u));
+            return bits;
+        }
+
+        public static void SetBitU(byte[] buff, uint pos, uint len, double data)
+        {
+            SetBitU(buff, pos, len, (uint)data);
+        }
+
+        public static void SetBitU(byte[] buff, uint pos, uint len, uint data)
+        {
+            var mask = 1u << (int)(len - 1);
+
+            if (len <= 0 || 32 < len) return;
+
+            for (var i = pos; i < pos + len; i++, mask >>= 1)
+            {
+                if ((data & mask) > 0)
+                    buff[i / 8] |= (byte)(1u << (int)(7 - i % 8));
+                else
+                    buff[i / 8] &= (byte)(~(1u << (int)(7 - i % 8)));
+            }
+        }
+
+        public static int GetBits(byte[] buff, uint pos, uint len)
+        {
+            var bits = GetBitU(buff, pos, len);
+            if (len <= 0 || 32 <= len || !((bits & (1u << (int)(len - 1))) != 0))
+                return (int)bits;
+            return (int)(bits | (~0u << (int)len)); /* extend sign */
+        }
+
+        /// <summary>
+        /// Carrier-phase - Pseudorange in cycle
+        /// </summary>
+        /// <param name="cp">carrier-phase</param>
+        /// <param name="pr_cyc">pseudorange in cycle</param>
+        /// <returns></returns>
+        public static double CarrierPhasePseudorange(double cp, double pr_cyc)
+        {
+            var x = (cp - pr_cyc + 1500.0) % 3000.0;
+            if (x < 0)
+                x += 3000;
+            x -= 1500.0;
+            return x;
+        }
+
+
+        public static double ROUND(double x)
+        {
+            return (int)Math.Floor(x + 0.5);
+        }
+
+        /* carrier-phase - pseudorange in cycle --------------------------------------*/
+
+        public static double cp_pr(double cp, double pr_cyc)
+        {
+            var x = (cp - pr_cyc + 1500.0) % 3000.0;
+            if (x < 0)
+                x += 3000;
+            x -= 1500.0;
+            return x;
+        }
+
+        public static double GetBits38(byte[] buff, uint pos)
+        {
+            return GetBits(buff, pos, 32) * 64.0 + GetBitU(buff, pos + 32, 6);
+        }
+
+     
+
+        public static void set38bits(byte[] buff, uint pos, double value)
+        {
+            var word_h = (int)Math.Floor(value / 64.0);
+            var word_l = (uint)(value - word_h * 64.0);
+            SetBits(buff, pos, 32, word_h);
+            SetBitU(buff, pos + 32, 6, word_l);
+        }
+
+        public static void SetBits(byte[] buff, uint pos, uint len, double data)
+        {
+            SetBits(buff, pos, len, (int)data);
+        }
+
+        public static void SetBits(byte[] buff, uint pos, uint len, int data)
+        {
+            if (data < 0)
+                data |= 1 << (int)(len - 1);
+            else
+                data &= ~(1 << (int)(len - 1)); /* set sign bit */
+            SetBitU(buff, pos, len, (uint)data);
         }
     }
 }
