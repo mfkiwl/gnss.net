@@ -23,7 +23,7 @@ namespace Asv.Gnss
 
         private State _state;
         private ushort _payloadReadedBytes;
-        private ushort _payloadLength;
+        private uint _payloadLength;
         private readonly Subject<GnssParserException> _onErrorSubject = new Subject<GnssParserException>();
         private readonly Subject<GnssMessageBase> _onMessage = new Subject<GnssMessageBase>();
         private readonly Dictionary<ushort, Func<RtcmV3MessageBase>> _dict = new Dictionary<ushort, Func<RtcmV3MessageBase>>();
@@ -61,28 +61,31 @@ namespace Asv.Gnss
                     break;
                 case State.Payload:
                     // read payload
-                    _buffer[3 + _payloadReadedBytes] = data;
-                    ++_payloadReadedBytes;
-                    if (_payloadReadedBytes == _payloadLength)
+                    if (_payloadReadedBytes < _payloadLength)
+                    {
+                        _buffer[_payloadReadedBytes + 3] = data;
+                        ++_payloadReadedBytes;
+                    }
+                    else
                     {
                         _state = State.Crc1;
+                        goto case State.Crc1;
                     }
                     break;
                 case State.Crc1:
                     _buffer[_payloadReadedBytes + 3] = data;
-                    ++_payloadReadedBytes;
                     _state = State.Crc2;
                     break;
                 case State.Crc2:
-                    _buffer[_payloadReadedBytes + 3] = data;
-                    ++_payloadReadedBytes;
+                    _buffer[_payloadReadedBytes + 3 + 1] = data;
                     _state = State.Crc3;
                     break;
                 case State.Crc3:
-                    _buffer[_payloadReadedBytes + 3] = data;
+                    _buffer[_payloadReadedBytes + 3 + 2] = data;
+                    _payloadLength = _payloadLength + 3;
                     
-                    var originalCrc = RtcmV3Helper.CalculateCrc(_buffer, _payloadLength);
-                    var sourceCrc = RtcmV3Helper.ReadCrc(_buffer, _payloadLength);
+                    var originalCrc = Crc24.Calc(_buffer, _payloadLength, 0);
+                    var sourceCrc = RtcmV3Helper.GetBitU(_buffer,_payloadLength * 8,24);
                     if (originalCrc == sourceCrc)
                     {
                         ParsePacket(_buffer);
