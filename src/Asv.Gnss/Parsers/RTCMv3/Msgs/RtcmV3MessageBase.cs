@@ -2,19 +2,19 @@
 
 namespace Asv.Gnss
 {
-    public abstract class RtcmV3MessageBase:ISerializable
+    public abstract class RtcmV3MessageBase: GnssMessageBase
     {
-        public int GetMaxByteSize()
+        public override int GetMaxByteSize()
         {
             return 1024 /* MAX LENGTH */ + 6 /* preamble-8bit + reserved-6bit + length-10bit + crc length 3*8=24 bit */;
         }
 
-        public virtual uint Serialize(byte[] buffer, uint offsetBits = 0)
+        public override uint Serialize(byte[] buffer, uint offsetBits = 0)
         {
             throw new NotImplementedException();
         }
 
-        public virtual uint Deserialize(byte[] buffer, uint offsetBits = 0)
+        public override uint Deserialize(byte[] buffer, uint offsetBits = 0)
         {
             var bitIndex = offsetBits;
             var preamble = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 8); bitIndex += 8;
@@ -23,7 +23,7 @@ namespace Asv.Gnss
                 throw new Exception($"Deserialization RTCMv3 message failed: want {RtcmV3Helper.SyncByte:X}. Read {preamble:X}");
             }
             Reserved = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 6); bitIndex+=6;
-            var messageLength = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 10); bitIndex += 6;
+            var messageLength = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 10); bitIndex += 10;
             if (messageLength > (buffer.Length - 3 /* crc 24 bit*/))
             {
                 throw new Exception($"Deserialization RTCMv3 message failed: length too small. Want '{messageLength}'. Read = '{buffer.Length}'");
@@ -49,7 +49,8 @@ namespace Asv.Gnss
         {
             var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
             ReferenceStationID = RtcmV3Helper.GetBitU(buffer, bitIndex, 12); bitIndex+=12;
-            GPSEpochTimeTOW = RtcmV3Helper.GetBitU(buffer, bitIndex, 12); bitIndex += 12;
+            //GPSEpochTimeTOW = RtcmV3Helper.GetBitU(buffer, bitIndex, 12); bitIndex += 12;
+            return bitIndex - offsetBits;
         }
         /// <summary>
         /// The Reference Station ID is determined by the service provider. Its 

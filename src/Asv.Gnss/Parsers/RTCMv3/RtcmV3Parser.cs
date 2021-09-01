@@ -6,10 +6,7 @@ namespace Asv.Gnss
 {
     public class RtcmV3Parser:IGnssParser
     {
-        public RtcmV3Parser()
-        {
-            
-        }
+        public const string GnssProtocolId = "RTCMv3";
 
         private readonly byte[] _buffer = new byte[1024 * 4];
 
@@ -28,12 +25,13 @@ namespace Asv.Gnss
         private ushort _payloadReadedBytes;
         private ushort _payloadLength;
         private readonly Subject<GnssParserException> _onErrorSubject = new Subject<GnssParserException>();
+        private readonly Subject<GnssMessageBase> _onMessage = new Subject<GnssMessageBase>();
         private readonly Dictionary<ushort, Func<RtcmV3MessageBase>> _dict = new Dictionary<ushort, Func<RtcmV3MessageBase>>();
         private int _unknownMessageId;
         private int _crcErrors;
         private int _deserializePacketError;
 
-        public string ProtocolId => "RTCMv3";
+        public string ProtocolId => GnssProtocolId;
 
         public bool Read(byte data)
         {
@@ -53,7 +51,7 @@ namespace Asv.Gnss
                 case State.Preamb2:
                     _buffer[2] = data;
                     _state = State.Payload;
-                    _payloadLength = RtcmV3Helper.GetRtcmV3PacketLength(_buffer);
+                    _payloadLength = RtcmV3Helper.GetRtcmV3PacketLength(_buffer,0);
                     _payloadReadedBytes = 0;
                     if (_payloadLength > _buffer.Length)
                     {
@@ -138,20 +136,22 @@ namespace Asv.Gnss
         }
 
         public IObservable<GnssParserException> OnError => _onErrorSubject;
+        public IObservable<GnssMessageBase> OnMessage => _onMessage;
 
         public void Dispose()
         {
-            _onErrorSubject?.Dispose();
+            _onErrorSubject.Dispose();
+            _onMessage.Dispose();
         }
-    }
+    };
 
 
 
     public static class CommonHelper
     {
-        public static void RegisterDefaultFrames(this RtcmV3Parser src)
+        public static RtcmV3Parser RegisterDefaultFrames(this RtcmV3Parser src)
         {
-            src.Register();
+            return src;
         }
     }
 }

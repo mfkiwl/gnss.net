@@ -328,7 +328,7 @@ namespace Asv.Gnss
             SetBitU(buff, pos, len, (uint)data);
         }
 
-        public static ushort GetRtcmV3PacketLength(byte[] buffer, uint offsetBits)
+        public static ushort GetRtcmV3PacketLength(byte[] buffer, uint offsetBits = 0)
         {
             return (ushort)GetBitU(buffer, offsetBits + 14 /* preamble-8bit + reserved-6bit */, 10 /* length-10bit */);
         }
