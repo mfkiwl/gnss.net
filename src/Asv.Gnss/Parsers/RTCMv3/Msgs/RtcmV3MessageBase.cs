@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace Asv.Gnss
 {
@@ -28,7 +29,7 @@ namespace Asv.Gnss
             {
                 throw new Exception($"Deserialization RTCMv3 message failed: length too small. Want '{messageLength}'. Read = '{buffer.Length}'");
             }
-            var msgId = (byte) RtcmV3Helper.GetBitU(buffer, bitIndex, 12); bitIndex += 12;
+            var msgId = RtcmV3Helper.GetBitU(buffer, bitIndex, 12); bitIndex += 12;
             if (msgId != MessageId)
             {
                 throw new Exception($"Deserialization RTCMv3 message failed: want message number '{MessageId}'. Read = '{msgId}'");
@@ -74,6 +75,4 @@ namespace Asv.Gnss
         /// </summary>
         public uint ReferenceStationID { get; set; }
     }
-
-
 }

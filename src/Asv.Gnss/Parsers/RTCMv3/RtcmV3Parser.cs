@@ -8,7 +8,7 @@ namespace Asv.Gnss
     {
         public const string GnssProtocolId = "RTCMv3";
 
-        private readonly byte[] _buffer = new byte[1024 * 4];
+        private readonly byte[] _buffer = new byte[1024 * 6];
 
         private enum State
         {
@@ -25,6 +25,12 @@ namespace Asv.Gnss
         private ushort _payloadReadedBytes;
         private uint _payloadLength;
         private readonly Dictionary<ushort, Func<RtcmV3MessageBase>> _dict = new Dictionary<ushort, Func<RtcmV3MessageBase>>();
+        private IDiagnosticSource _diag;
+
+        public RtcmV3Parser(IDiagnostic diag)
+        {
+            _diag = diag[GnssProtocolId];
+        }
 
         public override string ProtocolId => GnssProtocolId;
 
@@ -87,6 +93,7 @@ namespace Asv.Gnss
                     }
                     else
                     {
+                        _diag.Int["crc err"]++;
                         InternalOnError(new GnssParserException(ProtocolId,$"RTCMv3 crc error"));
                     }
                     Reset();
@@ -107,8 +114,10 @@ namespace Asv.Gnss
         private void ParsePacket(byte[] data)
         {
             var msgNumber = RtcmV3Helper.ReadMessageNumber(data);
+            _diag.Speed[msgNumber.ToString()].Increment(1);
             if (_dict.TryGetValue(msgNumber, out var factory) == false)
             {
+                _diag.Int["unk err"]++;
                 InternalOnError(new GnssParserException(ProtocolId, $"Unknown RTCMv3 packet message number [MSG={msgNumber}]"));
                 return;
             }
@@ -121,6 +130,7 @@ namespace Asv.Gnss
             }
             catch (Exception e)
             {
+                _diag.Int["parse err"]++;
                 InternalOnError(new GnssParserException(ProtocolId, $"Parse RTCMv3 packet error [MSG={msgNumber}]",e));
             }
 
@@ -130,6 +140,7 @@ namespace Asv.Gnss
             }
             catch (Exception e)
             {
+                _diag.Int["pub err"]++;
                 InternalOnError(new GnssParserException(ProtocolId, $"Parse RTCMv3 packet error [MSG={msgNumber}]",e));
             }
             
@@ -140,6 +151,10 @@ namespace Asv.Gnss
             _state = State.Sync;
         }
 
-       
+        public override void Dispose()
+        {
+            base.Dispose();
+            _diag.Dispose();
+        }
     };
 }

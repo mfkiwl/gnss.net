@@ -14,7 +14,12 @@ namespace Asv.Gnss
         private byte[] crcBuffer = new byte[2];
         private int _msgReaded;
         private readonly Dictionary<string, Func<Nmea0183MessageBase>> _dict = new Dictionary<string, Func<Nmea0183MessageBase>>();
+        private IDiagnosticSource _diag;
 
+        public Nmea0183Parser(IDiagnostic diagnostic)
+        {
+            _diag = diagnostic[GnssProtocolId];
+        }
 
         public override string ProtocolId => GnssProtocolId;
 
@@ -27,6 +32,8 @@ namespace Asv.Gnss
             End1,
             End2,
         }
+
+
 
         public override bool Read(byte data)
         {
@@ -46,7 +53,7 @@ namespace Asv.Gnss
                     }
                     else
                     {
-                        if (_msgReaded >= (_buffer.Length + 2))
+                        if (_msgReaded >= (_buffer.Length - 2))
                         {
                             // oversize
                             _state = State.Sync;
@@ -90,6 +97,7 @@ namespace Asv.Gnss
                     }
                     else
                     {
+                        _diag.Int["crc err"]++;
                         InternalOnError(new GnssParserException(ProtocolId, $"NMEA crc error:'{strMessage}'"));
                     }
                     Reset();
@@ -103,8 +111,12 @@ namespace Asv.Gnss
         private void ParseMessage(string strMessage)
         {
             var msgId = strMessage.Substring(2, 3).ToUpper();
+
+            _diag.Speed[msgId].Increment(1);
+
             if (_dict.TryGetValue(msgId, out var factory) == false)
             {
+                _diag.Int["unkn"]++;
                 InternalOnError(new GnssParserException(ProtocolId, $"Unknown {ProtocolId} packet message number [MSG={msgId}]:'{strMessage}'"));
                 return;
             }
@@ -116,6 +128,7 @@ namespace Asv.Gnss
             }
             catch (Exception e)
             {
+                _diag.Int["parse err"]++;
                 InternalOnError(new GnssParserException(ProtocolId, $"Parse RTCMv3 packet error [MSG={msgId}]:'{strMessage}':{e.Message}",e));
             }
 
@@ -125,6 +138,7 @@ namespace Asv.Gnss
             }
             catch (Exception e)
             {
+                _diag.Int["pub err"]++;
                 InternalOnError(new GnssParserException(ProtocolId, $"Parse RTCMv3 packet error [MSG={msgId}]:'{strMessage}':{e.Message}",e));
             }
         }
@@ -157,6 +171,12 @@ namespace Asv.Gnss
         public override void Reset()
         {
             _state = State.Sync;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            _diag.Dispose();
         }
     }
 }

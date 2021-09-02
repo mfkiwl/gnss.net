@@ -699,6 +699,45 @@ namespace Asv.Gnss
         }
 
         #endregion
+
+        public static string DrawProgress(double value, int width)
+        {
+            return DrawProgress(value, width, "█", "░");
+            
+        }
+
+        /// <summary>
+        /// Возвращает строку с отрисованным индикатором процесса. value = от 0 до 1. width - длинна поля в символах. Символы отрисовки можно задать.
+        /// Пример: ██████░░░░░░ 50%
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="width"></param>
+        /// <param name="fill"></param>
+        /// <param name="empty"></param>
+        /// <returns></returns>
+        public static string DrawProgress(double value, int width, string fill, string empty)
+        {
+            const int LabelWidth = 4;
+            const int MinWidth = LabelWidth + 2;
+            if (width < MinWidth)
+                throw new Exception($"{nameof(width)} mast be more then {MinWidth}");
+
+            var realWidth = width - LabelWidth;
+            var w1 = (int)(value * realWidth);
+            var w2 = realWidth - w1;
+            var sb = new StringBuilder();
+            for (int i = 0; i < w1; i++)
+            {
+                sb.Append(fill);
+            }
+            for (int i = 0; i < w2; i++)
+            {
+                sb.Append(empty);
+            }
+            sb.Append(((int)(value * 100) + "%").PadLeft(LabelWidth));
+            return sb.ToString();
+        }
     }
+
 }
 

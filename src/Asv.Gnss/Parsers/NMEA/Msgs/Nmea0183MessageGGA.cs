@@ -72,7 +72,7 @@ namespace Asv.Gnss
         /// <summary>
         ///  Antenna Altitude above/below mean-sea-level (geoid)
         /// </summary>
-        public object AntennaAltitudeMsl { get; set; }
+        public double AntennaAltitudeMsl { get; set; }
 
         /// <summary>
         ///  Horizontal Dilution of precision

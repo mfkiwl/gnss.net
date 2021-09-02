@@ -86,14 +86,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Parsers\GnssConnection.cs" />
     <Compile Include="Parsers\GnssMessageBase.cs" />
     <Compile Include="Parsers\GnssParserException.cs" />
+    <Compile Include="Parsers\IGnssConnection.cs" />
     <Compile Include="Parsers\NMEA\Msgs\Nmea0183Helper.cs" />
     <Compile Include="Parsers\NMEA\Msgs\Nmea0183MessageBase.cs" />
     <Compile Include="Parsers\NMEA\Msgs\Nmea0183MessageGGA.cs" />
     <Compile Include="Parsers\NMEA\Nmea0183Parser.cs" />
     <Compile Include="Parsers\GnssParserBase.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\RtcmV3MessageBase.cs" />
+    <Compile Include="Parsers\RTCMv3\Msgs\MSM\RtcmV3MSM4.cs" />
+    <Compile Include="Parsers\RTCMv3\Msgs\MSM\RtcmV3MultipleSignalMessagesBase.cs" />
     <Compile Include="Parsers\RTCMv3\RtcmV3Helper.cs" />
     <Compile Include="Ports\IPort.cs" />
     <Compile Include="Ports\PortBase.cs" />
@@ -107,6 +111,15 @@
     <Compile Include="Tools\Configuration\IConfiguration.cs" />
     <Compile Include="Tools\Configuration\Json\JsonConfiguration.cs" />
     <Compile Include="Tools\Configuration\Json\JsonOneFileConfiguration.cs" />
+    <Compile Include="Tools\Diagnostic\DiagnosticKey.cs" />
+    <Compile Include="Tools\Diagnostic\DiagnosticSource.cs" />
+    <Compile Include="Tools\Diagnostic\DoubleDiagnostic.cs" />
+    <Compile Include="Tools\Diagnostic\IDiagnosticSource.cs" />
+    <Compile Include="Tools\Diagnostic\IntegerDiagnostic.cs" />
+    <Compile Include="Tools\Diagnostic\IDiagnostic.cs" />
+    <Compile Include="Tools\Diagnostic\Diagnostic.cs" />
+    <Compile Include="Tools\Diagnostic\SpeedIndicator.cs" />
+    <Compile Include="Tools\Diagnostic\StringDiagnostic.cs" />
     <Compile Include="Tools\ISerializable.cs" />
     <Compile Include="Parsers\RTCMv3\RtcmV3Parser.cs" />
     <Compile Include="Tools\Crc24.cs" />
@@ -118,6 +131,7 @@
     <Compile Include="Tools\RxValue\RxValue.cs" />
     <Compile Include="Tools\SingleThreadTaskScheduler.cs" />
     <Compile Include="Tools\StringExtensions.cs" />
+    <Compile Include="Tools\TextTable.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

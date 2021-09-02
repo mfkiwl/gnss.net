@@ -26,7 +26,7 @@ namespace Asv.Gnss
         public IObservable<GnssParserException> OnError => _onErrorSubject;
         public IObservable<GnssMessageBase> OnMessage => _onMessageSubject;
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _onErrorSubject?.Dispose();
             _onMessageSubject?.Dispose();
