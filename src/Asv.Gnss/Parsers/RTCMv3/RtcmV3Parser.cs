@@ -8,7 +8,7 @@ namespace Asv.Gnss
     {
         public const string GnssProtocolId = "RTCMv3";
 
-        private readonly byte[] _buffer = new byte[1024 * 4];
+        private readonly byte[] _buffer = new byte[1024 * 6];
 
         private enum State
         {
@@ -32,6 +32,14 @@ namespace Asv.Gnss
         private int _deserializePacketError;
 
         public string ProtocolId => GnssProtocolId;
+
+        public RtcmV3Parser()
+        {
+            Register(() => new RtcmV3MSM4(1074));
+            Register(() => new RtcmV3MSM4(1084));
+            Register(() => new RtcmV3MSM4(1094));
+            Register(() => new RtcmV3MSM4(1124));
+        }
 
         public bool Read(byte data)
         {
