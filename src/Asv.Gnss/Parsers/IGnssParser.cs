@@ -98,4 +98,19 @@ namespace Asv.Gnss
 
 
 
+    public static class ParserHelper
+    {
+        public static RtcmV3Parser RegisterDefaultFrames(this RtcmV3Parser src)
+        {
+            return src;
+        }
+
+        public static Nmea0183Parser RegisterDefaultFrames(this Nmea0183Parser src)
+        {
+            src.Register(()=>new Nmea0183MessageGGA());
+            return src;
+        }
+    }
+
+
 }

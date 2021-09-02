@@ -88,6 +88,11 @@
   <ItemGroup>
     <Compile Include="Parsers\GnssMessageBase.cs" />
     <Compile Include="Parsers\GnssParserException.cs" />
+    <Compile Include="Parsers\NMEA\Msgs\Nmea0183Helper.cs" />
+    <Compile Include="Parsers\NMEA\Msgs\Nmea0183MessageBase.cs" />
+    <Compile Include="Parsers\NMEA\Msgs\Nmea0183MessageGGA.cs" />
+    <Compile Include="Parsers\NMEA\Nmea0183Parser.cs" />
+    <Compile Include="Parsers\GnssParserBase.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\RtcmV3MessageBase.cs" />
     <Compile Include="Parsers\RTCMv3\RtcmV3Helper.cs" />
     <Compile Include="Ports\IPort.cs" />

@@ -4,7 +4,7 @@ using System.Reactive.Subjects;
 
 namespace Asv.Gnss
 {
-    public class RtcmV3Parser:IGnssParser
+    public class RtcmV3Parser: GnssParserBase
     {
         public const string GnssProtocolId = "RTCMv3";
 
@@ -24,16 +24,11 @@ namespace Asv.Gnss
         private State _state;
         private ushort _payloadReadedBytes;
         private uint _payloadLength;
-        private readonly Subject<GnssParserException> _onErrorSubject = new Subject<GnssParserException>();
-        private readonly Subject<GnssMessageBase> _onMessage = new Subject<GnssMessageBase>();
         private readonly Dictionary<ushort, Func<RtcmV3MessageBase>> _dict = new Dictionary<ushort, Func<RtcmV3MessageBase>>();
-        private int _unknownMessageId;
-        private int _crcErrors;
-        private int _deserializePacketError;
 
-        public string ProtocolId => GnssProtocolId;
+        public override string ProtocolId => GnssProtocolId;
 
-        public bool Read(byte data)
+        public override bool Read(byte data)
         {
             switch (_state)
             {
@@ -92,8 +87,7 @@ namespace Asv.Gnss
                     }
                     else
                     {
-                        _crcErrors++;
-                        _onErrorSubject.OnNext(new GnssParserException(ProtocolId,$"Crc error [total={_crcErrors}]"));
+                        InternalOnError(new GnssParserException(ProtocolId,$"RTCMv3 crc error"));
                     }
                     Reset();
                     return true;
@@ -115,8 +109,7 @@ namespace Asv.Gnss
             var msgNumber = RtcmV3Helper.ReadMessageNumber(data);
             if (_dict.TryGetValue(msgNumber, out var factory) == false)
             {
-                _onErrorSubject.OnNext(new GnssParserException(ProtocolId, $"Unknown RTCMv3 packet message number [MSG={msgNumber}]"));
-                ++_unknownMessageId;
+                InternalOnError(new GnssParserException(ProtocolId, $"Unknown RTCMv3 packet message number [MSG={msgNumber}]"));
                 return;
             }
 
@@ -124,37 +117,29 @@ namespace Asv.Gnss
                 
             try
             {
-                message.Deserialize(data,0);
+                message.Deserialize(data);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                _deserializePacketError++;
-                _onErrorSubject.OnNext(new GnssParserException(ProtocolId, $"Parse RTCMv3 packet error [MSG={msgNumber}]"));
+                InternalOnError(new GnssParserException(ProtocolId, $"Parse RTCMv3 packet error [MSG={msgNumber}]",e));
             }
+
+            try
+            {
+                InternalOnMessage(message);
+            }
+            catch (Exception e)
+            {
+                InternalOnError(new GnssParserException(ProtocolId, $"Parse RTCMv3 packet error [MSG={msgNumber}]",e));
+            }
+            
         }
 
-        public void Reset()
+        public override void Reset()
         {
             _state = State.Sync;
         }
 
-        public IObservable<GnssParserException> OnError => _onErrorSubject;
-        public IObservable<GnssMessageBase> OnMessage => _onMessage;
-
-        public void Dispose()
-        {
-            _onErrorSubject.Dispose();
-            _onMessage.Dispose();
-        }
+       
     };
-
-
-
-    public static class CommonHelper
-    {
-        public static RtcmV3Parser RegisterDefaultFrames(this RtcmV3Parser src)
-        {
-            return src;
-        }
-    }
 }
