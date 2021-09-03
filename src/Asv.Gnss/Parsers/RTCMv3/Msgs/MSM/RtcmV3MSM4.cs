@@ -32,40 +32,48 @@ namespace Asv.Gnss
             var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
             var nCell = CellMask.Count(_ => _ > 0);
 
-            var r = new double[Satellites.Length];
+            // Satellite data Nsat*(8 + 10) bit
+            var r = new double[SatelliteIds.Length];
+
+            // Signal data
+            // Pseudoranges 15*Ncell
             var pr = new double[nCell];
+            // PhaseRange data 22*Ncell
             var cp = new double[nCell];
+            // signal CNRs 6*Ncell
             var cnr = new double[nCell];
 
+            //PhaseRange LockTime Indicator 4*Ncell
             var @lock = new uint[nCell];
+            //Half-cycle ambiguityindicator 1*Ncell
             var half = new uint[nCell];
 
-            for (var i = 0; i < Satellites.Length; i++) r[i] = 0.0;
+            for (var i = 0; i < SatelliteIds.Length; i++) r[i] = 0.0;
             for (var i = 0; i < nCell; i++) pr[i] = cp[i] = -1E16;
 
-            /* decode satellite data */
-            for (var j = 0; j < Satellites.Length; j++)
+            /* decode satellite data, rough ranges */
+            for (var i = 0; i < SatelliteIds.Length; i++)
             {
                 /* range */
                 var rng = RtcmV3Helper.GetBitU(buffer, bitIndex, 8);
                 bitIndex += 8;
-                if (rng != 255) r[j] = rng * RtcmV3Helper.RANGE_MS;
+                if (rng != 255) r[i] = rng * RtcmV3Helper.RANGE_MS;
             }
 
-            for (var j = 0; j < Satellites.Length; j++)
+            for (var i = 0; i < SatelliteIds.Length; i++)
             {
                 var rngM = RtcmV3Helper.GetBitU(buffer, bitIndex, 10);
                 bitIndex += 10;
-                if (r[j] != 0.0) r[j] += rngM * RtcmV3Helper.P2_10 * RtcmV3Helper.RANGE_MS;
+                if (r[i] != 0.0) r[i] += rngM * RtcmV3Helper.P2_10 * RtcmV3Helper.RANGE_MS;
             }
 
             /* decode signal data */
-            for (var j = 0; j < nCell; j++)
+            for (var i = 0; i < nCell; i++)
             {
                 /* pseudorange */
                 var prv = RtcmV3Helper.GetBits(buffer, bitIndex, 15);
                 bitIndex += 15;
-                if (prv != -16384) pr[j] = prv * RtcmV3Helper.P2_24 * RtcmV3Helper.RANGE_MS;
+                if (prv != -16384) pr[i] = prv * RtcmV3Helper.P2_24 * RtcmV3Helper.RANGE_MS;
             }
 
             for (var j = 0; j < nCell; j++)
@@ -102,72 +110,73 @@ namespace Asv.Gnss
 
         private void CreateMsmObservable(double[] r, double[] pr, double[] cp, double[] cnr)
         {
-            var sig = new string[Signals.Length];
-            var code = new byte[Signals.Length];
-            var idx = new int[Signals.Length];
+            var sig = new string[SignalIds.Length];
+            var code = new byte[SignalIds.Length];
+            var idx = new int[SignalIds.Length];
             var q = string.Empty;
+            var msm_type = string.Empty;
 
 
             var sys = RtcmV3Helper.GetNavigationSystem(MessageId);
             switch (sys)
             {
                 case NavigationSystemEnum.SYS_GPS:
-                    // msm_type=q=rtcm->msmtype[0];
+                    msm_type = "G";//q=rtcm->msmtype[0];
                     break;
                 case NavigationSystemEnum.SYS_SBS:
-                    // SYS_SBS: msm_type=q=rtcm->msmtype[4];
+                    msm_type = q = "R";//rtcm->msmtype[4];
                     break;
                 case NavigationSystemEnum.SYS_GLO:
-                    // msm_type=q=rtcm->msmtype[1];
+                    msm_type = q = "";//rtcm->msmtype[1];
                     break;
                 case NavigationSystemEnum.SYS_GAL:
-                    // msm_type=q=rtcm->msmtype[2];
+                    msm_type=q = "";//rtcm->msmtype[2];
                     break;
                 case NavigationSystemEnum.SYS_QZS:
-                    // msm_type=q=rtcm->msmtype[3];
+                    msm_type=q = "";//rtcm->msmtype[3];
                     break;
                 case NavigationSystemEnum.SYS_CMP:
-                    // SYS_CMP: msm_type=q=rtcm->msmtype[5];
+                    msm_type=q = "";//rtcm->msmtype[5];
                     break;
                 case NavigationSystemEnum.SYS_IRN:
-                    // msm_type = q = rtcm->msmtype[6];
+                    msm_type = q = "";//rtcm->msmtype[6];
                     break;
                 default:
                     // msm_type = q = "";
                     break;
             }
 
-            for (var i = 0; i < Signals.Length; i++)
+            for (var i = 0; i < SignalIds.Length; i++)
             {
                 switch (sys)
                 {
                     case NavigationSystemEnum.SYS_GPS:
                         // msm_type=q=rtcm->msmtype[0];
-                        sig[i] = RtcmV3Helper.msm_sig_gps[Signals[i] - 1];
+                        sig[i] = RtcmV3Helper.msm_sig_gps[SignalIds[i] - 1];
                         break;
                     case NavigationSystemEnum.SYS_SBS:
                         // SYS_SBS: msm_type=q=rtcm->msmtype[4];
-                        sig[i] = RtcmV3Helper.msm_sig_sbs[Signals[i] - 1];
+                        sig[i] = RtcmV3Helper.msm_sig_sbs[SignalIds[i] - 1];
                         break;
                     case NavigationSystemEnum.SYS_GLO:
                         // msm_type=q=rtcm->msmtype[1];
-                        sig[i] = RtcmV3Helper.msm_sig_glo[Signals[i] - 1];
+                        sig[i] = RtcmV3Helper.msm_sig_glo[SignalIds[i] - 1];
                         break;
                     case NavigationSystemEnum.SYS_GAL:
                         // msm_type=q=rtcm->msmtype[2];
-                        sig[i] = RtcmV3Helper.msm_sig_gal[Signals[i] - 1];
+                        sig[i] = RtcmV3Helper.msm_sig_gal[SignalIds[i] - 1];
                         break;
                     case NavigationSystemEnum.SYS_QZS:
                         // msm_type=q=rtcm->msmtype[3];
-                        sig[i] = RtcmV3Helper.msm_sig_qzs[Signals[i] - 1];
+                        sig[i] = RtcmV3Helper.msm_sig_qzs[SignalIds[i] - 1];
                         break;
                     case NavigationSystemEnum.SYS_CMP:
                         // SYS_CMP: msm_type=q=rtcm->msmtype[5];
-                        sig[i] = RtcmV3Helper.msm_sig_cmp[Signals[i] - 1];
+                        sig[i] = RtcmV3Helper.msm_sig_cmp[SignalIds[i] - 1];
                         break;
                     case NavigationSystemEnum.SYS_IRN:
                         // msm_type = q = rtcm->msmtype[6];
-                        sig[i] = RtcmV3Helper.msm_sig_irn[Signals[i] - 1];
+                        sig[i] = RtcmV3Helper.msm_sig_irn[SignalIds[i] - 1];
                         break;
                     default:
                         sig[i] = "";
@@ -182,24 +191,24 @@ namespace Asv.Gnss
                 if (code[i] != RtcmV3Helper.CODE_NONE)
                 {
                     // if (q)
-                    q += $"L{sig[i]}{(i < Signals.Length - 1 ? ", " : "")}";
+                    q += $"L{sig[i]}{(i < SignalIds.Length - 1 ? ", " : "")}";
                 }
                 else
                 {
                     // if (q)
-                    q += $"({Signals[i]}){(i < Signals.Length - 1 ? "," : "")}";
+                    q += $"({SignalIds[i]}){(i < SignalIds.Length - 1 ? "," : "")}";
                 }
             }
 
             /* get signal index */
-            RtcmV3Helper.sigindex(sys, code, Signals.Length, "", idx);
+            RtcmV3Helper.sigindex(sys, code, SignalIds.Length, "", idx);
 
             var obs = new List<MsmItem>();
             
-            for (var i = 0; i < Satellites.Length; i++)
+            for (var i = 0; i < SatelliteIds.Length; i++)
             {
                 var j = 0;
-                var prn = Satellites[i];
+                var prn = SatelliteIds[i];
                 if (sys == NavigationSystemEnum.SYS_QZS) prn += RtcmV3Helper.MINPRNQZS - 1;
                 else if (sys == NavigationSystemEnum.SYS_SBS) prn += RtcmV3Helper.MINPRNSBS - 1;
                 int sat;
@@ -216,11 +225,11 @@ namespace Asv.Gnss
                 var carrierPhases = new List<double>();
                 var codes = new List<byte>();
                 var snrs = new List<ushort>();
-                for (var k = 0; k < Signals.Length; k++)
+                for (var k = 0; k < SignalIds.Length; k++)
                 {
-                    if (CellMask[k + i * Signals.Length] == 0) continue;
+                    if (CellMask[k + i * SignalIds.Length] == 0) continue;
 
-                    if (sat != 0 && idx[k] >= 0)
+                    if (sat != 0 /* && idx[k] >= 0 */)
                     {
                         /* pseudorange (m) */
                         if (r[i] != 0.0 && pr[j] > -1E12)
@@ -251,8 +260,50 @@ namespace Asv.Gnss
         }
 
         public MsmItem[] ObsSatellites { get; set; }
+        public Satellite[] Satellites { get; set; }
 
         public override ushort MessageId { get; }
+
+    }
+
+
+    public class Satellite
+    {
+        public byte SatellitePrn { get; set; }
+        public Signal[] Signals { get; set; }
+    }
+
+    public class Signal
+    {
+        public byte Id { get; set; }
+        public string FrequencyBand { get; set; }
+        public string SignalName { get; set; }
+        public string RinexCode { get; set; }
+        
+        /// <summary>
+        /// Observation data PseudoRange (m)
+        /// </summary>
+        public double PseudoRange { get; set; }
+
+        /// <summary>
+        /// Observation data carrier-phase (cycle)
+        /// </summary>
+        public double CarrierPhase { get; set; }
+
+        /// <summary>
+        /// Signal strength (0.001 dBHz)
+        /// </summary>
+        public ushort Snr { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public byte LockTime { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public byte HalfCycle { get; set; }
 
     }
 

@@ -902,7 +902,7 @@ namespace Asv.Gnss
         public static int code2freq_GPS(byte code, ref double freq)
         {
             var obs = Code2Obs(code);
-
+            if (string.IsNullOrEmpty(obs)) return -1;
             switch (obs[0])
             {
                 case '1': freq = FREQ1; return 0; /* L1 */
@@ -917,7 +917,7 @@ namespace Asv.Gnss
             var obs = Code2Obs(code);
 
             if (fcn < -7 || fcn > 6) return -1;
-
+            if (string.IsNullOrEmpty(obs)) return -1;
             switch (obs[0])
             {
                 case '1': freq = FREQ1_GLO + DFRQ1_GLO * fcn; return 0; /* G1 */
@@ -932,7 +932,7 @@ namespace Asv.Gnss
         public static int code2freq_GAL(byte code, ref double freq)
         {
             var obs = Code2Obs(code);
-
+            if (string.IsNullOrEmpty(obs)) return -1;
             switch (obs[0])
             {
                 case '1': freq = FREQ1; return 0; /* E1 */
@@ -947,7 +947,7 @@ namespace Asv.Gnss
         public static int code2freq_QZS(byte code, ref double freq)
         {
             var obs = Code2Obs(code);
-
+            if (string.IsNullOrEmpty(obs)) return -1;
             switch (obs[0])
             {
                 case '1': freq = FREQ1; return 0; /* L1 */
@@ -961,7 +961,7 @@ namespace Asv.Gnss
         public static int code2freq_SBS(byte code, ref double freq)
         {
             var obs = Code2Obs(code);
-
+            if (string.IsNullOrEmpty(obs)) return -1;
             switch (obs[0])
             {
                 case '1': freq = FREQ1; return 0; /* L1 */
@@ -973,23 +973,37 @@ namespace Asv.Gnss
         public static int code2freq_BDS(byte code, ref double freq)
         {
             var obs = Code2Obs(code);
-
+            if (string.IsNullOrEmpty(obs)) return -1;
             switch (obs[0])
             {
-                case '1': freq = FREQ1; return 0; /* B1C */
-                case '2': freq = FREQ1_CMP; return 0; /* B1I */
-                case '7': freq = FREQ2_CMP; return 1; /* B2I/B2b */
-                case '5': freq = FREQ5; return 2; /* B2a */
-                case '6': freq = FREQ3_CMP; return 3; /* B3 */
-                case '8': freq = FREQ8; return 4; /* B2ab */
+                case '1':
+                    freq = FREQ1;
+                    return 0; /* B1C */
+                case '2':
+                    freq = FREQ1_CMP;
+                    return 0; /* B1I */
+                case '7':
+                    freq = FREQ2_CMP;
+                    return 1; /* B2I/B2b */
+                case '5':
+                    freq = FREQ5;
+                    return 2; /* B2a */
+                case '6':
+                    freq = FREQ3_CMP;
+                    return 3; /* B3 */
+                case '8':
+                    freq = FREQ8;
+                    return 4; /* B2ab */
+                default:
+                    return -1;
             }
-            return -1;
+
         }
         /* NavIC obs code to frequency -----------------------------------------------*/
         public static int code2freq_IRN(byte code, ref double freq)
         {
             var obs = Code2Obs(code);
-
+            if (string.IsNullOrEmpty(obs)) return -1;
             switch (obs[0])
             {
                 case '5': freq = FREQ5; return 0; /* L5 */

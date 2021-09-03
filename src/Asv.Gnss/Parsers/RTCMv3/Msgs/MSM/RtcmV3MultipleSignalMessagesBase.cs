@@ -17,19 +17,25 @@ namespace Asv.Gnss
 
             if (sys == NavigationSystemEnum.SYS_GLO)
             {
-                var dow = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 3);
-                var tod = RtcmV3Helper.GetBitU(buffer, bitIndex, 27) * 0.001;
-                EpochTime = RtcmV3Helper.AdjustDailyRoverGlonassTime(EpochTime, tod);
+                // var dow = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 3);
+                // var tod = RtcmV3Helper.GetBitU(buffer, bitIndex, 27) * 0.001;
+                // EpochTime = RtcmV3Helper.AdjustDailyRoverGlonassTime(EpochTime, tod);
+
+                var tow = RtcmV3Helper.GetBitU(buffer, bitIndex, 30);
+                EpochTime = RtcmV3Helper.GetFromGps(0, tow);
+                EpochTime = RtcmV3Helper.AdjustDailyRoverGlonassTime(EpochTime, tow);
             }
             else if (sys == NavigationSystemEnum.SYS_CMP)
             {
-                var tow = RtcmV3Helper.GetBitU(buffer, bitIndex, 30) * 0.001;
+                var tow = (double)RtcmV3Helper.GetBitU(buffer, bitIndex, 30);
                 tow += 14.0; /* BDT -> GPST */
+                EpochTime = RtcmV3Helper.GetFromGps(0, tow);
                 RtcmV3Helper.AdjustWeekly(EpochTime, tow);
             }
             else
             {
-                var tow = RtcmV3Helper.GetBitU(buffer, bitIndex, 30) * 0.001;
+                var tow = RtcmV3Helper.GetBitU(buffer, bitIndex, 30);
+                EpochTime = RtcmV3Helper.GetFromGps(0, tow);
                 RtcmV3Helper.AdjustWeekly(EpochTime, tow);
             }
 
@@ -66,13 +72,13 @@ namespace Asv.Gnss
                 if (mask > 0) signals.Add(i);
             }
 
-            Satellites = satellites.ToArray();
-            Signals = signals.ToArray();
-            var cellMaskCount = Satellites.Length * Signals.Length;
+            SatelliteIds = satellites.ToArray();
+            SignalIds = signals.ToArray();
+            var cellMaskCount = SatelliteIds.Length * SignalIds.Length;
             
             if (cellMaskCount > 64)
             {
-                throw new Exception($"RtcmV3 {MessageId} number of Satellite and Signals error: Satellite={Satellites.Length} Signals={Signals.Length}");
+                throw new Exception($"RtcmV3 {MessageId} number of Satellite and Signals error: Satellite={SatelliteIds.Length} Signals={SignalIds.Length}");
             }
 
             CellMask = new byte[cellMaskCount];
@@ -93,9 +99,9 @@ namespace Asv.Gnss
 
         protected byte[] CellMask { get; set; }
         
-        protected byte[] Satellites { get; set; }
+        protected byte[] SatelliteIds { get; set; }
 
-        protected byte[] Signals { get; set; }
+        protected byte[] SignalIds { get; set; }
 
         
         /// <summary>
