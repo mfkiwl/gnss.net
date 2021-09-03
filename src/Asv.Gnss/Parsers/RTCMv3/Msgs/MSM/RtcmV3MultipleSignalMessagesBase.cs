@@ -7,15 +7,42 @@ namespace Asv.Gnss
     {
         public override uint Deserialize(byte[] buffer, uint offsetBits = 0)
         {
+            EpochTime = DateTime.UtcNow;
+
             var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
             
-            
             ReferenceStationID = RtcmV3Helper.GetBitU(buffer, bitIndex, 12); bitIndex += 12;
+
+            var sys = RtcmV3Helper.GetNavigationSystem(MessageId);
+
+            if (sys == NavigationSystemEnum.SYS_GLO)
+            {
+                var dow = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 3);
+                var tod = RtcmV3Helper.GetBitU(buffer, bitIndex, 27) * 0.001;
+                EpochTime = RtcmV3Helper.AdjustDailyRoverGlonassTime(EpochTime, tod);
+            }
+            else if (sys == NavigationSystemEnum.SYS_CMP)
+            {
+                var tow = RtcmV3Helper.GetBitU(buffer, bitIndex, 30) * 0.001;
+                tow += 14.0; /* BDT -> GPST */
+                RtcmV3Helper.AdjustWeekly(EpochTime, tow);
+            }
+            else
+            {
+                var tow = RtcmV3Helper.GetBitU(buffer, bitIndex, 30) * 0.001;
+                RtcmV3Helper.AdjustWeekly(EpochTime, tow);
+            }
+
             EpochTimeTOW = RtcmV3Helper.GetBitU(buffer, bitIndex, 30); bitIndex += 30;
-            MultipleMessageBit = RtcmV3Helper.GetBitU(buffer, bitIndex, 1); bitIndex += 1;
-            IODS = RtcmV3Helper.GetBitU(buffer, bitIndex, 3); bitIndex += 3;
+
+
             
-            var reserved = RtcmV3Helper.GetBitU(buffer, bitIndex, 7); bitIndex += 7;
+            MultipleMessageBit = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 1); bitIndex += 1;
+            ObservableDataIsComplete = MultipleMessageBit == 0 ? true : false;
+
+            IODS = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 3); bitIndex += 3;
+            
+            SessionTime = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 7); bitIndex += 7;
             
             ClockSteeringIndicator = RtcmV3Helper.GetBitU(buffer, bitIndex, 2); bitIndex += 2;
             ExternalClockIndicator = RtcmV3Helper.GetBitU(buffer, bitIndex, 2); bitIndex += 2;
@@ -24,16 +51,16 @@ namespace Asv.Gnss
             SmoothingInterval = RtcmV3Helper.GetBitU(buffer, bitIndex, 3); bitIndex += 3;
 
 
-            var satellites = new List<int>();
-            var signals = new List<int>();
+            var satellites = new List<byte>();
+            var signals = new List<byte>();
             
-            for (var i = 1; i <= 64; i++)
+            for (byte i = 1; i <= 64; i++)
             {
                 var mask = RtcmV3Helper.GetBitU(buffer, bitIndex, 1); bitIndex += 1;
                 if (mask > 0) satellites.Add(i);
             }
 
-            for (var i = 1; i <= 32; i++)
+            for (byte i = 1; i <= 32; i++)
             {
                 var mask = RtcmV3Helper.GetBitU(buffer, bitIndex, 1); bitIndex += 1;
                 if (mask > 0) signals.Add(i);
@@ -48,7 +75,6 @@ namespace Asv.Gnss
                 throw new Exception($"RtcmV3 {MessageId} number of Satellite and Signals error: Satellite={Satellites.Length} Signals={Signals.Length}");
             }
 
-            
             CellMask = new byte[cellMaskCount];
             for (var i = 0; i < cellMaskCount; i++)
             {
@@ -58,11 +84,18 @@ namespace Asv.Gnss
             return bitIndex - offsetBits;
         }
 
+        /// <summary>
+        /// Observable data complete flag (1:ok, 0:not complete)
+        /// </summary>
+        public bool ObservableDataIsComplete { get; set; }
+
+        public DateTime EpochTime { get; set; }
+
         protected byte[] CellMask { get; set; }
         
-        protected int[] Satellites { get; set; }
+        protected byte[] Satellites { get; set; }
 
-        protected int[] Signals { get; set; }
+        protected byte[] Signals { get; set; }
 
         
         /// <summary>
@@ -99,13 +132,18 @@ namespace Asv.Gnss
         /// 1 - indicates that more MSMs follow for given physical time and reference station ID.
         /// 0 - indicates that it is the last MSM for given physical time and reference station ID
         /// </summary>
-        public uint MultipleMessageBit { get; set; }
+        public byte MultipleMessageBit { get; set; }
 
         /// <summary>
         /// Issue of Data Station.
         /// This field is reserved to be used to link MSM with future site- description (receiver, antenna description, etc.) messages. A value of “0” indicates that this field is not utilized.
         /// </summary>
-        public uint IODS { get; set; }
+        public byte IODS { get; set; }
+
+        /// <summary>
+        /// Cumulative session transmitting time
+        /// </summary>
+        public byte SessionTime { get; set; }
 
         /// <summary>
         /// 0 – clock steering is not applied In this case receiver clock must be kept in the range of ± 1 ms (approximately ± 300 km).

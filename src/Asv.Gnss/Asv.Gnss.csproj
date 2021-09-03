@@ -91,6 +91,8 @@
     <Compile Include="Parsers\RTCMv3\Msgs\RtcmV3MessageBase.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\MSM\RtcmV3MSM4.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\MSM\RtcmV3MultipleSignalMessagesBase.cs" />
+    <Compile Include="Parsers\RTCMv3\Msgs\Observable\RtcmV3RTKObservableMessagesBase.cs" />
+    <Compile Include="Parsers\RTCMv3\Msgs\Observable\RtcmV3Messages1004.cs" />
     <Compile Include="Parsers\RTCMv3\RtcmV3Helper.cs" />
     <Compile Include="Ports\IPort.cs" />
     <Compile Include="Ports\PortBase.cs" />
