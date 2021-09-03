@@ -1,4 +1,6 @@
-﻿namespace Asv.Gnss
+﻿using Newtonsoft.Json;
+
+namespace Asv.Gnss
 {
     public abstract class GnssMessageBase : ISerializable
     {
@@ -6,5 +8,10 @@
         public abstract int GetMaxByteSize();
         public abstract uint Serialize(byte[] buffer, uint offsetBits);
         public abstract uint Deserialize(byte[] buffer, uint offsetBits);
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

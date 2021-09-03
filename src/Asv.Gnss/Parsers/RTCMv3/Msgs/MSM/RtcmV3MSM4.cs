@@ -95,40 +95,7 @@ namespace Asv.Gnss
                 cnr[j] = RtcmV3Helper.GetBitU(buffer, bitIndex, 6) * 1.0; bitIndex += 6;
             }
 
-            //ToDo дальше нужно создать список Satelits Observale
-            
-            Console.WriteLine("---------------------------------------------------------------------");
-            Console.WriteLine($"Msg: {MessageId}\tSatellites count: {Satellites.Length}");
-            for (var i = 0; i < Satellites.Length; i++)
-            {
-                var j = 0;
-                var sb = new StringBuilder();
-
-                var satelliteId = Satellites[i];
-                sb.Append($"SatelliteId: {satelliteId}\t");
-                
-                /* pseudorange (m) */
-                if (r[i] != 0.0 && pr[j] > -1E12)
-                {
-                    var psRange = r[i] + pr[j];
-                    sb.Append($"Pseudorange: {psRange}m\t");
-                }
-
-                /* carrier-phase (cycle) */
-                if (r[i] != 0.0 && cp[j] > -1E12)
-                {
-                    var carrierPhase = (r[i] + cp[j]) * RtcmV3Helper.FREQ1 / RtcmV3Helper.CLIGHT;
-                    sb.Append($"Carrier-phase: {carrierPhase}\t");
-                }
-
-
-                var snr = (cnr[j] / RtcmV3Helper.SNR_UNIT + 0.5);
-                sb.Append($"SNR: {snr}");
-
-                
-                Console.WriteLine(sb.ToString());
-            }
-            Console.WriteLine("---------------------------------------------------------------------");
+            CreateMsmObservable(r, pr, cp, cnr);
 
             return bitIndex;
         }
