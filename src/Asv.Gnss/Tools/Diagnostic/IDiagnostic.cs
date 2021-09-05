@@ -71,11 +71,11 @@ namespace Asv.Gnss
 
     public static class SimpleDiagnosticHelper
     {
-        public static void Print(this IDiagnostic src, Action<string> printCallback)
+        public static void Print(this IDiagnostic src, Action<string> printCallback, TextTableBorder border = null)
         {
             foreach (var group in src.GetItems().GroupBy(_=>_.Key.Group))
             {
-                TextTable.PrintKeyValue(printCallback, new DoubleTextTableBorder(), 15,40,group.Key, group.OrderBy(_ => _.Key.Param).Select(_=>new KeyValuePair<string, string>(_.Key.Param,_.Value.ToString())));
+                TextTable.PrintKeyValue(printCallback, border ?? new DoubleTextTableBorder(), 15,40,group.Key, group.OrderBy(_ => _.Key.Param).Select(_=>new KeyValuePair<string, string>(_.Key.Param,_.Value.ToString())));
             }
         }
 
