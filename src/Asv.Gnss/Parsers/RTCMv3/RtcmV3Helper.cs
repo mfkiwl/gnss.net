@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Globalization;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Asv.Gnss
 {
@@ -505,6 +506,85 @@ namespace Asv.Gnss
             "", "", "", "", "", "", "", ""
         };
 
+        public static string Sat2Code(int sat)
+        {
+            var prn = 0;
+            var sys  = GetSatelliteSystem(sat, ref prn);
+            switch (sys)
+            {
+                case NavigationSystemEnum.SYS_GPS: return $"G{prn - MINPRNGPS + 1}";
+                case NavigationSystemEnum.SYS_GLO: return $"R{prn - MINPRNGLO + 1}";
+                case NavigationSystemEnum.SYS_GAL: return $"E{prn - MINPRNGAL + 1}";
+                case NavigationSystemEnum.SYS_SBS: return $"S{prn - 100}";
+                case NavigationSystemEnum.SYS_QZS: return $"J{prn - MINPRNQZS + 1}";
+                case NavigationSystemEnum.SYS_CMP: return $"C{prn - MINPRNCMP + 1}";
+                case NavigationSystemEnum.SYS_IRN: return $"I{prn - MINPRNIRN + 1}";
+                default: return "";
+            }
+        }
+
+        public static string GetSatelliteSystemLetter(NavigationSystemEnum sys)
+        {
+            switch (sys)
+            {
+                case NavigationSystemEnum.SYS_GPS: return "G";
+                case NavigationSystemEnum.SYS_GLO: return "R";
+                case NavigationSystemEnum.SYS_GAL: return "E";
+                case NavigationSystemEnum.SYS_SBS: return "S";
+                case NavigationSystemEnum.SYS_QZS: return "J";
+                case NavigationSystemEnum.SYS_CMP: return "C";
+                case NavigationSystemEnum.SYS_IRN: return "I";
+                default: return "";
+            }
+        }
+
+        /// <summary>
+        /// Satellite number to satellite system.
+        /// Convert satellite number to satellite system
+        /// </summary>
+        /// <param name="sat">I   satellite number (1-MAXSAT)</param>
+        /// <param name="prn">IO  satellite prn/slot number (NULL: no output)</param>
+        /// <returns>satellite system (SYS_GPS,SYS_GLO,...)</returns>
+        public static NavigationSystemEnum GetSatelliteSystem(int sat, ref int prn)
+        {
+            var sys = NavigationSystemEnum.SYS_NONE;
+            if (sat <= 0 || MAXSAT < sat) sat = 0;
+            else if (sat <= NSATGPS)
+            {
+                sys = NavigationSystemEnum.SYS_GPS; sat += MINPRNGPS - 1;
+            }
+            else if ((sat -= NSATGPS) <= NSATGLO)
+            {
+                sys = NavigationSystemEnum.SYS_GLO; sat += MINPRNGLO - 1;
+            }
+            else if ((sat -= NSATGLO) <= NSATGAL)
+            {
+                sys = NavigationSystemEnum.SYS_GAL; sat += MINPRNGAL - 1;
+            }
+            else if ((sat -= NSATGAL) <= NSATQZS)
+            {
+                sys = NavigationSystemEnum.SYS_QZS; sat += MINPRNQZS - 1;
+            }
+            else if ((sat -= NSATQZS) <= NSATCMP)
+            {
+                sys = NavigationSystemEnum.SYS_CMP; sat += MINPRNCMP - 1;
+            }
+            else if ((sat -= NSATCMP) <= NSATIRN)
+            {
+                sys = NavigationSystemEnum.SYS_IRN; sat += MINPRNIRN - 1;
+            }
+            else if ((sat -= NSATIRN) <= NSATLEO)
+            {
+                sys = NavigationSystemEnum.SYS_LEO; sat += MINPRNLEO - 1;
+            }
+            else if ((sat -= NSATLEO) <= NSATSBS)
+            {
+                sys = NavigationSystemEnum.SYS_SBS; sat += MINPRNSBS - 1;
+            }
+            else sat = 0;
+            if (prn != 0) prn = sat;
+            return sys;
+        }
 
         public static DateTime GetFromGps(int weeknumber, double seconds)
         {
@@ -861,7 +941,7 @@ namespace Asv.Gnss
         {
             for (byte i = 0; i < ObsCodes.Length;i++) {
                 if (string.Equals(ObsCodes[i], obs)) continue;
-                return i;
+                return (byte) (i + 1);
             }
             return 0;
         }

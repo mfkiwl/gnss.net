@@ -30,7 +30,7 @@ namespace Asv.Gnss
         public override uint Deserialize(byte[] buffer, uint offsetBits = 0)
         {
             var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
-            var nCell = CellMask.Count(_ => _ > 0);
+            var nCell = CellMask.SelectMany(_ => _).Count(_ => _ > 0);
 
             // Satellite data Nsat*(8 + 10) bit
             // Satellite  rough ranges
@@ -38,19 +38,19 @@ namespace Asv.Gnss
 
             // Signal data
             // Pseudoranges 15*Ncell
-            var pr = new double[nCell];
+            var pseudorange = new double[nCell];
             // PhaseRange data 22*Ncell
-            var cp = new double[nCell];
+            var phaseRange = new double[nCell];
             // signal CNRs 6*Ncell
             var cnr = new double[nCell];
 
             //PhaseRange LockTime Indicator 4*Ncell
-            var @lock = new uint[nCell];
+            var @lock = new byte[nCell];
             //Half-cycle ambiguityindicator 1*Ncell
-            var half = new uint[nCell];
+            var halfCycle = new byte[nCell];
 
             for (var i = 0; i < SatelliteIds.Length; i++) roughRanges[i] = 0.0;
-            for (var i = 0; i < nCell; i++) pr[i] = cp[i] = -1E16;
+            for (var i = 0; i < nCell; i++) pseudorange[i] = phaseRange[i] = -1E16;
 
             /* decode satellite data, rough ranges */
             for (var i = 0; i < SatelliteIds.Length; i++)
@@ -74,7 +74,7 @@ namespace Asv.Gnss
                 /* pseudorange */
                 var prv = RtcmV3Helper.GetBits(buffer, bitIndex, 15);
                 bitIndex += 15;
-                if (prv != -16384) pr[i] = prv * RtcmV3Helper.P2_24 * RtcmV3Helper.RANGE_MS;
+                if (prv != -16384) pseudorange[i] = prv * RtcmV3Helper.P2_24 * RtcmV3Helper.RANGE_MS;
             }
 
             for (var i = 0; i < nCell; i++)
@@ -82,20 +82,20 @@ namespace Asv.Gnss
                 /* phase range */
                 var cpv = RtcmV3Helper.GetBits(buffer, bitIndex, 22);
                 bitIndex += 22;
-                if (cpv != -2097152) cp[i] = cpv * RtcmV3Helper.P2_29 * RtcmV3Helper.RANGE_MS;
+                if (cpv != -2097152) phaseRange[i] = cpv * RtcmV3Helper.P2_29 * RtcmV3Helper.RANGE_MS;
             }
 
             for (var i = 0; i < nCell; i++)
             {
                 /* lock time */
-                @lock[i] = RtcmV3Helper.GetBitU(buffer, bitIndex, 4);
+                @lock[i] = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 4);
                 bitIndex += 4;
             }
 
             for (var i = 0; i < nCell; i++)
             {
                 /* half-cycle ambiguity */
-                half[i] = RtcmV3Helper.GetBitU(buffer, bitIndex, 1); bitIndex += 1;
+                halfCycle[i] = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 1); bitIndex += 1;
             }
 
             for (var i = 0; i < nCell; i++)
@@ -106,163 +106,90 @@ namespace Asv.Gnss
                 cnr[i] = RtcmV3Helper.GetBitU(buffer, bitIndex, 6) * 1.0; bitIndex += 6;
             }
 
-            CreateMsmObservable(roughRanges, pr, cp, cnr);
+            CreateMsmObservable(roughRanges, pseudorange, phaseRange, @lock, halfCycle, cnr);
 
             return bitIndex;
         }
 
-        private void CreateMsmObservable(double[] r, double[] pr, double[] cp, double[] cnr)
+        private void CreateMsmObservable(double[] roughRanges, double[] pseudorange, double[] phaseRange, byte[] @lock, byte[] halfCycle, double[] cnr)
         {
-            var sig = new string[SignalIds.Length];
             var code = new byte[SignalIds.Length];
             var idx = new int[SignalIds.Length];
-            var q = string.Empty;
-            var msm_type = string.Empty;
-
-
-            var sys = RtcmV3Helper.GetNavigationSystem(MessageId);
-            switch (sys)
-            {
-                case NavigationSystemEnum.SYS_GPS:
-                    msm_type = "G";//q=rtcm->msmtype[0];
-                    break;
-                case NavigationSystemEnum.SYS_SBS:
-                    msm_type = q = "";//rtcm->msmtype[4];
-                    break;
-                case NavigationSystemEnum.SYS_GLO:
-                    msm_type = q = "R";//rtcm->msmtype[1];
-                    break;
-                case NavigationSystemEnum.SYS_GAL:
-                    msm_type=q = "E";//rtcm->msmtype[2];
-                    break;
-                case NavigationSystemEnum.SYS_QZS:
-                    msm_type=q = "Q";//rtcm->msmtype[3];
-                    break;
-                case NavigationSystemEnum.SYS_CMP:
-                    msm_type=q = "B";//rtcm->msmtype[5];
-                    break;
-                case NavigationSystemEnum.SYS_IRN:
-                    msm_type = q = "";//rtcm->msmtype[6];
-                    break;
-                default:
-                    // msm_type = q = "";
-                    break;
-            }
-
-            for (var i = 0; i < SignalIds.Length; i++)
-            {
-                switch (sys)
-                {
-                    case NavigationSystemEnum.SYS_GPS:
-                        // msm_type=q=rtcm->msmtype[0];
-                        sig[i] = RtcmV3Helper.msm_sig_gps[SignalIds[i] - 1];
-                        break;
-                    case NavigationSystemEnum.SYS_SBS:
-                        // SYS_SBS: msm_type=q=rtcm->msmtype[4];
-                        sig[i] = RtcmV3Helper.msm_sig_sbs[SignalIds[i] - 1];
-                        break;
-                    case NavigationSystemEnum.SYS_GLO:
-                        // msm_type=q=rtcm->msmtype[1];
-                        sig[i] = RtcmV3Helper.msm_sig_glo[SignalIds[i] - 1];
-                        break;
-                    case NavigationSystemEnum.SYS_GAL:
-                        // msm_type=q=rtcm->msmtype[2];
-                        sig[i] = RtcmV3Helper.msm_sig_gal[SignalIds[i] - 1];
-                        break;
-                    case NavigationSystemEnum.SYS_QZS:
-                        // msm_type=q=rtcm->msmtype[3];
-                        sig[i] = RtcmV3Helper.msm_sig_qzs[SignalIds[i] - 1];
-                        break;
-                    case NavigationSystemEnum.SYS_CMP:
-                        // SYS_CMP: msm_type=q=rtcm->msmtype[5];
-                        sig[i] = RtcmV3Helper.msm_sig_cmp[SignalIds[i] - 1];
-                        break;
-                    case NavigationSystemEnum.SYS_IRN:
-                        // msm_type = q = rtcm->msmtype[6];
-                        sig[i] = RtcmV3Helper.msm_sig_irn[SignalIds[i] - 1];
-                        break;
-                    default:
-                        sig[i] = "";
-                        break;
-                }
-
-                /* signal to rinex obs type */
-                code[i] = RtcmV3Helper.Obs2Code(sig[i]);
-                idx[i] = RtcmV3Helper.Code2Idx(sys, code[i]);
-
-
-                if (code[i] != RtcmV3Helper.CODE_NONE)
-                {
-                    // if (q)
-                    q += $"L{sig[i]}{(i < SignalIds.Length - 1 ? ", " : "")}";
-                }
-                else
-                {
-                    // if (q)
-                    q += $"({SignalIds[i]}){(i < SignalIds.Length - 1 ? "," : "")}";
-                }
-            }
-
-            /* get signal index */
-            RtcmV3Helper.sigindex(sys, code, SignalIds.Length, "", idx);
-
-            var obs = new List<MsmItem>();
+            var q = "";
             
+            var sys = RtcmV3Helper.GetNavigationSystem(MessageId);
+            Satellites = new Satellite[SatelliteIds.Length];
             for (var i = 0; i < SatelliteIds.Length; i++)
             {
-                var j = 0;
-                var prn = SatelliteIds[i];
-                if (sys == NavigationSystemEnum.SYS_QZS) prn += RtcmV3Helper.MINPRNQZS - 1;
-                else if (sys == NavigationSystemEnum.SYS_SBS) prn += RtcmV3Helper.MINPRNSBS - 1;
-                int sat;
-                if ((sat = RtcmV3Helper.satno(sys, prn)) != 0)
+                var satellite = new Satellite
                 {
-                    if (ObservableDataIsComplete)
-                    {
-                        ObservableDataIsComplete = false;
-                    }
-                }
-                
-                var obsItem = new MsmItem();
-                var pseudoRanges = new List<double>();
-                var carrierPhases = new List<double>();
-                var codes = new List<byte>();
-                var cnrs = new List<ushort>();
-                for (var k = 0; k < SignalIds.Length; k++)
+                    SatellitePrn = SatelliteIds[i], 
+                    Signals = new Signal[CellMask[i].Count(_ => _ != 0)]
+                };
+                Satellites[i] = satellite;
+                var index = 0;
+                for (var j = 0; j < SignalIds.Length; j++)
                 {
-                    if (CellMask[k + i * SignalIds.Length] == 0) continue;
+                    if (CellMask[i][j] == 0) continue;
 
-                    if (sat != 0 /* && idx[k] >= 0 */)
+                    switch (sys)
+                    {
+                        case NavigationSystemEnum.SYS_GPS: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_gps[SignalIds[i] - 1]; break;
+                        case NavigationSystemEnum.SYS_GLO: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_glo[SignalIds[i] - 1]; break;
+                        case NavigationSystemEnum.SYS_GAL: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_gal[SignalIds[i] - 1]; break;
+                        case NavigationSystemEnum.SYS_QZS: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_qzs[SignalIds[i] - 1]; break;
+                        case NavigationSystemEnum.SYS_SBS: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_sbs[SignalIds[i] - 1]; break;
+                        case NavigationSystemEnum.SYS_CMP: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_cmp[SignalIds[i] - 1]; break;
+                        case NavigationSystemEnum.SYS_IRN: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_irn[SignalIds[i] - 1]; break;
+                        default: satellite.Signals[index].RinexCode = ""; break;
+                    }
+
+                    /* signal to rinex obs type */
+                    code[j] = RtcmV3Helper.Obs2Code(satellite.Signals[index].RinexCode);
+                    idx[j] = RtcmV3Helper.Code2Idx(sys, code[j]);
+
+                    if (code[i] != RtcmV3Helper.CODE_NONE)
+                    {
+                        q += $"L{satellite.Signals[index].RinexCode}{(i < satellite.Signals.Length - 1 ? ", " : "")}";
+                    }
+                    else
+                    {
+                        q += $"({SignalIds[i]}){(i < satellite.Signals.Length - 1 ? ", " : "")}";
+                    }
+
+                    /* get signal index */
+                    RtcmV3Helper.sigindex(sys, code, SignalIds.Length, "", idx);
+
+                    if (sys == NavigationSystemEnum.SYS_QZS) satellite.SatellitePrn += RtcmV3Helper.MINPRNQZS - 1;
+                    else if (sys == NavigationSystemEnum.SYS_SBS) satellite.SatellitePrn += RtcmV3Helper.MINPRNSBS - 1;
+
+                    var freq = 1.0;
+                    if (idx[j] >= 0)
                     {
                         /* pseudorange (m) */
-                        if (r[i] != 0.0 && pr[j] > -1E12)
+                        if (roughRanges[i] != 0.0 && pseudorange[j] > -1E12)
                         {
-                            pseudoRanges.Add(r[i] + pr[j]);
+                            satellite.Signals[index].PseudoRange = roughRanges[i] + pseudorange[j];
                         }
                         /* carrier-phase (cycle) */
-                        if (r[i] != 0.0 && cp[j] > -1E12)
+                        if (roughRanges[i] != 0.0 && phaseRange[j] > -1E12)
                         {
-                            carrierPhases.Add((r[i] + cp[j]) * RtcmV3Helper.FREQ1 / RtcmV3Helper.CLIGHT);
+                            satellite.Signals[index].CarrierPhase = (roughRanges[i] + pseudorange[j]) * freq / RtcmV3Helper.CLIGHT;
                         }
-                        
-                        cnrs.Add((ushort)(cnr[j] / RtcmV3Helper.SNR_UNIT + 0.5));
-                        codes.Add(code[k]);
+
+                        // var sat = RtcmV3Helper.satno(sys, satellite.SatellitePrn);
+                        // satellite.Signals[index].LockTime = lossoflock(rtcm, sat, idx[j], @lock[j]) + (halfCycle[j] != 0 ? 3 : 0);
+
+                        satellite.Signals[index].Cnr = (ushort)(cnr[j] / RtcmV3Helper.SNR_UNIT + 0.5);
+                        satellite.Signals[index].CodeId = code[j];
+                        satellite.Signals[index].Id = SignalIds[j];
                     }
-                    j++;
+
+                    index++;
                 }
-
-                obsItem.CarrierPhase = carrierPhases.ToArray();
-                obsItem.PseudoRange = pseudoRanges.ToArray();
-                obsItem.Code = codes.ToArray();
-                obsItem.Snr = cnrs.ToArray();
-                obsItem.Time = EpochTime;
-                obs.Add(obsItem);
             }
-            ObsSatellites = obs.ToArray();
-
         }
 
-        public MsmItem[] ObsSatellites { get; set; }
         public Satellite[] Satellites { get; set; }
 
         public override ushort MessageId { get; }
@@ -308,30 +235,10 @@ namespace Asv.Gnss
         /// </summary>
         public byte HalfCycle { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public byte CodeId { get; set; }
     }
 
-    public class MsmItem
-    {
-        public DateTime Time { get; set; }
-
-        /// <summary>
-        /// Signal strength (0.001 dBHz)
-        /// </summary>
-        public ushort[] Snr { get; set; }
-
-        /// <summary>
-        /// Code indicator (CODE_???)
-        /// </summary>
-        public byte[] Code { get; set; }
-
-        /// <summary>
-        /// Observation data carrier-phase (cycle)
-        /// </summary>
-        public double[] CarrierPhase { get; set; }
-
-        /// <summary>
-        /// Observation data PseudoRange (m)
-        /// </summary>
-        public double[] PseudoRange { get; set; }
-    }
 }
