@@ -78,10 +78,15 @@ namespace Asv.Gnss
                 throw new Exception($"RtcmV3 {MessageId} number of Satellite and Signals error: Satellite={SatelliteIds.Length} Signals={SignalIds.Length}");
             }
 
-            CellMask = new byte[cellMaskCount];
+            // CellMask = new byte[cellMaskCount];
+            CellMask = new byte[SatelliteIds.Length][];
             for (var i = 0; i < cellMaskCount; i++)
             {
-                CellMask[i] = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 1); bitIndex += 1;
+                CellMask[i] = new byte[SignalIds.Length];
+                for (var j = 0; j < SignalIds.Length; j++)
+                {
+                    CellMask[i][j] = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 1); bitIndex += 1;
+                }
             }
 
             return bitIndex - offsetBits;
@@ -96,8 +101,9 @@ namespace Asv.Gnss
 
         public DateTime EpochTime { get; set; }
 
-        protected byte[] CellMask { get; set; }
-        
+        // protected byte[] CellMask { get; set; }
+        protected byte[][] CellMask { get; set; }
+
         protected byte[] SatelliteIds { get; set; }
 
         protected byte[] SignalIds { get; set; }
