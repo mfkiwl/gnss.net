@@ -20,6 +20,8 @@ namespace Asv.Gnss
             }
         }
 
+        public override string ProtocolId => Nmea0183Parser.GnssProtocolId;
+
         public abstract string MessageId { get; }
 
         public override int GetMaxByteSize()

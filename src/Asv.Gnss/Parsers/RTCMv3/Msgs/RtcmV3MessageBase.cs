@@ -5,6 +5,8 @@ namespace Asv.Gnss
 {
     public abstract class RtcmV3MessageBase: GnssMessageBase
     {
+        public override string ProtocolId => RtcmV3Parser.GnssProtocolId;
+
         public override int GetMaxByteSize()
         {
             return 1024 /* MAX LENGTH */ + 6 /* preamble-8bit + reserved-6bit + length-10bit + crc length 3*8=24 bit */;

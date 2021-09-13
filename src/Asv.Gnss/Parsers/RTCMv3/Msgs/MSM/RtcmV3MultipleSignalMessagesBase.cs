@@ -14,7 +14,7 @@ namespace Asv.Gnss
             
             ReferenceStationID = RtcmV3Helper.GetBitU(buffer, bitIndex, 12); bitIndex += 12;
 
-            var sys = RtcmV3Helper.GetNavigationSystem(MessageId);
+            var sys = NavigationSystem = RtcmV3Helper.GetNavigationSystem(MessageId);
 
             if (sys == NavigationSystemEnum.SYS_GLO)
             {
@@ -29,13 +29,14 @@ namespace Asv.Gnss
                 EpochTimeTOW = RtcmV3Helper.GetBitU(buffer, bitIndex, 30);
                 var tow = EpochTimeTOW * 0.001;
                 tow += 14.0; /* BDT -> GPS Time */
-                RtcmV3Helper.AdjustWeekly(utc, tow);
+                EpochTime = RtcmV3Helper.AdjustWeekly(utc, tow);
+                
             }
             else
             {
                 EpochTimeTOW = RtcmV3Helper.GetBitU(buffer, bitIndex, 30);
                 var tow = EpochTimeTOW * 0.001;
-                RtcmV3Helper.AdjustWeekly(utc, tow);
+                EpochTime = RtcmV3Helper.AdjustWeekly(utc, tow);
             }
             bitIndex += 30;
 
@@ -85,6 +86,8 @@ namespace Asv.Gnss
 
             return bitIndex - offsetBits;
         }
+
+        public NavigationSystemEnum NavigationSystem { get; set; }
 
         /// <summary>
         /// Observable data complete flag (1:ok, 0:not complete)

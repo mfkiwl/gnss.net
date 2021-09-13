@@ -32,7 +32,9 @@ namespace Asv.Gnss
     /// </summary>
     public class Nmea0183MessageGGA : Nmea0183MessageBase
     {
-        public override string MessageId => "GGA";
+        public const string NmeaMessageId = "GGA";
+
+        public override string MessageId => NmeaMessageId;
 
         protected override void InternalDeserializeFromStringArray(string[] items)
         {
