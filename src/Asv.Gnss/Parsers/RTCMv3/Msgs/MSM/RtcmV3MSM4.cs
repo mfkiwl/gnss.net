@@ -113,14 +113,16 @@ namespace Asv.Gnss
 
         private void CreateMsmObservable(double[] roughRanges, double[] pseudorange, double[] phaseRange, byte[] @lock, byte[] halfCycle, double[] cnr)
         {
-            var code = new byte[SignalIds.Length];
-            var idx = new int[SignalIds.Length];
+            
+            
             var q = "";
             
             var sys = RtcmV3Helper.GetNavigationSystem(MessageId);
             Satellites = new Satellite[SatelliteIds.Length];
             for (var i = 0; i < SatelliteIds.Length; i++)
             {
+                var idx = new int[SignalIds.Length];
+                var code = new byte[SignalIds.Length];
                 var satellite = new Satellite
                 {
                     SatellitePrn = SatelliteIds[i], 
@@ -131,16 +133,16 @@ namespace Asv.Gnss
                 for (var j = 0; j < SignalIds.Length; j++)
                 {
                     if (CellMask[i][j] == 0) continue;
-
+                    Satellites[i].Signals[index] = new Signal();
                     switch (sys)
                     {
-                        case NavigationSystemEnum.SYS_GPS: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_gps[SignalIds[i] - 1]; break;
-                        case NavigationSystemEnum.SYS_GLO: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_glo[SignalIds[i] - 1]; break;
-                        case NavigationSystemEnum.SYS_GAL: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_gal[SignalIds[i] - 1]; break;
-                        case NavigationSystemEnum.SYS_QZS: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_qzs[SignalIds[i] - 1]; break;
-                        case NavigationSystemEnum.SYS_SBS: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_sbs[SignalIds[i] - 1]; break;
-                        case NavigationSystemEnum.SYS_CMP: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_cmp[SignalIds[i] - 1]; break;
-                        case NavigationSystemEnum.SYS_IRN: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_irn[SignalIds[i] - 1]; break;
+                        case NavigationSystemEnum.SYS_GPS: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_gps[SignalIds[j] - 1]; break;
+                        case NavigationSystemEnum.SYS_GLO: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_glo[SignalIds[j] - 1]; break;
+                        case NavigationSystemEnum.SYS_GAL: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_gal[SignalIds[j] - 1]; break;
+                        case NavigationSystemEnum.SYS_QZS: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_qzs[SignalIds[j] - 1]; break;
+                        case NavigationSystemEnum.SYS_SBS: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_sbs[SignalIds[j] - 1]; break;
+                        case NavigationSystemEnum.SYS_CMP: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_cmp[SignalIds[j] - 1]; break;
+                        case NavigationSystemEnum.SYS_IRN: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_irn[SignalIds[j] - 1]; break;
                         default: satellite.Signals[index].RinexCode = ""; break;
                     }
 
@@ -148,17 +150,25 @@ namespace Asv.Gnss
                     code[j] = RtcmV3Helper.Obs2Code(satellite.Signals[index].RinexCode);
                     idx[j] = RtcmV3Helper.Code2Idx(sys, code[j]);
 
-                    if (code[i] != RtcmV3Helper.CODE_NONE)
+                    if (code[j] != RtcmV3Helper.CODE_NONE)
                     {
-                        q += $"L{satellite.Signals[index].RinexCode}{(i < satellite.Signals.Length - 1 ? ", " : "")}";
+                        q += $"L{satellite.Signals[index].RinexCode}{(j < satellite.Signals.Length - 1 ? ", " : "")}";
                     }
                     else
                     {
-                        q += $"({SignalIds[i]}){(i < satellite.Signals.Length - 1 ? ", " : "")}";
+                        q += $"({SignalIds[j]}){(j < satellite.Signals.Length - 1 ? ", " : "")}";
                     }
 
+                    // try
+                    // {
+                    //     RtcmV3Helper.sigindex(sys, code, SignalIds.Length, "", idx);
+                    // }
+                    // catch (Exception e)
+                    // {
+                    //     
+                    // }
                     /* get signal index */
-                    RtcmV3Helper.sigindex(sys, code, SignalIds.Length, "", idx);
+                    
 
                     if (sys == NavigationSystemEnum.SYS_QZS) satellite.SatellitePrn += RtcmV3Helper.MINPRNQZS - 1;
                     else if (sys == NavigationSystemEnum.SYS_SBS) satellite.SatellitePrn += RtcmV3Helper.MINPRNSBS - 1;

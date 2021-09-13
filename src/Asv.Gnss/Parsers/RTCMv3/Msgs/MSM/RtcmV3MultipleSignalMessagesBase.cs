@@ -80,7 +80,7 @@ namespace Asv.Gnss
 
             // CellMask = new byte[cellMaskCount];
             CellMask = new byte[SatelliteIds.Length][];
-            for (var i = 0; i < cellMaskCount; i++)
+            for (var i = 0; i < SatelliteIds.Length; i++)
             {
                 CellMask[i] = new byte[SignalIds.Length];
                 for (var j = 0; j < SignalIds.Length; j++)
