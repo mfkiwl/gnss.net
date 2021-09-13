@@ -505,12 +505,10 @@ namespace Asv.Gnss
             "", "", "", "", "", "", "", ""
         };
 
-        public static readonly double[] GpsTimeStart = {1980, 1, 6, 0, 0, 0}; /* gps time reference */
-        public static readonly double[] GalileoTimeStart = {1999, 8, 22, 0, 0, 0}; /* galileo system time reference */
-        public static readonly double[] BeiDouTimeStart = {2006, 1, 1, 0, 0, 0}; /* beidou time reference */
 
         public static DateTime GetFromGps(int weeknumber, double seconds)
         {
+            
             var datum = new DateTime(1980, 1, 6, 0, 0, 0, DateTimeKind.Utc);
             var week = datum.AddDays(weeknumber * 7);
             var time = week.AddSeconds(seconds);
@@ -851,10 +849,11 @@ namespace Asv.Gnss
             var towP = 0.0;
             var week = 0;
 
-            GetFromTime(nowUtc, ref week, ref towP);
+            var time = Utc2Gps(nowUtc);
+            GetFromTime(time, ref week, ref towP);
 
-            if (tow < towP - 302400.0) tow += 604800.0;
-            else if (tow > towP + 302400.0) tow -= 604800.0;
+            if (tow < towP - 302400.0) week += 1;
+            else if (tow > towP + 302400.0) week -= 1;
             return GetFromGps(week, tow);
         }
 

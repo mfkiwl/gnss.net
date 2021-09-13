@@ -250,7 +250,15 @@ namespace Asv.Gnss
 
         public static GpsQuality ParseGpsQuality(string value)
         {
+            if (value.IsNullOrWhiteSpace()) return GpsQuality.Unknown;
             return (GpsQuality) int.Parse(value, CultureInfo.InvariantCulture);
+        }
+
+        public static DataStatus ParseDataStatus(string value)
+        {
+            if (string.Equals(value, "A", StringComparison.InvariantCultureIgnoreCase)) return DataStatus.Valid;
+            if (string.Equals(value, "V", StringComparison.InvariantCultureIgnoreCase)) return DataStatus.Invalid;
+            return DataStatus.Unknown;
         }
 
         /// <summary>
@@ -277,8 +285,16 @@ namespace Asv.Gnss
 
     public enum GpsQuality
     {
+        Unknown = -1,
         FixNotAvailable = 0,
         GPSFix = 1,
         DifferentialGPSFix = 2,
+    }
+
+    public enum DataStatus
+    {
+        Unknown,
+        Valid,
+        Invalid
     }
 }

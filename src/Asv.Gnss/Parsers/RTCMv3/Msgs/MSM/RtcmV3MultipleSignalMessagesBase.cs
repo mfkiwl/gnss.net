@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Asv.Gnss
 {
@@ -7,8 +8,8 @@ namespace Asv.Gnss
     {
         public override uint Deserialize(byte[] buffer, uint offsetBits = 0)
         {
-            EpochTime = DateTime.UtcNow;
-
+            var utc = DateTime.UtcNow;
+            
             var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
             
             ReferenceStationID = RtcmV3Helper.GetBitU(buffer, bitIndex, 12); bitIndex += 12;
@@ -17,32 +18,27 @@ namespace Asv.Gnss
 
             if (sys == NavigationSystemEnum.SYS_GLO)
             {
-                // var dow = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 3);
-                // var tod = RtcmV3Helper.GetBitU(buffer, bitIndex, 27) * 0.001;
-                // EpochTime = RtcmV3Helper.AdjustDailyRoverGlonassTime(EpochTime, tod);
-
-                var tow = RtcmV3Helper.GetBitU(buffer, bitIndex, 30);
-                EpochTime = RtcmV3Helper.GetFromGps(0, tow);
-                EpochTime = RtcmV3Helper.AdjustDailyRoverGlonassTime(EpochTime, tow);
+                var dow = RtcmV3Helper.GetBitU(buffer, bitIndex, 3);
+                var tod = RtcmV3Helper.GetBitU(buffer, bitIndex + 3, 27);
+                EpochTimeTOW = dow * 86400000 + tod;
+                EpochTime = RtcmV3Helper.AdjustDailyRoverGlonassTime(utc, tod * 0.001);
+                
             }
             else if (sys == NavigationSystemEnum.SYS_CMP)
             {
-                var tow = (double)RtcmV3Helper.GetBitU(buffer, bitIndex, 30);
-                tow += 14.0; /* BDT -> GPST */
-                EpochTime = RtcmV3Helper.GetFromGps(0, tow);
-                RtcmV3Helper.AdjustWeekly(EpochTime, tow);
+                EpochTimeTOW = RtcmV3Helper.GetBitU(buffer, bitIndex, 30);
+                var tow = EpochTimeTOW * 0.001;
+                tow += 14.0; /* BDT -> GPS Time */
+                RtcmV3Helper.AdjustWeekly(utc, tow);
             }
             else
             {
-                var tow = RtcmV3Helper.GetBitU(buffer, bitIndex, 30);
-                EpochTime = RtcmV3Helper.GetFromGps(0, tow);
-                RtcmV3Helper.AdjustWeekly(EpochTime, tow);
+                EpochTimeTOW = RtcmV3Helper.GetBitU(buffer, bitIndex, 30);
+                var tow = EpochTimeTOW * 0.001;
+                RtcmV3Helper.AdjustWeekly(utc, tow);
             }
+            bitIndex += 30;
 
-            EpochTimeTOW = RtcmV3Helper.GetBitU(buffer, bitIndex, 30); bitIndex += 30;
-
-
-            
             MultipleMessageBit = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 1); bitIndex += 1;
             ObservableDataIsComplete = MultipleMessageBit == 0 ? true : false;
 
