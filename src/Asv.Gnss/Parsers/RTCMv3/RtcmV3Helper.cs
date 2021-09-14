@@ -508,10 +508,10 @@ namespace Asv.Gnss
             "", "", "", "", "", "", "", ""
         };
 
-        public static string Sat2Code(int sat)
+        public static string Sat2Code(int sat, int prn = 0)
         {
-            var prn = 0;
-            var sys  = GetSatelliteSystem(sat, ref prn);
+            var p = prn;
+            var sys  = GetSatelliteSystem(sat, ref p);
             switch (sys)
             {
                 case NavigationSystemEnum.SYS_GPS: return $"G{prn - MINPRNGPS + 1}";
@@ -976,7 +976,7 @@ namespace Asv.Gnss
         public static byte Obs2Code(string obs)
         {
             for (byte i = 0; i < ObsCodes.Length;i++) {
-                if (string.Equals(ObsCodes[i], obs)) continue;
+                if (!string.Equals(ObsCodes[i], obs)) continue;
                 return i;
             }
             return 0;

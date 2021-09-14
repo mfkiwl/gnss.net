@@ -115,6 +115,7 @@ namespace Asv.Gnss
             /* id to signal */
             for (var i = 0; i < SignalIds.Length; i++)
             {
+                sig[i] = new GnnsSignal();
                 switch (sys)
                 {
                     case NavigationSystemEnum.SYS_GPS:
@@ -160,8 +161,7 @@ namespace Asv.Gnss
                 
                 var sat = RtcmV3Helper.satno(sys, prn);
 
-                Satellites[i].SatellitePrn = prn;
-                Satellites[i].SatelliteCode = RtcmV3Helper.Sat2Code(sat);
+                Satellites[i] = new Satellite {SatellitePrn = prn, SatelliteCode = RtcmV3Helper.Sat2Code(sat, prn)};
 
 
                 var fcn = 0;
@@ -222,7 +222,7 @@ namespace Asv.Gnss
                         // rtcm->obs.data[index].LLI[idx[k]] =
                         //     lossoflock(rtcm, sat, idx[k],lock[j]) +(halfCycle[j] ? 3 : 0);
                         // rtcm->obs.data[index].SNR[idx[k]] = (uint16_t)(cnr[j] / SNR_UNIT + 0.5);
-                        Satellites[i].Signals[index].Cnr = cnr[k];
+                        Satellites[i].Signals[index].Cnr = cnr[k] + 0.5;
                         Satellites[i].Signals[index].ObservationCode = sig[j].ObservationCode;
                         Satellites[i].Signals[index].RinexCode = sig[j].RinexCode;
                     }
@@ -249,9 +249,6 @@ namespace Asv.Gnss
 
     public class Signal
     {
-        public byte Id { get; set; }
-        public string FrequencyBand { get; set; }
-        public string SignalName { get; set; }
         public string RinexCode { get; set; }
         
         /// <summary>
