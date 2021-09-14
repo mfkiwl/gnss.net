@@ -679,14 +679,22 @@ namespace Asv.Gnss
             seconds = dif.TotalSeconds;
         }
 
-        public static void ecef2pos(double[] r, ref double[] pos)
+        /// <summary>
+        /// Transform ecef position to geodetic position.
+        /// Notes  : WGS84, ellipsoidal height
+        /// </summary>
+        /// <param name="r">I   ecef position {x,y,z} (m)</param>
+        /// <param name="pos">O   geodetic position {lat,lon,h} (rad,m)</param>
+        public static void EcefToPos(double[] r, double[] pos)
         {
-            double e2 = FE_WGS84 * (2.0 - FE_WGS84), r2 = Dot(r, r, 2), z, zk, v = RE_WGS84, sinp;
+            var e2 = FE_WGS84 * (2.0 - FE_WGS84);
+            double r2 = Dot(r, r, 2), z, zk;
+            var v = RE_WGS84;
 
             for (z = r[2], zk = 0.0; Math.Abs(z - zk) >= 1E-4;)
             {
                 zk = z;
-                sinp = z / Math.Sqrt(r2 + z * z);
+                var sinp = z / Math.Sqrt(r2 + z * z);
                 v = RE_WGS84 / Math.Sqrt(1.0 - e2 * sinp * sinp);
                 z = r[2] + v * e2 * sinp;
             }
@@ -696,7 +704,13 @@ namespace Asv.Gnss
             pos[2] = Math.Sqrt(r2 + z * z) - v;
         }
 
-        public static void pos2ecef(double[] pos, ref double[] r)
+        /// <summary>
+        /// Transform geodetic position to ecef position.
+        /// Notes  : WGS84, ellipsoidal height
+        /// </summary>
+        /// <param name="pos">I   geodetic position {lat,lon,h} (rad,m)</param>
+        /// <param name="r">O   ecef position {x,y,z} (m)</param>
+        public static void PosToEcef(double[] pos, ref double[] r)
         {
             double sinp = Math.Sin(pos[0]),
                 cosp = Math.Cos(pos[0]),
