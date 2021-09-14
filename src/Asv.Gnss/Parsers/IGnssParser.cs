@@ -21,6 +21,8 @@ namespace Asv.Gnss
             src.Register(() => new RtcmV3MSM4(1084));
             src.Register(() => new RtcmV3MSM4(1094));
             src.Register(() => new RtcmV3MSM4(1124));
+            src.Register(() => new RtcmV3Message1005());
+            src.Register(() => new RtcmV3Message1006());
             return src;
         }
 

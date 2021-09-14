@@ -1,6 +1,6 @@
 ﻿namespace Asv.Gnss
 {
-    public abstract class RtcmV3Message10056 : RtcmV3MessageBase
+    public abstract class RtcmV3Message1005and1006 : RtcmV3MessageBase
     {
         public override uint Deserialize(byte[] buffer, uint offsetBits = 0)
         {
@@ -99,14 +99,14 @@
         public uint ReferenceStationID { get; set; }
     }
 
-    public class RtcmV3Message1005 : RtcmV3Message10056
+    public class RtcmV3Message1005 : RtcmV3Message1005and1006
     {
         public const int RtcmMessageId = 1005;
 
         public override ushort MessageId => RtcmMessageId;
     }
 
-    public class RtcmV3Message1006 : RtcmV3Message10056
+    public class RtcmV3Message1006 : RtcmV3Message1005and1006
     {
         public const int RtcmMessageId = 1006;
 
