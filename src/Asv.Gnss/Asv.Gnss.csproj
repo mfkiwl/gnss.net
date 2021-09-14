@@ -72,6 +72,7 @@
       <HintPath>..\..\..\src\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\..\..\src\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
@@ -86,6 +87,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Parsers\ComNav\BinaryComNavParser.cs" />
+    <Compile Include="Parsers\ComNav\Crc32.cs" />
     <Compile Include="Parsers\GnssConnection.cs" />
     <Compile Include="Parsers\GnssMessageBase.cs" />
     <Compile Include="Parsers\GnssParserException.cs" />
@@ -98,7 +101,7 @@
     <Compile Include="Parsers\NMEA\Msgs\Nmea0183MessageGSV.cs" />
     <Compile Include="Parsers\NMEA\Nmea0183Parser.cs" />
     <Compile Include="Parsers\GnssParserBase.cs" />
-    <Compile Include="Parsers\RTCMv3\Msgs\StationDescription\RtcmV3Message10056.cs" />
+    <Compile Include="Parsers\RTCMv3\Msgs\StationDescription\RtcmV3Message1005and1006.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\RtcmV3MessageBase.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\MSM\RtcmV3MSM4.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\MSM\RtcmV3MultipleSignalMessagesBase.cs" />
