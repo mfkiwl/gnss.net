@@ -110,6 +110,10 @@
     <Compile Include="Parsers\RTCMv3\Msgs\MSM\RtcmV3MultipleSignalMessagesBase.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\Observable\RtcmV3RTKObservableMessagesBase.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\Observable\RtcmV3Messages1004.cs" />
+    <Compile Include="Parsers\RTCMv3\Msgs\SysParamAndText\RtcmV3Message1013.cs" />
+    <Compile Include="Parsers\RTCMv3\Msgs\Ephemeris\RtcmV3Message1019.cs" />
+    <Compile Include="Parsers\RTCMv3\Msgs\Ephemeris\RtcmV3Message1020.cs" />
+    <Compile Include="Parsers\RTCMv3\Msgs\SysParamAndText\RtcmV3Message1029.cs" />
     <Compile Include="Parsers\RTCMv3\RtcmV3Helper.cs" />
     <Compile Include="Ports\IPort.cs" />
     <Compile Include="Ports\PortBase.cs" />
@@ -148,9 +152,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Parsers\RTCMv3\Msgs\AntennaPosition\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\..\src\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\..\src\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -449,7 +449,7 @@ namespace Asv.Gnss
             new[] {"ABCX"    ,"ABCX"      ,""        ,""       ,""       ,""      ,""}  /* IRN */
         };
 
-        /* MSM signal ID table -------------------------------------------------------*/
+        /* MSM signal ID Rinex Code table -------------------------------------------------------*/
         public static readonly string[] msm_sig_gps =
         {
             /* GPS: ref [17] table 3.5-91 */
@@ -457,6 +457,8 @@ namespace Asv.Gnss
             "", "", "2S", "2L", "2X", "", "", "", "", "5I", "5Q", "5X", /* 13-24 */
             "", "", "", "", "", "1S", "1L", "1X" /* 25-32 */
         };
+
+
 
         public static readonly string[] msm_sig_glo =
         {
@@ -506,10 +508,10 @@ namespace Asv.Gnss
             "", "", "", "", "", "", "", ""
         };
 
-        public static string Sat2Code(int sat)
+        public static string Sat2Code(int sat, int prn = 0)
         {
-            var prn = 0;
-            var sys  = GetSatelliteSystem(sat, ref prn);
+            var p = prn;
+            var sys  = GetSatelliteSystem(sat, ref p);
             switch (sys)
             {
                 case NavigationSystemEnum.SYS_GPS: return $"G{prn - MINPRNGPS + 1}";
@@ -905,6 +907,26 @@ namespace Asv.Gnss
             }
         }
 
+        public static DateTime GetUtc(DateTime nowUtc, double tod)
+        {
+            var tow = 0.0;
+            var week = 0;
+
+            var time = nowUtc;
+
+            GetFromTime(time, ref week, ref tow);
+
+            var todP = tow % 86400.0;
+            tow -= todP;
+
+            if (tod < todP - 43200.0)
+                tod += 86400.0;
+            else if (tod > todP + 43200.0)
+                tod -= 86400.0;
+
+            return GetFromGps(week, tow + tod);
+        }
+
         /// <summary>
         /// adjust daily rollover of GLONASS time
         /// </summary>
@@ -954,8 +976,8 @@ namespace Asv.Gnss
         public static byte Obs2Code(string obs)
         {
             for (byte i = 0; i < ObsCodes.Length;i++) {
-                if (string.Equals(ObsCodes[i], obs)) continue;
-                return (byte) (i + 1);
+                if (!string.Equals(ObsCodes[i], obs)) continue;
+                return i;
             }
             return 0;
         }
@@ -1105,71 +1127,6 @@ namespace Asv.Gnss
             return -1;
         }
 
-        public static void sigindex(NavigationSystemEnum sys, byte[] code, int n, string opt, int[] idx)
-        {
-            int nex, pri;
-            var pri_h = new int[8];
-            var index = new int[8];
-            var ex = new int[n];
-    
-            /* test code priority */
-            for (var i=0;i<n;i++) {
-                if (code[i] == 0) continue;
-        
-                if (idx[i]>=NFREQ) { /* save as extended signal if idx >= NFREQ */
-                    ex[i]=1;
-                    continue;
-                }
-                /* code priority */
-                pri=getcodepri(sys, code[i], opt);
-        
-                /* select highest priority signal */
-                if (pri>pri_h[idx[i]]) {
-                    if (index[idx[i]] != 0) ex[index[idx[i]] - 1] = 1;
-                    pri_h[idx[i]]=pri;
-                    index[idx[i]]=i+1;
-                }
-                else ex[i] = 1;
-            }
-            /* signal index in obs data */
-            for (var i = nex = 0; i < n; i++)
-            {
-                if (ex[i] == 0) ;
-                else if (nex < NEXOBS) idx[i] = NFREQ + nex++;
-                else
-                { /* no space in obs data */
-                    idx[i] = -1;
-                }
-            }
-        }
-
-        public static int getcodepri(NavigationSystemEnum sys, byte code, string opt)
-        {
-            int i, j;
-    
-            switch (sys) {
-                case NavigationSystemEnum.SYS_GPS: i=0;
-                    break;
-                case NavigationSystemEnum.SYS_GLO: i=1;
-                    break;
-                case NavigationSystemEnum.SYS_GAL: i=2;
-                    break;
-                case NavigationSystemEnum.SYS_QZS: i=3;
-                    break;
-                case NavigationSystemEnum.SYS_SBS: i=4;
-                    break;
-                case NavigationSystemEnum.SYS_CMP: i=5;
-                    break;
-                case NavigationSystemEnum.SYS_IRN: i=6;
-                    break;
-                default: return 0;
-            }
-            if ((j=Code2Idx(sys, code))<0) return 0;
-            var obs = Code2Obs(code);
-            
-            return CodePris[i][j].IndexOf(obs[1]) != -1 ? 14 : 0;
-        }
-
         /// <summary>
         /// * convert satellite system+prn/slot number to satellite number
         /// * args   : int    sys       I   satellite system (SYS_GPS,SYS_GLO,...)
@@ -1213,6 +1170,23 @@ namespace Asv.Gnss
             }
             return 0;
         }
+
+        public static double Code2Freq(NavigationSystemEnum sys, byte code, int fcn)
+        {
+            var freq = 0.0;
+
+            switch (sys)
+            {
+                case NavigationSystemEnum.SYS_GPS: code2freq_GPS(code, ref freq); break;
+                case NavigationSystemEnum.SYS_GLO: code2freq_GLO(code, fcn, ref freq); break;
+                case NavigationSystemEnum.SYS_GAL: code2freq_GAL(code, ref freq); break;
+                case NavigationSystemEnum.SYS_QZS: code2freq_QZS(code, ref freq); break;
+                case NavigationSystemEnum.SYS_SBS: code2freq_SBS(code, ref freq); break;
+                case NavigationSystemEnum.SYS_CMP: code2freq_BDS(code, ref freq); break;
+                case NavigationSystemEnum.SYS_IRN: code2freq_IRN(code, ref freq); break;
+            }
+            return freq;
+        }
     }
 
     public enum NavigationSystemEnum
@@ -1238,5 +1212,15 @@ namespace Asv.Gnss
         TSYS_QZS = 4,                   /* time system: QZSS time */
         TSYS_CMP = 5,                   /* time system: BeiDou time */
         TSYS_IRN = 6                   /* time system: IRNSS time */
+    }
+
+    public class GnnsSignal
+    {
+        public double Frequency { get; set; }
+        public string FrequencyBand { get; set; }
+        public string Signal { get; set; }
+        public string RinexCode { get; set; }
+        public byte ObservationCode { get; set; }
+        public int ObservationIndex { get; set; }
     }
 }

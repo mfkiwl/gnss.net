@@ -8,15 +8,6 @@ namespace Asv.Gnss
 {
     public class RtcmV3MSM4 : RtcmV3MultipleSignalMessagesBase
     {
-        // private const double SLight = 299792458.0; /* speed of light (m/s) */
-        // private const double Freq1 = 1.57542E9; /* L1/E1  frequency (Hz) */
-        // private const double Freq2 = 1.22760E9; /* L2     frequency (Hz) */
-        // private const double RangeMs = SLight * 0.001; /* range in 1 ms */
-        // private const double P2_10 = 0.0009765625; /* 2^-10 */
-        // private const double P2_24 = 5.960464477539063E-08; /* 2^-24 */
-        // private const double P2_29 = 1.862645149230957E-09; /* 2^-29 */
-        // private const double SnrUnit = 0.001; /* SNR unit (dBHz) */
-
         public RtcmV3MSM4(ushort messageId)
         {
             if (messageId != 1074 && messageId != 1084 && messageId != 1094 && messageId != 1124)
@@ -111,90 +102,132 @@ namespace Asv.Gnss
             return bitIndex;
         }
 
-        private void CreateMsmObservable(double[] roughRanges, double[] pseudorange, double[] phaseRange, byte[] @lock, byte[] halfCycle, double[] cnr)
+        private void CreateMsmObservable(double[] roughRanges, double[] pseudorange, double[] phaseRange, byte[] @lock,
+            byte[] halfCycle, double[] cnr)
         {
-            
-            
-            var q = "";
-            
+            var sig = new GnnsSignal[SignalIds.Length];
             var sys = RtcmV3Helper.GetNavigationSystem(MessageId);
+
+            Satellites = new Satellite[0];
+            if (SatelliteIds.Length == 0) return;
             Satellites = new Satellite[SatelliteIds.Length];
+
+            /* id to signal */
+            for (var i = 0; i < SignalIds.Length; i++)
+            {
+                sig[i] = new GnnsSignal();
+                switch (sys)
+                {
+                    case NavigationSystemEnum.SYS_GPS:
+                        sig[i].RinexCode = RtcmV3Helper.msm_sig_gps[SignalIds[i] - 1];
+                        break;
+                    case NavigationSystemEnum.SYS_GLO:
+                        sig[i].RinexCode = RtcmV3Helper.msm_sig_glo[SignalIds[i] - 1];
+                        break;
+                    case NavigationSystemEnum.SYS_GAL:
+                        sig[i].RinexCode = RtcmV3Helper.msm_sig_gal[SignalIds[i] - 1];
+                        break;
+                    case NavigationSystemEnum.SYS_QZS:
+                        sig[i].RinexCode = RtcmV3Helper.msm_sig_qzs[SignalIds[i] - 1];
+                        break;
+                    case NavigationSystemEnum.SYS_SBS:
+                        sig[i].RinexCode = RtcmV3Helper.msm_sig_sbs[SignalIds[i] - 1];
+                        break;
+                    case NavigationSystemEnum.SYS_CMP:
+                        sig[i].RinexCode = RtcmV3Helper.msm_sig_cmp[SignalIds[i] - 1];
+                        break;
+                    case NavigationSystemEnum.SYS_IRN:
+                        sig[i].RinexCode = RtcmV3Helper.msm_sig_irn[SignalIds[i] - 1];
+                        break;
+                    default:
+                        sig[i].RinexCode = "";
+                        break;
+                }
+
+                /* signal to rinex obs type */
+                sig[i].ObservationCode = RtcmV3Helper.Obs2Code(sig[i].RinexCode);
+                sig[i].ObservationIndex = RtcmV3Helper.Code2Idx(sys, sig[i].ObservationCode);
+            }
+
+
+            var k = 0;
             for (var i = 0; i < SatelliteIds.Length; i++)
             {
-                var idx = new int[SignalIds.Length];
-                var code = new byte[SignalIds.Length];
-                var satellite = new Satellite
+                var prn = SatelliteIds[i];
+
+                if (sys == NavigationSystemEnum.SYS_QZS) prn += RtcmV3Helper.MINPRNQZS - 1;
+                else if (sys == NavigationSystemEnum.SYS_SBS) prn += RtcmV3Helper.MINPRNSBS - 1;
+
+                
+                var sat = RtcmV3Helper.satno(sys, prn);
+
+                Satellites[i] = new Satellite {SatellitePrn = prn, SatelliteCode = RtcmV3Helper.Sat2Code(sat, prn)};
+
+
+                var fcn = 0;
+                if (sys == NavigationSystemEnum.SYS_GLO)
                 {
-                    SatellitePrn = SatelliteIds[i], 
-                    Signals = new Signal[CellMask[i].Count(_ => _ != 0)]
-                };
-                Satellites[i] = satellite;
+                    #region SYS_GLO
+
+                    // ToDo Нужны дополнительные данные по GLONASS Ephemeris, либо использовать сообщение MSM5, там есть ex[]
+                    // fcn = -8; /* no glonass fcn info */
+                    // if (ex && ex[i] <= 13)
+                    // {
+                    //     fcn = ex[i] - 7;
+                    //     if (!rtcm->nav.glo_fcn[prn - 1])
+                    //     {
+                    //         rtcm->nav.glo_fcn[prn - 1] = fcn + 8; /* fcn+8 */
+                    //     }
+                    // }
+                    // else if (rtcm->nav.geph[prn - 1].sat == sat)
+                    // {
+                    //     fcn = rtcm->nav.geph[prn - 1].frq;
+                    // }
+                    // else if (rtcm->nav.glo_fcn[prn - 1] > 0)
+                    // {
+                    //     fcn = rtcm->nav.glo_fcn[prn - 1] - 8;
+                    // }
+
+                    #endregion
+
+                }
+
                 var index = 0;
+                Satellites[i].Signals = new Signal[CellMask[i].Count(_ => _ != 0)];
+
                 for (var j = 0; j < SignalIds.Length; j++)
                 {
                     if (CellMask[i][j] == 0) continue;
+
                     Satellites[i].Signals[index] = new Signal();
-                    switch (sys)
+                    if (sat != 0 && sig[j].ObservationIndex >= 0)
                     {
-                        case NavigationSystemEnum.SYS_GPS: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_gps[SignalIds[j] - 1]; break;
-                        case NavigationSystemEnum.SYS_GLO: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_glo[SignalIds[j] - 1]; break;
-                        case NavigationSystemEnum.SYS_GAL: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_gal[SignalIds[j] - 1]; break;
-                        case NavigationSystemEnum.SYS_QZS: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_qzs[SignalIds[j] - 1]; break;
-                        case NavigationSystemEnum.SYS_SBS: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_sbs[SignalIds[j] - 1]; break;
-                        case NavigationSystemEnum.SYS_CMP: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_cmp[SignalIds[j] - 1]; break;
-                        case NavigationSystemEnum.SYS_IRN: satellite.Signals[index].RinexCode = RtcmV3Helper.msm_sig_irn[SignalIds[j] - 1]; break;
-                        default: satellite.Signals[index].RinexCode = ""; break;
-                    }
 
-                    /* signal to rinex obs type */
-                    code[j] = RtcmV3Helper.Obs2Code(satellite.Signals[index].RinexCode);
-                    idx[j] = RtcmV3Helper.Code2Idx(sys, code[j]);
+                        var freq = fcn < -7.0 ? 0.0 : RtcmV3Helper.Code2Freq(sys, sig[j].ObservationCode, fcn);
 
-                    if (code[j] != RtcmV3Helper.CODE_NONE)
-                    {
-                        q += $"L{satellite.Signals[index].RinexCode}{(j < satellite.Signals.Length - 1 ? ", " : "")}";
-                    }
-                    else
-                    {
-                        q += $"({SignalIds[j]}){(j < satellite.Signals.Length - 1 ? ", " : "")}";
-                    }
-
-                    // try
-                    // {
-                    //     RtcmV3Helper.sigindex(sys, code, SignalIds.Length, "", idx);
-                    // }
-                    // catch (Exception e)
-                    // {
-                    //     
-                    // }
-                    /* get signal index */
-                    
-
-                    if (sys == NavigationSystemEnum.SYS_QZS) satellite.SatellitePrn += RtcmV3Helper.MINPRNQZS - 1;
-                    else if (sys == NavigationSystemEnum.SYS_SBS) satellite.SatellitePrn += RtcmV3Helper.MINPRNSBS - 1;
-
-                    var freq = 1.0;
-                    if (idx[j] >= 0)
-                    {
                         /* pseudorange (m) */
-                        if (roughRanges[i] != 0.0 && pseudorange[j] > -1E12)
+                        if (roughRanges[i] != 0.0 && pseudorange[k] > -1E12)
                         {
-                            satellite.Signals[index].PseudoRange = roughRanges[i] + pseudorange[j];
+                            Satellites[i].Signals[index].PseudoRange = roughRanges[i] + pseudorange[k];
                         }
+
                         /* carrier-phase (cycle) */
-                        if (roughRanges[i] != 0.0 && phaseRange[j] > -1E12)
+                        if (roughRanges[i] != 0.0 && phaseRange[k] > -1E12)
                         {
-                            satellite.Signals[index].CarrierPhase = (roughRanges[i] + pseudorange[j]) * freq / RtcmV3Helper.CLIGHT;
+                            Satellites[i].Signals[index].CarrierPhase = (roughRanges[i] + phaseRange[k]) * freq / RtcmV3Helper.CLIGHT;
                         }
 
-                        // var sat = RtcmV3Helper.satno(sys, satellite.SatellitePrn);
-                        // satellite.Signals[index].LockTime = lossoflock(rtcm, sat, idx[j], @lock[j]) + (halfCycle[j] != 0 ? 3 : 0);
-
-                        satellite.Signals[index].Cnr = (ushort)(cnr[j] / RtcmV3Helper.SNR_UNIT + 0.5);
-                        satellite.Signals[index].CodeId = code[j];
-                        satellite.Signals[index].Id = SignalIds[j];
+                        Satellites[i].Signals[index].LockTime = @lock[k];
+                        Satellites[i].Signals[index].HalfCycle = halfCycle[k];
+                        // rtcm->obs.data[index].LLI[idx[k]] =
+                        //     lossoflock(rtcm, sat, idx[k],lock[j]) +(halfCycle[j] ? 3 : 0);
+                        // rtcm->obs.data[index].SNR[idx[k]] = (uint16_t)(cnr[j] / SNR_UNIT + 0.5);
+                        Satellites[i].Signals[index].Cnr = cnr[k] + 0.5;
+                        Satellites[i].Signals[index].ObservationCode = sig[j].ObservationCode;
+                        Satellites[i].Signals[index].RinexCode = sig[j].RinexCode;
                     }
 
+                    k++;
                     index++;
                 }
             }
@@ -211,13 +244,11 @@ namespace Asv.Gnss
     {
         public byte SatellitePrn { get; set; }
         public Signal[] Signals { get; set; }
+        public string SatelliteCode { get; set; }
     }
 
     public class Signal
     {
-        public byte Id { get; set; }
-        public string FrequencyBand { get; set; }
-        public string SignalName { get; set; }
         public string RinexCode { get; set; }
         
         /// <summary>
@@ -233,7 +264,7 @@ namespace Asv.Gnss
         /// <summary>
         /// Signal strength (0.001 dBHz)
         /// </summary>
-        public ushort Cnr { get; set; }
+        public double Cnr { get; set; }
 
         /// <summary>
         /// 
@@ -248,7 +279,7 @@ namespace Asv.Gnss
         /// <summary>
         /// 
         /// </summary>
-        public byte CodeId { get; set; }
+        public byte ObservationCode { get; set; }
     }
 
 }
