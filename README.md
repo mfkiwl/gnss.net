@@ -6,7 +6,7 @@ GNSS library for parsing RTCMv2, RTCMv3, NMEA and custom UBX, Novatel(ComNav?) p
 Example usage:
 
 ```csharp
-		static void Main(string[] args)
+	static void Main(string[] args)
         {
             // Diagnostic is a class for simple debug
             var diag = new Diagnostic();
