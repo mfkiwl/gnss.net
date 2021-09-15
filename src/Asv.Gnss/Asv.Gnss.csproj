@@ -87,8 +87,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Parsers\ComNav\BinaryComNavParser.cs" />
-    <Compile Include="Parsers\ComNav\Crc32.cs" />
+    <Compile Include="Parsers\ComNav\ComNavBinaryParser.cs" />
+    <Compile Include="Parsers\ComNav\ComNavCrc32.cs" />
+    <Compile Include="Parsers\ComNav\ComNavHelper.cs" />
+    <Compile Include="Parsers\ComNav\Msgs\ComNavBinaryPacketBase.cs" />
+    <Compile Include="Parsers\ComNav\Msgs\ComNavBinaryPsrPosPacket.cs" />
     <Compile Include="Parsers\GnssConnection.cs" />
     <Compile Include="Parsers\GnssMessageBase.cs" />
     <Compile Include="Parsers\GnssParserException.cs" />
