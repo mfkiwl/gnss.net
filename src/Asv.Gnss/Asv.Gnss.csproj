@@ -104,6 +104,7 @@
     <Compile Include="Parsers\NMEA\Msgs\Nmea0183MessageGSV.cs" />
     <Compile Include="Parsers\NMEA\Nmea0183Parser.cs" />
     <Compile Include="Parsers\GnssParserBase.cs" />
+    <Compile Include="Parsers\RTCMv3\Msgs\MSM\RtcmV3MSM7.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\StationDescription\RtcmV3Message1005and1006.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\RtcmV3MessageBase.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\MSM\RtcmV3MSM4.cs" />

@@ -1187,6 +1187,46 @@ namespace Asv.Gnss
             }
             return freq;
         }
+
+        public static double GetMinLockTime(byte indicator)
+        {
+            if (indicator == 0) return 0;
+            var result = 32;
+            for (var i = 1; i < indicator; i++)
+            {
+                result *= 2;
+            }
+
+            return result / 60000.0;
+        }
+
+        public static double GetMinLockTimeEx(ushort indicator)
+        {
+            if (indicator <= 63) return indicator / 60000.0;
+            if (64 <= indicator && indicator <= 95) return (2 * indicator - 64) / 60000.0;
+            if (96 <= indicator && indicator <= 127) return (4 * indicator - 256) / 60000.0;
+            if (128 <= indicator && indicator <= 159) return (8 * indicator - 768) / 60000.0;
+            if (160 <= indicator && indicator <= 191) return (16 * indicator - 2048) / 60000.0;
+            if (192 <= indicator && indicator <= 223) return (32 * indicator - 5120) / 60000.0;
+            if (224 <= indicator && indicator <= 255) return (64 * indicator - 12288) / 60000.0;
+            if (256 <= indicator && indicator <= 287) return (128 * indicator - 28672) / 60000.0;
+            if (288 <= indicator && indicator <= 319) return (256 * indicator - 65536) / 60000.0;
+            if (320 <= indicator && indicator <= 351) return (512 * indicator - 147456) / 60000.0;
+            if (352 <= indicator && indicator <= 383) return (1024 * indicator - 327680) / 60000.0;
+            if (384 <= indicator && indicator <= 415) return (2048 * indicator - 720896) / 60000.0;
+            if (416 <= indicator && indicator <= 447) return (4096 * indicator - 1572864) / 60000.0;
+            if (448 <= indicator && indicator <= 479) return (8192 * indicator - 3407872) / 60000.0;
+            if (480 <= indicator && indicator <= 511) return (16384 * indicator - 7340032) / 60000.0;
+            if (512 <= indicator && indicator <= 543) return (32768 * indicator - 15728640) / 60000.0;
+            if (544 <= indicator && indicator <= 575) return (65536 * indicator - 33554432) / 60000.0;
+            if (576 <= indicator && indicator <= 607) return (131072 * indicator - 71303168) / 60000.0;
+            if (608 <= indicator && indicator <= 639) return (262144 * indicator - 150994944) / 60000.0;
+            if (640 <= indicator && indicator <= 671) return (524288 * indicator - 318767104) / 60000.0;
+            if (672 <= indicator && indicator <= 703) return (1048576 * indicator - 671088640) / 60000.0;
+            if (indicator == 704) return (2097152 * indicator - 1409286144) / 60000.0;
+            if (705 <= indicator && indicator <= 1023) return 0;
+            return 0.0;
+        }
     }
 
     public enum NavigationSystemEnum
@@ -1214,11 +1254,8 @@ namespace Asv.Gnss
         TSYS_IRN = 6                   /* time system: IRNSS time */
     }
 
-    public class GnnsSignal
+    public class SignalRaw
     {
-        public double Frequency { get; set; }
-        public string FrequencyBand { get; set; }
-        public string Signal { get; set; }
         public string RinexCode { get; set; }
         public byte ObservationCode { get; set; }
         public int ObservationIndex { get; set; }
