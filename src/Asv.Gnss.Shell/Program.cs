@@ -1,12 +1,16 @@
-# gnss.net
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
-GNSS library for parsing RTCMv2, RTCMv3, NMEA and custom UBX, Novatel(ComNav?) protocols for .NET
-
-
-Example usage:
-
-```csharp
-	static void Main(string[] args)
+namespace Asv.Gnss.Shell
+{
+    class Program
+    {
+        static void Main(string[] args)
         {
             // Diagnostic is a class for simple debug
             var diag = new Diagnostic();
@@ -39,7 +43,5 @@ Example usage:
                 Thread.Sleep(3000);
             }
         }
-
-```
-
-![screnn](screen.png)
+    }
+}

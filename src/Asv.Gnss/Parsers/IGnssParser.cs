@@ -15,6 +15,12 @@ namespace Asv.Gnss
 
     public static class ParserHelper
     {
+        public static ComNavBinaryParser RegisterDefaultFrames(this ComNavBinaryParser src)
+        {
+            src.Register(() => new ComNavBinaryPsrPosPacket());
+            return src;
+        }
+
         public static RtcmV3Parser RegisterDefaultFrames(this RtcmV3Parser src)
         {
             src.Register(() => new RtcmV3MSM4(1074));
