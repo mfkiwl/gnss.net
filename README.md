@@ -42,4 +42,4 @@ Example usage:
 
 ```
 
-[!screen.png]
+[screnn](!screen.png)
