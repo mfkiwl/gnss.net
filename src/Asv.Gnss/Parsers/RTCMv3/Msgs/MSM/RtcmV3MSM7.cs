@@ -127,7 +127,6 @@ namespace Asv.Gnss
         {
             var sig = new SignalRaw[SignalIds.Length];
             var sys = RtcmV3Helper.GetNavigationSystem(MessageId);
-
             Satellites = new Satellite[0];
             if (SatelliteIds.Length == 0) return;
             Satellites = new Satellite[SatelliteIds.Length];
