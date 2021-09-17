@@ -73,7 +73,7 @@ namespace Asv.Gnss
             TTrans = time;
 
             A = sqrtA * sqrtA;
-
+            SatellitePnr = (int)prn;
             SatelliteCode = RtcmV3Helper.Sat2Code(sat, (int) prn);
 
             return bitIndex - offsetBits;
@@ -85,6 +85,8 @@ namespace Asv.Gnss
         /// /* satellite number */
         /// </summary>
         public int SatelliteNumber { get; set; }
+
+        public int SatellitePnr { get; set; }
 
         public string SatelliteCode { get; set; }
         /// <summary>
@@ -133,13 +135,34 @@ namespace Asv.Gnss
         public DateTime TTrans { get; set; }
 
         /* SV orbit parameters */
+        /// <summary>
+        /// Root of the Semi-Major Axis (km)
+        /// </summary>
         public double A { get; set; }
+        /// <summary>
+        /// Eccentricity (e)
+        /// </summary>
         public double E { get; set; }
+        /// <summary>
+        /// Inclination Angle at Reference Time (i)
+        /// </summary>
         public double I0 { get; set; }
+        /// <summary>
+        /// Longitude of Ascending Node of Orbit Plane at Weekly Epoc (LΩ)
+        /// </summary>
         public double Omg0 { get; set; }
+        /// <summary>
+        /// Argument of Perigee (ω) 
+        /// </summary>
         public double Omg { get; set; }
+        /// <summary>
+        /// Mean Anomaly at Reference Time (m)
+        /// </summary>
         public double M0 { get; set; }
         public double Deln { get; set; }
+        /// <summary>
+        /// Rate of Right Ascension (dΩ/dt)
+        /// </summary>
         public double OmgD { get; set; }
         public double Idot { get; set; }
         public double Crc { get; set; }
