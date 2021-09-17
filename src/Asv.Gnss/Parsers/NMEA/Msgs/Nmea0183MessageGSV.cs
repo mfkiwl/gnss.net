@@ -17,7 +17,9 @@ namespace Asv.Gnss
     /// </summary>
     public class Nmea0183MessageGSV : Nmea0183MessageBase
     {
-        public override string MessageId => "GSV";
+        public const string GnssMessageId = "GSV";
+
+        public override string MessageId => GnssMessageId;
 
         protected override void InternalDeserializeFromStringArray(string[] items)
         {
