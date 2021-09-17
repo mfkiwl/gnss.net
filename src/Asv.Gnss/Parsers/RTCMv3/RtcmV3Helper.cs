@@ -408,6 +408,11 @@ namespace Asv.Gnss
         public const double P2_50 = 8.881784197001252E-16;
 
         /// <summary>
+        /// 2^-55
+        /// </summary>
+        public const double P2_55 = 2.775557561562891E-17;
+
+        /// <summary>
         /// earth semimajor axis (WGS84) (m)
         /// </summary>
         public const double RE_WGS84 = 6378137.0;
@@ -747,6 +752,7 @@ namespace Asv.Gnss
             SetBitU(buff, pos, len, (uint) data);
         }
 
+        
         public static void SetBitU(byte[] buff, uint pos, uint len, uint data)
         {
             var mask = 1u << (int) (len - 1);
@@ -762,7 +768,17 @@ namespace Asv.Gnss
             }
         }
 
-        public static int GetBits(byte[] buff, uint pos, uint len)
+        /// <summary>
+        /// get sign-magnitude bits
+        /// </summary>
+        /// <returns></returns>
+        public static double GetBitG(byte[] buff, uint pos, uint len)
+        {
+            double value = GetBitU(buff, pos + 1, len - 1);
+            return GetBitU(buff, pos,1) != 0 ? -value : value;
+        }
+
+    public static int GetBits(byte[] buff, uint pos, uint len)
         {
             var bits = GetBitU(buff, pos, len);
             if (len <= 0 || 32 <= len || !((bits & (1u << (int) (len - 1))) != 0))
@@ -973,7 +989,40 @@ namespace Asv.Gnss
             return GetFromGps(week, tow);
         }
 
-        public static byte Obs2Code(string obs)
+        public static int adjgpsweek(DateTime utc, int week)
+        {
+            var w = 0;
+            var s = 0.0;
+            GetFromTime(Utc2Gps(utc), ref w, ref s);
+            if (w < 1560) w = 1560; /* use 2009/12/1 if time is earlier than 2009/12/1 */
+            return week + (w - week + 1) / 1024 * 1024;
+        }
+
+        
+
+        public static DateTime epoch2time(DateTime ep)
+        {
+            int[] doy = { 1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 };
+
+            var time = new DateTime(0,0,0,0,0,0, DateTimeKind.Utc);
+
+            var year = ep.Year;
+            var mon = ep.Month;
+            var day = ep.Day;
+
+            if (year<1970||2099<year||mon<1||12<mon) return time;
+    
+            /* leap year if year%4==0 in 1901-2099 */
+            var days = (year - 1970) * 365 + (year - 1969) / 4 + doy[mon - 1] + day - 2 + ((year % 4 == 0 && mon >= 3) ? 1 : 0);
+            var sec = (int) Math.Floor(ep.Second + ep.Millisecond / 1000.0);
+            
+            time = time.AddDays(days).AddHours(ep.Hour).AddMinutes(ep.Minute).AddSeconds(ep.Second);
+            time = time.AddSeconds(-(ep.Second - sec));    
+            
+            return time;
+        }
+
+    public static byte Obs2Code(string obs)
         {
             for (byte i = 0; i < ObsCodes.Length;i++) {
                 if (!string.Equals(ObsCodes[i], obs)) continue;

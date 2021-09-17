@@ -224,7 +224,7 @@ namespace Asv.Gnss
                     {
 
                         var freq = fcn < -7.0 ? 0.0 : RtcmV3Helper.Code2Freq(sys, sig[j].ObservationCode, fcn);
-
+                        if (Math.Abs(freq - 0.0) < 0.01) {}
                         /* pseudorange (m) */
                         if (roughRanges[i] != 0.0 && pseudorange[k] > -1E12)
                         {
