@@ -20,7 +20,7 @@ namespace Asv.Gnss
                 var dow = RtcmV3Helper.GetBitU(buffer, bitIndex, 3);
                 var tod = RtcmV3Helper.GetBitU(buffer, bitIndex + 3, 27);
                 EpochTimeTOW = dow * 86400000 + tod;
-                TGpsTime = RtcmV3Helper.AdjustDailyRoverGlonassTime(utc, tod * 0.001);
+                EpochTime = RtcmV3Helper.AdjustDailyRoverGlonassTime(utc, tod * 0.001);
                 
             }
             else if (sys == NavigationSystemEnum.SYS_CMP)
@@ -28,14 +28,14 @@ namespace Asv.Gnss
                 EpochTimeTOW = RtcmV3Helper.GetBitU(buffer, bitIndex, 30);
                 var tow = EpochTimeTOW * 0.001;
                 tow += 14.0; /* BDT -> GPS Time */
-                TGpsTime = RtcmV3Helper.AdjustWeekly(utc, tow);
+                EpochTime = RtcmV3Helper.AdjustWeekly(utc, tow);
                 
             }
             else
             {
                 EpochTimeTOW = RtcmV3Helper.GetBitU(buffer, bitIndex, 30);
                 var tow = EpochTimeTOW * 0.001;
-                TGpsTime = RtcmV3Helper.AdjustWeekly(utc, tow);
+                EpochTime = RtcmV3Helper.AdjustWeekly(utc, tow);
             }
             bitIndex += 30;
 
@@ -98,7 +98,7 @@ namespace Asv.Gnss
         /// </summary>
         public bool ObservableDataIsComplete { get; set; }
 
-        public DateTime TGpsTime { get; set; }
+        public DateTime EpochTime { get; set; }
 
         // protected byte[] CellMask { get; set; }
         protected byte[][] CellMask { get; set; }
