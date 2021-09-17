@@ -28,13 +28,22 @@ namespace Asv.Gnss
             var messageLength = BitConverter.ToUInt16(buffer, offsetInBytes + 8); 
             GpsWeek = BitConverter.ToUInt16(buffer, offsetInBytes + 14);
             GpsTime = BitConverter.ToUInt32(buffer, offsetInBytes + 16);
+            TGpsTime = RtcmV3Helper.GetFromGps(GpsWeek, GpsTime / 1000.0);
+            UtcTime = RtcmV3Helper.Gps2Utc(TGpsTime);
             ReceiverSwVersion = BitConverter.ToUInt16(buffer, offsetInBytes + 26);
             DeserializeMessage(buffer, offsetBits + headerLength * 8U, messageLength);
             return offsetBits + headerLength * 8U + messageLength * 8U + 4U * 8U /* CRC32 */;
         }
 
+        
+
         protected abstract void DeserializeMessage(byte[] buffer, uint offsetBits, ushort messageLength);
 
+        public DateTime UtcTime { get; set; }
+        /// <summary>
+        /// GPS Time (TGPS)
+        /// </summary>
+        public DateTime TGpsTime { get; set; }
         /// <summary>
         /// This is a value (0 - 65535) that represents the receiver software build number
         /// </summary>
