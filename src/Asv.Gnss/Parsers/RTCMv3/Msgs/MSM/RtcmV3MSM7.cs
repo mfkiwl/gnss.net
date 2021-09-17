@@ -127,7 +127,6 @@ namespace Asv.Gnss
         {
             var sig = new SignalRaw[SignalIds.Length];
             var sys = RtcmV3Helper.GetNavigationSystem(MessageId);
-
             Satellites = new Satellite[0];
             if (SatelliteIds.Length == 0) return;
             Satellites = new Satellite[SatelliteIds.Length];
@@ -225,7 +224,7 @@ namespace Asv.Gnss
                     {
 
                         var freq = fcn < -7.0 ? 0.0 : RtcmV3Helper.Code2Freq(sys, sig[j].ObservationCode, fcn);
-
+                        if (Math.Abs(freq - 0.0) < 0.01) {}
                         /* pseudorange (m) */
                         if (roughRanges[i] != 0.0 && pseudorange[k] > -1E12)
                         {
