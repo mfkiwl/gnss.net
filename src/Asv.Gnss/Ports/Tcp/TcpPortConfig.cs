@@ -9,6 +9,7 @@ namespace Asv.Gnss
         public string Host { get; set; }
         public int Port { get; set; }
         public bool IsServer { get; set; }
+        public int ReconnectTimeout { get; set; } = 0;
 
         public static bool TryParseFromUri(Uri uri, out TcpPortConfig opt)
         {
@@ -21,12 +22,15 @@ namespace Asv.Gnss
             opt = new TcpPortConfig
             {
                 IsServer = bool.Parse(coll["srv"] ?? bool.FalseString),
+                ReconnectTimeout = int.Parse(coll["rx_timeout"] ?? "0"),
                 Host = IPAddress.Parse(uri.Host).ToString(),
                 Port = uri.Port,
             };
 
             return true;
         }
+
+        
 
         public override string ToString()
         {

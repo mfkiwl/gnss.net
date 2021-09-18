@@ -29,7 +29,7 @@ namespace Asv.Gnss
         long RxBytes { get; }
         long TxBytes { get; }
         PortType PortType { get; }
-        TimeSpan ReconnectTimeout { get; set; }
+        TimeSpan RxRecvTimeout { get; set; }
         IRxValue<bool> IsEnabled { get; }
         IRxValue<PortState> State { get; }
         IRxValue<Exception> Error { get; }

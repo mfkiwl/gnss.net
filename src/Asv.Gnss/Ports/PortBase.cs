@@ -23,7 +23,7 @@ namespace Asv.Gnss
         public long RxBytes => Interlocked.Read(ref _rxBytes);
         public long TxBytes => Interlocked.Read(ref _txBytes);
         public abstract PortType PortType { get; }
-        public TimeSpan ReconnectTimeout { get; set; } = TimeSpan.FromSeconds(5);
+        public TimeSpan RxRecvTimeout { get; set; } = TimeSpan.FromSeconds(5);
         public IRxValue<PortState> State => _portStateStream;
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private int _errCnt;
@@ -156,7 +156,7 @@ namespace Asv.Gnss
         {
             _portStateStream.OnNext(PortState.Error);
             _portErrorStream.OnNext(exception);
-            Observable.Timer(ReconnectTimeout).Subscribe(_ => TryConnect(), _disposedCancel.Token);
+            Observable.Timer(RxRecvTimeout).Subscribe(_ => TryConnect(), _disposedCancel.Token);
             Stop();
         }
 

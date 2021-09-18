@@ -10,6 +10,7 @@ namespace Asv.Gnss
         private TcpPortConfig _cfg;
         private TcpClient _tcp;
         private CancellationTokenSource _stop;
+        private DateTime _lastData;
 
         public TcpClientPort(TcpPortConfig cfg)
         {
@@ -60,10 +61,20 @@ namespace Asv.Gnss
         {
             try
             {
+                _lastData = DateTime.Now;
                 while (true)
                 {
+                    if (_cfg.ReconnectTimeout != 0)
+                    {
+                        if ((DateTime.Now - _lastData).TotalMilliseconds > _cfg.ReconnectTimeout)
+                        {
+                            throw new Exception($"RX data timeout");
+                        }
+                    }
+                    
                     if (_tcp.Available != 0)
                     {
+                        _lastData = DateTime.Now;
                         var buff = new byte[_tcp.Available];
                         _tcp.GetStream().Read(buff, 0, buff.Length);
                         InternalOnData(buff);
