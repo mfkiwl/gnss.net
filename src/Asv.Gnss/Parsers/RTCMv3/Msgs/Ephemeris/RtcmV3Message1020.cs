@@ -22,9 +22,12 @@ namespace Asv.Gnss
 
             var prn = RtcmV3Helper.GetBitU(buffer, bitIndex, 6); bitIndex += 6;
             FrequencyNumber = (int)RtcmV3Helper.GetBitU(buffer, bitIndex, 5) - 7; bitIndex += 5 + 2 + 2;
+            
+
             var tkH = RtcmV3Helper.GetBitU(buffer, bitIndex, 5); bitIndex += 5;
             var tkM = RtcmV3Helper.GetBitU(buffer, bitIndex, 6); bitIndex += 6;
             var tkS = RtcmV3Helper.GetBitU(buffer, bitIndex, 1) * 30.0; bitIndex += 1;
+            
             var bn = RtcmV3Helper.GetBitU(buffer, bitIndex, 1); bitIndex += 1 + 1;
             var tb = RtcmV3Helper.GetBitU(buffer, bitIndex, 7); bitIndex += 7;
             
@@ -37,10 +40,18 @@ namespace Asv.Gnss
             Velocity.Z = RtcmV3Helper.GetBitG(buffer, bitIndex, 24) * RtcmV3Helper.P2_20 * 1E3; bitIndex += 24;
             Position.Z = RtcmV3Helper.GetBitG(buffer, bitIndex, 27) * RtcmV3Helper.P2_11 * 1E3; bitIndex += 27;
             Acceleration.Z = RtcmV3Helper.GetBitG(buffer, bitIndex, 5) * RtcmV3Helper.P2_30 * 1E3; bitIndex += 5 + 1;
+
+
+            // γn(tb)
             RelativeFreqBias = RtcmV3Helper.GetBitG(buffer, bitIndex, 11) * RtcmV3Helper.P2_40; bitIndex += 11 + 3;
+            // τn(tb)
             SvClockBias = RtcmV3Helper.GetBitG(buffer, bitIndex, 22) * RtcmV3Helper.P2_30; bitIndex += 22;
+            // Δτn
             DelayL1ToL2 = RtcmV3Helper.GetBitG(buffer, bitIndex, 5) * RtcmV3Helper.P2_30; bitIndex += 5;
-            OperationAge = (int)RtcmV3Helper.GetBitU(buffer, bitIndex, 5); bitIndex += 5;
+            // 
+            OperationAge = (int)RtcmV3Helper.GetBitU(buffer, bitIndex, 5); bitIndex += 5+1;
+
+
 
             var sat = RtcmV3Helper.satno(sys, (int)prn);
             if (sat == 0)
@@ -56,18 +67,18 @@ namespace Asv.Gnss
             var tow = 0.0;
             RtcmV3Helper.GetFromTime(utc, ref week, ref tow);
             
-            var tod = Math.Abs(tow - 86400.0); tow -= tod;
+            var tod = tow % 86400.0; tow -= tod;
             var tof = tkH * 3600.0 + tkM * 60.0 + tkS - 10800.0; /* lt->utc */
             
             if (tof < tod - 43200.0) tof += 86400.0;
             else if (tof > tod + 43200.0) tof -= 86400.0;
 
-            FrameTime = RtcmV3Helper.Utc2Gps(RtcmV3Helper.GetFromGps(week, tow + tof));
+            FrameTime = RtcmV3Helper.GetFromGps(week, tow + tof);
             var toe = tb * 900.0 - 10800.0; /* lt->utc */
             
             if (toe < tod - 43200.0) toe += 86400.0;
             else if (toe > tod + 43200.0) toe -= 86400.0;
-            EphemerisEpoch = RtcmV3Helper.Utc2Gps(RtcmV3Helper.GetFromGps(week, tow + toe)); /* utc->gpst */
+            EphemerisEpoch = RtcmV3Helper.GetFromGps(week, tow + toe); /* utc->gpst */
 
             SatelliteCode = RtcmV3Helper.Sat2Code(sat, (int)prn);
 
@@ -125,15 +136,15 @@ namespace Asv.Gnss
         public EcefPoint Acceleration { get; } = new EcefPoint();
 
         /// <summary>
-        /// SV clock bias (s)
+        /// SV clock bias τn(tb) (s)
         /// </summary>
         public double SvClockBias { get; set; }
         /// <summary>
-        /// relative freq bias
+        /// relative freq bias (γn(tb))
         /// </summary>
         public double RelativeFreqBias { get; set; }
         /// <summary>
-        /// delay between L1 and L2 (s)
+        /// delay between L1 and L2 Δτn (s)
         /// </summary>
         public double DelayL1ToL2 { get; set; }
 

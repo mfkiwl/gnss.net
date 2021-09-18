@@ -997,9 +997,7 @@ namespace Asv.Gnss
             if (w < 1560) w = 1560; /* use 2009/12/1 if time is earlier than 2009/12/1 */
             return week + (w - week + 1) / 1024 * 1024;
         }
-
         
-
         public static DateTime epoch2time(DateTime ep)
         {
             int[] doy = { 1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 };
