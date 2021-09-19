@@ -47,7 +47,7 @@ namespace Asv.Gnss
             {
                 if (State.Value == PortState.Connected)
                 {
-                    _logger.Info($"Port {this}: work {DateTime.Now - _lastSuccess:g}; rx:{_rxBytes / 1024:F0} KiB; tx:{_rxBytes / 1024:F0} KiB; conn err:{_errCnt};");
+                    _logger.Info($"Port {this}: work {(DateTime.Now - _lastSuccess)}; rx:{_rxBytes / 1024:N0} KiB; tx:{_rxBytes / 1024:N0} KiB; conn err:{_errCnt};");
                 }
                 else
                 {

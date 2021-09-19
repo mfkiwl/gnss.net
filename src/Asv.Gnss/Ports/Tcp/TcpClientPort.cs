@@ -81,7 +81,7 @@ namespace Asv.Gnss
                     }
                     else
                     {
-                        Thread.Sleep(100);
+                        Thread.Sleep(30);
                     }
                 }
             }
