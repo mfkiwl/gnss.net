@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Concurrent;
+using System.Globalization;
 using System.IO.Ports;
 using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NLog;
-using AsyncLock = Nito.AsyncEx.AsyncLock;
+
 
 namespace Asv.Gnss
 {
@@ -28,7 +31,7 @@ namespace Asv.Gnss
         protected override async Task InternalSend(byte[] data, int count, CancellationToken cancel)
         {
             if (_serial == null) return;
-            using (await _sync.LockAsync())
+            using (await _sync.LockAsync(cancel))
             {
                 if (_serial == null) return;
                 if (!_serial.IsOpen) return;
