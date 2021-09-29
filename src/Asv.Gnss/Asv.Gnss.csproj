@@ -123,6 +123,7 @@
     <Compile Include="Tools\Configuration\IConfiguration.cs" />
     <Compile Include="Tools\Configuration\Json\JsonConfiguration.cs" />
     <Compile Include="Tools\Configuration\Json\JsonOneFileConfiguration.cs" />
+    <Compile Include="Tools\ConsoleWelcomePrinter.cs" />
     <Compile Include="Tools\Diagnostic\DiagnosticKey.cs" />
     <Compile Include="Tools\Diagnostic\DiagnosticSource.cs" />
     <Compile Include="Tools\Diagnostic\DoubleDiagnostic.cs" />
