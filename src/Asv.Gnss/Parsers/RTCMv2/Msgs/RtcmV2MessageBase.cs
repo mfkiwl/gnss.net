@@ -57,12 +57,12 @@ namespace Asv.Gnss
             return (2 /* HEADER */ + 31 /* MAX DATA STRING */) * 3 /* bytes each */;
         }
 
-        public override uint Serialize(byte[] buffer, uint offsetBits)
+        public override uint Serialize(byte[] buffer, uint offsetBits = 0)
         {
             throw new NotImplementedException();
         }
 
-        public override uint Deserialize(byte[] buffer, uint offsetBits)
+        public override uint Deserialize(byte[] buffer, uint offsetBits = 0)
         {
             var bitIndex = offsetBits;
 

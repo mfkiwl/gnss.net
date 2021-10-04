@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Asv.Mavlink
+namespace Asv.Gnss
 {
 
     /// <summary>
