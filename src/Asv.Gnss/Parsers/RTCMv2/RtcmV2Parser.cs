@@ -13,11 +13,11 @@ namespace Asv.Gnss
 
         public const string GnssProtocolId = "RTCMv2";
 
-        private readonly byte[] _buffer = new byte[33 * 3]; /* message buffer */
-        private uint _word;      /* word buffer for rtcm 2 */
+        private readonly byte[] _buffer = new byte[33 * 3]; /* message buffer   */
+        private uint _word;                /* word buffer for rtcm 2            */
         private int _readedBytes;          /* number of bytes in message buffer */
-        private int _readedBits;           /* number of bits in word buffer */
-        private int _len;            /* message length (bytes) */
+        private int _readedBits;           /* number of bits in word buffer     */
+        private int _len;                  /* message length (bytes)            */
 
         private enum State
         {
@@ -27,7 +27,7 @@ namespace Asv.Gnss
             Payload
         }
 
-        private bool decode_word(uint word, byte[] data, int offset)
+        private bool DecodeWord(uint word, byte[] data, int offset)
         {
             var hamming = new uint[] {0xBB1F3480, 0x5D8F9A40, 0xAEC7CD00, 0x5763E680, 0x6BB1F340, 0x8B7A89C0};
             uint parity = 0;
@@ -72,7 +72,7 @@ namespace Asv.Gnss
                     }
                     break;
                 case State.Preamb1:
-                    if (decode_word(_word, _buffer, 0))
+                    if (DecodeWord(_word, _buffer, 0))
                     {
                         _state = State.Preamb2;
                         _readedBytes = 3; _readedBits = 0;
@@ -90,7 +90,7 @@ namespace Asv.Gnss
                     {
                         _readedBits = 0;
                         /* check parity */
-                        if (decode_word(_word, _buffer, _readedBytes))
+                        if (DecodeWord(_word, _buffer, _readedBytes))
                         {
                             _readedBytes += 3;
                             _len = (_buffer[5] >> 3) * 3 + _readedBytes;
@@ -112,7 +112,7 @@ namespace Asv.Gnss
                     {
                         _readedBits = 0;
                         /* check parity */
-                        if (decode_word(_word, _buffer, _readedBytes))
+                        if (DecodeWord(_word, _buffer, _readedBytes))
                         {
                             _readedBytes += 3;
                             if (_readedBytes >= _len)
@@ -164,7 +164,7 @@ namespace Asv.Gnss
                     if (preamb != SyncByte) continue;
 
                     /* check parity */
-                    if (!decode_word(_word, _buffer, 0)) continue;
+                    if (!DecodeWord(_word, _buffer, 0)) continue;
                     _readedBytes = 3; _readedBits = 0;
                     continue;
                 }
@@ -173,7 +173,7 @@ namespace Asv.Gnss
 
 
                 /* check parity */
-                if (!decode_word(_word, _buffer, _readedBytes))
+                if (!DecodeWord(_word, _buffer, _readedBytes))
                 {
                     // trace(2, "rtcm2 partity error: i=%d word=%08x\n", i, rtcm->word);
                     _readedBytes = 0; _word &= 0x3;
@@ -241,6 +241,10 @@ namespace Asv.Gnss
         public override void Reset()
         {
             _state = State.Sync;
-        }
+            _word = 0;
+            _readedBytes = 0;
+            _readedBits = 0;
+            _len = 0;
+    }
     }
 }

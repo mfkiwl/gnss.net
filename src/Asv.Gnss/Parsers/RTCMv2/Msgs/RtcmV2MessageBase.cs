@@ -121,33 +121,7 @@ namespace Asv.Gnss
         public abstract ushort MessageId { get; }
     }
 
-    public class RtcmV2Message1 : RtcmV2MessageBase
-    {
-        public const int RtcmMessageId = 1;
-
-        public override ushort MessageId => RtcmMessageId;
-
-        public override uint Deserialize(byte[] buffer, uint offsetBits)
-        {
-            var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
-
-            var itmCnt = PayloadLength / 5;
-            ObservationItems = new DGpsObservationItem[itmCnt];
-
-            for (var i = 0; i < itmCnt; i++)
-            {
-                var item = new DGpsObservationItem();
-                bitIndex += item.Deserialize(buffer, bitIndex);
-                ObservationItems[i] = item;
-            }
-            
-            return bitIndex - offsetBits;
-        }
-
-        public DGpsObservationItem[] ObservationItems { get; set; }
-    }
-
-    public class DGpsObservationItem : ISerializable
+    public class DObservationItem : ISerializable
     {
         public int GetMaxByteSize()
         {
