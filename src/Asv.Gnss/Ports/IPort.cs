@@ -66,5 +66,7 @@ namespace Asv.Gnss
 
             throw new Exception(string.Format("Connection string is invalid {0}", connectionString));
         }
+
+       
     }
 }

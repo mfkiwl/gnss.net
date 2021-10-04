@@ -15,17 +15,24 @@ namespace Asv.Gnss
         private readonly object _sync = new object();
         private readonly Subject<GnssParserException> _onErrorSubject = new Subject<GnssParserException>();
         private readonly Subject<GnssMessageBase> _onMessageSubject = new Subject<GnssMessageBase>();
-        private readonly bool _disposeDataStream;
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly IDiagnosticSource _diag;
         private readonly SpeedIndicator _rxInd;
         private static IDisposable _portSubscribe;
 
-        public GnssConnection(string connectionString, IDiagnostic diag, params IGnssParser[] parsers) : this(ConnectionStringConvert(connectionString), parsers)
+        public GnssConnection(string connectionString, IDiagnostic diag, params IGnssParser[] parsers) 
         {
-            _disposeDataStream = true;
-            _diag = diag[nameof(GnssConnection)];
-            _logger.Info($"GNSS connection string: {connectionString}");
+            DataStream = ConnectionStringConvert(connectionString);
+            _parsers = parsers;
+            foreach (var parser in parsers)
+            {
+                parser.OnError.Subscribe(_onErrorSubject, _disposeCancel.Token);
+                parser.OnMessage.Subscribe(_onMessageSubject, _disposeCancel.Token);
+            }
+            DataStream.SelectMany(_ => _).Subscribe(OnByteRecv, _disposeCancel.Token);
+
+            _diag = diag[DataStream.ToString()];
+            Logger.Info($"GNSS connection string: {connectionString}");
 
             // diagnostic
             _diag.Str["conn"] = connectionString;
@@ -45,17 +52,7 @@ namespace Asv.Gnss
             return p;
         }
 
-        public GnssConnection(IDataStream stream, params IGnssParser[] parsers)
-        {
-            DataStream = stream;
-            _parsers = parsers;
-            foreach (var parser in parsers)
-            {
-                parser.OnError.Subscribe(_onErrorSubject, _disposeCancel.Token);
-                parser.OnMessage.Subscribe(_onMessageSubject, _disposeCancel.Token);
-            }
-            DataStream.SelectMany(_ => _).Subscribe(OnByteRecv, _disposeCancel.Token);
-        }
+       
 
         private void OnByteRecv(byte data)
         {
@@ -106,10 +103,7 @@ namespace Asv.Gnss
             _disposeCancel.Dispose();
             _onErrorSubject?.Dispose();
             _onMessageSubject?.Dispose();
-            if (_disposeDataStream)
-            {
-                (DataStream as IDisposable)?.Dispose();
-            }
+            (DataStream as IDisposable)?.Dispose();
         }
     }
 }

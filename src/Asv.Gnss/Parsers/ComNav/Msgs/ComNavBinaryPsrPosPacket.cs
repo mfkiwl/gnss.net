@@ -77,7 +77,9 @@ namespace Asv.Gnss
         /// </summary>
         public float DifferentialAgeSec { get; set; }
 
-
+        /// <summary>
+        /// This is station ID of the station, who sending DGPS corrections (Not Current station id!)
+        /// </summary>
         public string BaseStationId { get; set; }
 
         /// <summary>
