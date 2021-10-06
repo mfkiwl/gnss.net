@@ -38,6 +38,13 @@ namespace Asv.Gnss
             return src;
         }
 
+        public static RtcmV2Parser RegisterDefaultFrames(this RtcmV2Parser src)
+        {
+            src.Register(() => new RtcmV2Message1());
+            src.Register(() => new RtcmV2Message31());
+            return src;
+        }
+
         public static Nmea0183Parser RegisterDefaultFrames(this Nmea0183Parser src)
         {
             src.Register(()=>new Nmea0183MessageGGA());
