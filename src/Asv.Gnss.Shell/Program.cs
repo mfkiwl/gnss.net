@@ -15,14 +15,18 @@ namespace Asv.Gnss.Shell
             // Diagnostic is a class for simple debug
             var diag = new Diagnostic();
 
-            var connection = new GnssConnection("tcp://127.0.0.1:9002",
+            var connection = new GnssConnection("tcp://10.10.6.221:42000",
+                // "tcp://127.0.0.1:9002",
                 // for UDP - udp://127.0.0.1:1234?rhost=127.0.0.1&rport=1235
                 // for COM - serial:/dev/ttyACM0?br=115200 or serial:COM4?br=115200
                 diag,
                 new RtcmV3Parser(diag).RegisterDefaultFrames(),
                 new Nmea0183Parser(diag).RegisterDefaultFrames(),
-                new ComNavBinaryParser(diag).RegisterDefaultFrames()
+                new ComNavBinaryParser(diag).RegisterDefaultFrames(),
+                new RtcmV2Parser(diag).RegisterDefaultFrames()
             );
+
+
 
             connection.OnMessage
                 .Where(_ => (_ as RtcmV3MSM4) != null)

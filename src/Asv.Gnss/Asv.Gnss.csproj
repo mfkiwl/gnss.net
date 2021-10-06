@@ -98,7 +98,10 @@
     <Compile Include="Parsers\NMEA\Msgs\Nmea0183MessageGSV.cs" />
     <Compile Include="Parsers\NMEA\Nmea0183Parser.cs" />
     <Compile Include="Parsers\GnssParserBase.cs" />
+    <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2Message1.cs" />
+    <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2Message31.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\MSM\RtcmV3MSM7.cs" />
+    <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2MessageBase.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\StationDescription\RtcmV3Message1005and1006.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\RtcmV3MessageBase.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\MSM\RtcmV3MSM4.cs" />
@@ -109,6 +112,7 @@
     <Compile Include="Parsers\RTCMv3\Msgs\Ephemeris\RtcmV3Message1019.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\Ephemeris\RtcmV3Message1020.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\SysParamAndText\RtcmV3Message1029.cs" />
+    <Compile Include="Parsers\RTCMv2\RtcmV2Parser.cs" />
     <Compile Include="Parsers\RTCMv3\RtcmV3Helper.cs" />
     <Compile Include="Ports\IPort.cs" />
     <Compile Include="Ports\PortBase.cs" />
