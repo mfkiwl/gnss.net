@@ -106,7 +106,7 @@ namespace Asv.Gnss
 
             try
             {
-                message.Deserialize(data);
+                message.Deserialize(data,0);
             }
             catch (Exception e)
             {
