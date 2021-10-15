@@ -6,16 +6,16 @@ namespace Asv.Gnss
     public class SbfBinaryParser: GnssParserBase
     {
         public const string GnssProtocolId = "SBF";
-        public const int MaxPacketSize = 1024 * 4;
+        public const int MaxPacketSize = 8192;
         private State _state;
         private readonly byte[] _buffer = new byte[MaxPacketSize];
         private int _bufferIndex = 0;
-        private byte _headerLength;
-        private ushort _messageLength;
-        private int _stopMessageIndex;
-        private IDiagnosticSource _diag;
+        private readonly IDiagnosticSource _diag;
         public override string ProtocolId => GnssProtocolId;
-        private readonly Dictionary<ushort, Func<ComNavBinaryPacketBase>> _dict = new Dictionary<ushort, Func<ComNavBinaryPacketBase>>();
+        private readonly Dictionary<ushort, Func<SbfPacketBase>> _dict = new Dictionary<ushort, Func<SbfPacketBase>>();
+        private ushort _crc;
+        private ushort _msgId;
+        private ushort _length;
 
         public SbfBinaryParser(IDiagnostic diag)
         {
@@ -26,9 +26,7 @@ namespace Asv.Gnss
         {
             Sync1,
             Sync2,
-            Sync3,
-            HeaderLength,
-            Header,
+            CrcAndIdAndLength,
             Message
         }
 
@@ -49,51 +47,33 @@ namespace Asv.Gnss
                     }
                     else
                     {
-                        _state = State.Sync3;
+                        _state = State.CrcAndIdAndLength;
                         _buffer[_bufferIndex++] = 0x40;
                     }
                     break;
-                case State.Sync3:
-                    if (data != 0x12)
-                    {
-                        _state = State.Sync1;
-                    }
-                    else
-                    {
-                        _state = State.HeaderLength;
-                        _buffer[_bufferIndex++] = 0x12;
-                    }
-                    break;
-                case State.HeaderLength:
-                    _headerLength = data;
+                case State.CrcAndIdAndLength:
                     _buffer[_bufferIndex++] = data;
-                    _state = State.Header;
-                    break;
-                case State.Header:
-                    _buffer[_bufferIndex++] = data;
-                    if (_bufferIndex == _headerLength)
+                    if (_bufferIndex == 8)
                     {
-                        _messageLength = BitConverter.ToUInt16(_buffer, 8);
-                        _stopMessageIndex = _headerLength + _messageLength + 4 /* CRC 32 bit*/;
+                        _crc = BitConverter.ToUInt16(_buffer, 2);
+                        _msgId = BitConverter.ToUInt16(_buffer, 4);
+                        _length = BitConverter.ToUInt16(_buffer, 6);
                         _state = State.Message;
                     }
                     break;
                 case State.Message:
                     _buffer[_bufferIndex++] = data;
-                    if (_bufferIndex == _stopMessageIndex)
+                    if (_bufferIndex == _length)
                     {
-                         /* step back to last byte */
-                        var crc32Index = _bufferIndex - 4 /* CRC32 */;
-                        var calculatedHash = ComNavCrc32.ComputeChecksum(_buffer, 0, crc32Index);
-                        var readedHash = BitConverter.ToUInt32(_buffer, crc32Index);
-                        if (calculatedHash == readedHash)
+                        var calculatedHash = SbfCrc16.checksum(_buffer,4, _length - 4);
+                        if (calculatedHash == _crc)
                         {
                             ParsePacket(_buffer);
                         }
                         else
                         {
                             _diag.Int["crc err"]++;
-                            InternalOnError(new GnssParserException(ProtocolId, $"ComNav crc32 error"));
+                            InternalOnError(new GnssParserException(ProtocolId, $"SBF crc16 error"));
                         }
                         _state = State.Sync1;
                     }
@@ -105,7 +85,7 @@ namespace Asv.Gnss
             return false;
         }
 
-        public void Register(Func<ComNavBinaryPacketBase> factory)
+        public void Register(Func<SbfPacketBase> factory)
         {
             var testPckt = factory();
             _dict.Add(testPckt.MessageId, factory);
@@ -113,12 +93,12 @@ namespace Asv.Gnss
 
         private void ParsePacket(byte[] data)
         {
-            var msgId =  BitConverter.ToUInt16(data, 4);
-            _diag.Speed[msgId.ToString()].Increment(1);
-            if (_dict.TryGetValue(msgId, out var factory) == false)
+            
+            _diag.Speed[_msgId.ToString()].Increment(1);
+            if (_dict.TryGetValue(_msgId, out var factory) == false)
             {
                 _diag.Int["unk err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Unknown ComNavBinary packet message number [MSG={msgId}]"));
+                InternalOnError(new GnssParserException(ProtocolId, $"Unknown SBF packet message number [MSG={_msgId}]"));
                 return;
             }
 
@@ -131,7 +111,7 @@ namespace Asv.Gnss
             catch (Exception e)
             {
                 _diag.Int["parse err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Parse ComNavBinary packet error [MSG={msgId}]", e));
+                InternalOnError(new GnssParserException(ProtocolId, $"Parse SBF packet error [MSG={_msgId}]", e));
             }
 
             try
@@ -141,7 +121,7 @@ namespace Asv.Gnss
             catch (Exception e)
             {
                 _diag.Int["pub err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Parse ComNavBinary packet error [MSG={msgId}]", e));
+                InternalOnError(new GnssParserException(ProtocolId, $"Parse SBF packet error [MSG={_msgId}]", e));
             }
         }
 
