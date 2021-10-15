@@ -75,7 +75,7 @@ namespace Asv.Gnss
         {
             foreach (var group in src.GetItems().GroupBy(_=>_.Key.Group))
             {
-                TextTable.PrintKeyValue(printCallback, border ?? new DoubleTextTableBorder(), 15,40,group.Key, group.OrderBy(_ => _.Key.Param).Select(_=>new KeyValuePair<string, string>(_.Key.Param,_.Value.ToString())));
+                TextTable.PrintKeyValue(printCallback, border ?? new DoubleTextTableBorder(), 20,40,group.Key, group.OrderBy(_ => _.Key.Param).Select(_=>new KeyValuePair<string, string>(_.Key.Param,_.Value.ToString())));
             }
         }
 
