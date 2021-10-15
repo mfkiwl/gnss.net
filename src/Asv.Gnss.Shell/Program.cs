@@ -20,10 +20,10 @@ namespace Asv.Gnss.Shell
                 // for UDP - udp://127.0.0.1:1234?rhost=127.0.0.1&rport=1235
                 // for COM - serial:/dev/ttyACM0?br=115200 or serial:COM4?br=115200
                 diag,
-                // new RtcmV3Parser(diag).RegisterDefaultFrames(),
-                // new Nmea0183Parser(diag).RegisterDefaultFrames(),
-                // new ComNavBinaryParser(diag).RegisterDefaultFrames(),
-                // new RtcmV2Parser(diag).RegisterDefaultFrames(),
+                new RtcmV3Parser(diag).RegisterDefaultFrames(),
+                new Nmea0183Parser(diag).RegisterDefaultFrames(),
+                new ComNavBinaryParser(diag).RegisterDefaultFrames(),
+                new RtcmV2Parser(diag).RegisterDefaultFrames(),
                 new SbfBinaryParser(diag)
             );
 
