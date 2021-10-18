@@ -289,6 +289,15 @@ namespace Asv.Gnss
         FixNotAvailable = 0,
         GPSFix = 1,
         DifferentialGPSFix = 2,
+        /// <summary>
+        /// Real-Time Kinematic, fixed integers
+        /// </summary>
+        RTKFixed = 4,
+        /// <summary>
+        /// Real-Time Kinematic, float integers, OmniSTAR XP/HP or Location RTK
+        /// </summary>
+        RTKFloat = 5,
+
     }
 
     public enum DataStatus
