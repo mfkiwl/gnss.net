@@ -53,7 +53,7 @@ namespace Asv.Gnss
             _diag = diag[GnssProtocolId];
         }
 
-        public override bool Read(byte data)
+        public bool ReadOld(byte data)
         {
             if ((data & 0xC0) != 0x40) return false; /* ignore if upper 2bit != 01 */
 
@@ -145,7 +145,7 @@ namespace Asv.Gnss
 
         #region Alt version Read
 
-        public bool ReadOld(byte data)
+        public override bool Read(byte data)
         {
             // trace(5,"input_rtcm2: data=%02x\n",data);
 

@@ -72,6 +72,10 @@
     <Compile Include="Parsers\ComNav\ComNavBinaryParser.cs" />
     <Compile Include="Parsers\ComNav\ComNavCrc32.cs" />
     <Compile Include="Parsers\ComNav\ComNavHelper.cs" />
+    <Compile Include="Parsers\SBF\Messages\SbfPacketBase.cs" />
+    <Compile Include="Parsers\SBF\SbfBinaryParser.cs" />
+    <Compile Include="Parsers\SBF\SbfCrc16.cs" />
+    <Compile Include="Parsers\SBF\SbfHelper.cs" />
     <Compile Include="Parsers\ComNav\Control\Commands\ComNavAsciiCommandBase.cs" />
     <Compile Include="Parsers\ComNav\Control\Commands\ComNavAsciiLogCommand.cs" />
     <Compile Include="Parsers\ComNav\Control\Commands\ComNavDgpsTxIdCommand.cs" />

@@ -26,7 +26,7 @@ namespace Asv.Gnss
             {
                 var delay = DateTime.Now - _lastUpdate;
                 _lastUpdate = DateTime.Now;
-                source[name] = _value / delay.TotalSeconds;
+                source[name] = (double)_value / delay.TotalSeconds;
                 _value = 0;
             });
         }

@@ -32,7 +32,7 @@ namespace Asv.Gnss
             UtcTime = RtcmV3Helper.Gps2Utc(TGpsTime);
             ReceiverSwVersion = BitConverter.ToUInt16(buffer, offsetInBytes + 26);
             DeserializeMessage(buffer, offsetBits + headerLength * 8U, messageLength);
-            return offsetBits + headerLength * 8U + messageLength * 8U + 4U * 8U /* CRC32 */;
+            return headerLength * 8U + messageLength * 8U + 4U * 8U /* CRC32 */;
         }
 
         

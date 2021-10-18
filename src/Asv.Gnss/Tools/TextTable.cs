@@ -26,7 +26,7 @@ namespace Asv.Gnss
 
             foreach (var pair in values)
             {
-                write(TableRow(border, pair.Key.PadRight(keyWidth), pair.Value.PadRight(valueWidth)));
+                write(TableRow(border, pair.Key.PadRight(keyWidth), pair.Value?.PadRight(valueWidth) ?? "null".PadRight(valueWidth)));
             }
             write(TableEnd(border, keyWidth, valueWidth));
         }
