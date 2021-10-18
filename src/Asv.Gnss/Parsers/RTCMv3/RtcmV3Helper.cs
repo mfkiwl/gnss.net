@@ -778,7 +778,7 @@ namespace Asv.Gnss
             return GetBitU(buff, pos,1) != 0 ? -value : value;
         }
 
-    public static int GetBits(byte[] buff, uint pos, uint len)
+        public static int GetBits(byte[] buff, uint pos, uint len)
         {
             var bits = GetBitU(buff, pos, len);
             if (len <= 0 || 32 <= len || !((bits & (1u << (int) (len - 1))) != 0))
