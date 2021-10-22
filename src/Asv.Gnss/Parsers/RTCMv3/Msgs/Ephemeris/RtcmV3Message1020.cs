@@ -92,7 +92,7 @@ namespace Asv.Gnss
 
         public string SatelliteCode { get; set; }
         /// <summary>
-        /// IODE (0-6 bit of tb field)
+        /// IODE (0-6 bit of tb field). Временной интервал внутри текущих суток по шкале UTC(SU) + 03 ч 00 мин (tb - 03 ч 00 мин)
         /// </summary>
         public int Iode { get; set; }
         /// <summary>
@@ -112,39 +112,46 @@ namespace Asv.Gnss
         /// </summary>
         public int OperationAge { get; set; }
         /// <summary>
-        /// epoch of epherides (gpst)
+        /// epoch of epherides (gpst). Временной интервал внутри текущих суток по шкале UTC(SU) + 03 ч 00 мин (tb)
         /// </summary>
         public DateTime EphemerisEpoch { get; set; }
         /// <summary>
-        /// message frame time (gpst)
+        /// message frame time (gpst). Время начала кадра в рамках текущих суток  (tk)
         /// </summary>
         public DateTime FrameTime { get; set; }
 
         /// <summary>
-        /// satellite position (ecef) (m)
+        /// satellite position (ecef) (m). Координаты n-го спутника в системе координат ПЗ-90 на момент времени tb
         /// </summary>
         public EcefPoint Position { get; } = new EcefPoint();
 
         /// <summary>
-        /// satellite velocity (ecef) (m/s)
+        /// satellite velocity (ecef) (m/s). составляющие вектора скорости n-го спутника в системе координат ПЗ-90 на момент
+        /// времени tb
         /// </summary>
         public EcefPoint Velocity { get; } = new EcefPoint();
 
         /// <summary>
-        /// satellite acceleration (ecef) (m/s^2)
+        /// satellite acceleration (ecef) (m/s^2). Составляющие ускорения n-го спутника в системе координат ПЗ-90 на момент времени tb,
+        /// обусловленные действием луны и солнца
         /// </summary>
         public EcefPoint Acceleration { get; } = new EcefPoint();
 
         /// <summary>
-        /// SV clock bias τn(tb) (s)
+        /// SV clock bias τn(tb) (s). Сдвиг шкалы времени n-го спутника tn относительно шкалы времени системы ГЛОНАСС
+        /// tc на момент tb, т. е.τn(tb) = tc(tb) – tn(tb);
         /// </summary>
         public double SvClockBias { get; set; }
         /// <summary>
-        /// relative freq bias (γn(tb))
+        /// relative freq bias (γn(tb)). Относительное отклонение прогнозируемого значения несущей частоты излучаемого сигнала n-го
+        /// спутника от номинального значения на момент времени tb
         /// </summary>
         public double RelativeFreqBias { get; set; }
         /// <summary>
-        /// delay between L1 and L2 Δτn (s)
+        /// delay between L1 and L2 Δτn (s). Временная разница между навигационным радиосигналом, переданным в поддиапазоне L2, и
+        /// навигационным радиосигналом, переданным в поддиапазоне L1, заданным спутником:
+        /// Δτn = tf2 – tf1, где tf1, tf2 – задержки в аппаратуре для поддиапазонов L1 и L2, соответственно выраженные в единицах
+        /// времени.
         /// </summary>
         public double DelayL1ToL2 { get; set; }
 

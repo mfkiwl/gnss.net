@@ -15,7 +15,7 @@
 
             for (var i = 0; i < itmCnt; i++)
             {
-                var item = new DObservationItem();
+                var item = new DObservationItem(NavigationSystemEnum.SYS_GPS);
                 bitIndex += item.Deserialize(buffer, bitIndex);
                 ObservationItems[i] = item;
             }

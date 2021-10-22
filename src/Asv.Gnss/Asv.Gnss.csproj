@@ -40,6 +40,7 @@
       <HintPath>..\..\..\src\packages\NLog.4.7.11\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" />
@@ -72,6 +73,8 @@
     <Compile Include="Parsers\ComNav\ComNavBinaryParser.cs" />
     <Compile Include="Parsers\ComNav\ComNavCrc32.cs" />
     <Compile Include="Parsers\ComNav\ComNavHelper.cs" />
+    <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2Message17.cs" />
+    <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2Message21.cs" />
     <Compile Include="Parsers\SBF\Messages\SbfPacketBase.cs" />
     <Compile Include="Parsers\SBF\SbfBinaryParser.cs" />
     <Compile Include="Parsers\SBF\SbfCrc16.cs" />
@@ -157,6 +160,5 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

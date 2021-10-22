@@ -9,8 +9,7 @@ namespace Asv.Gnss
 
         private readonly Dictionary<ushort, Func<RtcmV2MessageBase>> _dict = new Dictionary<ushort, Func<RtcmV2MessageBase>>();
         private readonly IDiagnosticSource _diag;
-        private State _state;
-
+        
         public const string GnssProtocolId = "RTCMv2";
 
         private readonly byte[] _buffer = new byte[33 * 3]; /* message buffer   */
@@ -19,17 +18,9 @@ namespace Asv.Gnss
         private int _readedBits;           /* number of bits in word buffer     */
         private int _len;                  /* message length (bytes)            */
 
-        private enum State
-        {
-            Sync,
-            Preamb1,
-            Preamb2,
-            Payload
-        }
-
         private bool DecodeWord(uint word, byte[] data, int offset)
         {
-            var hamming = new uint[] {0xBB1F3480, 0x5D8F9A40, 0xAEC7CD00, 0x5763E680, 0x6BB1F340, 0x8B7A89C0};
+            var hamming = new uint[] { 0xBB1F3480, 0x5D8F9A40, 0xAEC7CD00, 0x5763E680, 0x6BB1F340, 0x8B7A89C0 };
             uint parity = 0;
             
             if ((word & 0x40000000) != 0) word ^= 0x3FFFFFC0;
@@ -53,102 +44,8 @@ namespace Asv.Gnss
             _diag = diag[GnssProtocolId];
         }
 
-        public bool ReadOld(byte data)
-        {
-            if ((data & 0xC0) != 0x40) return false; /* ignore if upper 2bit != 01 */
-
-            /* decode 6-of-8 form */
-            _word = (uint) ((_word << 6) + (data & 0x3F));
-            
-            switch (_state)
-            {
-                case State.Sync:
-                    var preamb = (byte)(_word >> 22);
-                    if ((_word & 0x40000000) != 0) preamb ^= 0xFF; /* decode preamble */
-                    if (preamb == SyncByte)
-                    {
-                        _state = State.Preamb1;
-                        goto case State.Preamb1;
-                    }
-                    break;
-                case State.Preamb1:
-                    if (DecodeWord(_word, _buffer, 0))
-                    {
-                        _state = State.Preamb2;
-                        _readedBytes = 3; _readedBits = 0;
-                    }
-                    else
-                    {
-                        _state = State.Sync;
-                        _diag.Int["crc err"]++;
-                        InternalOnError(new GnssParserException(ProtocolId, $"RTCMv2 parity error"));
-                    }
-                    break;
-                case State.Preamb2:
-                    _readedBits += 6;
-                    if (_readedBits >= 30)
-                    {
-                        _readedBits = 0;
-                        /* check parity */
-                        if (DecodeWord(_word, _buffer, _readedBytes))
-                        {
-                            _readedBytes += 3;
-                            _len = (_buffer[5] >> 3) * 3 + _readedBytes;
-                            _state = State.Payload;
-                        }
-                        else
-                        {
-                            _readedBytes = 0;
-                            _word &= 0x3;
-                            _state = State.Sync;
-                            _diag.Int["crc err"]++;
-                            InternalOnError(new GnssParserException(ProtocolId, $"RTCMv2 crc error"));
-                        }
-                    }
-                    break;
-                case State.Payload:
-                    _readedBits += 6;
-                    if (_readedBits >= 30)
-                    {
-                        _readedBits = 0;
-                        /* check parity */
-                        if (DecodeWord(_word, _buffer, _readedBytes))
-                        {
-                            _readedBytes += 3;
-                            if (_readedBytes >= _len)
-                            {
-                                _readedBytes = 0;
-                                _word &= 0x3;
-
-                                /* decode rtcm2 message */
-                                ParsePacket(_buffer);
-                                Reset();
-                                return true;
-                            }
-                        }
-                        else
-                        {
-                            _readedBytes = 0;
-                            _word &= 0x3;
-                            _state = State.Sync;
-                            _diag.Int["crc err"]++;
-                            InternalOnError(new GnssParserException(ProtocolId, $"RTCMv2 crc error"));
-                        }
-                    }
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return false;
-        }
-
-        #region Alt version Read
-
         public override bool Read(byte data)
         {
-            // trace(5,"input_rtcm2: data=%02x\n",data);
-
             if ((data & 0xC0) != 0x40) return false; /* ignore if upper 2bit != 01 */
 
             for (var i = 0; i < 6; i++, data >>= 1)
@@ -169,13 +66,13 @@ namespace Asv.Gnss
                     continue;
                 }
                 if (++_readedBits < 30) continue;
-                else _readedBits = 0;
-
-
+                _readedBits = 0;
+                
                 /* check parity */
                 if (!DecodeWord(_word, _buffer, _readedBytes))
                 {
-                    // trace(2, "rtcm2 partity error: i=%d word=%08x\n", i, rtcm->word);
+                    _diag.Int["crc err"]++;
+                    InternalOnError(new GnssParserException(ProtocolId, $"RTCMv2 crc error"));
                     _readedBytes = 0; _word &= 0x3;
                     continue;
                 }
@@ -193,8 +90,6 @@ namespace Asv.Gnss
             return false;
 
         }
-
-        #endregion
 
         public void Register(Func<RtcmV2MessageBase> factory)
         {
@@ -240,7 +135,6 @@ namespace Asv.Gnss
 
         public override void Reset()
         {
-            _state = State.Sync;
             _word = 0;
             _readedBytes = 0;
             _readedBits = 0;

@@ -123,6 +123,13 @@ namespace Asv.Gnss
 
     public class DObservationItem : ISerializable
     {
+        private readonly NavigationSystemEnum _system;
+
+        public DObservationItem(NavigationSystemEnum system)
+        {
+            _system = system;
+        }
+
         public int GetMaxByteSize()
         {
             return 5;
@@ -140,6 +147,8 @@ namespace Asv.Gnss
             var fact = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 1); bitIndex += 1;
             var udre = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 2); bitIndex += 2;
             var prn = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 5); bitIndex += 5;
+            var prcU = RtcmV3Helper.GetBitU(buffer, bitIndex, 16);
+            var rrcU = RtcmV3Helper.GetBitU(buffer, bitIndex + 16, 8);
             var prc = RtcmV3Helper.GetBits(buffer, bitIndex, 16); bitIndex += 16;
             var rrc = RtcmV3Helper.GetBits(buffer, bitIndex, 8); bitIndex += 8;
             var iod = RtcmV3Helper.GetBits(buffer, bitIndex, 8); bitIndex += 8;
@@ -148,7 +157,7 @@ namespace Asv.Gnss
 
             Prn = prn;
 
-            if (prc == 0x80000000 || rrc == 0xFFFF8000)
+            if (prcU == 0x80000000 || rrcU == 0xFFFF8000)
             {
                 Prc = 0.0;
                 Rrc = 0.0;
@@ -158,7 +167,7 @@ namespace Asv.Gnss
                 Prc = prc * (fact == 1 ? 0.32 : 0.02);
                 Rrc = rrc * (fact == 1 ? 0.032 : 0.002);
             }
-            SatelliteId = RtcmV3Helper.satno(NavigationSystemEnum.SYS_GPS, prn);
+            SatelliteId = RtcmV3Helper.satno(_system, prn);
             Iod = iod;
             Udre = udre;
 
