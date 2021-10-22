@@ -18,7 +18,7 @@ namespace Asv.Gnss
         private CancellationTokenSource _stop;
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly List<TcpClient> _clients = new List<TcpClient>();
-        private ReaderWriterLockSlim _rw = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim _rw = new ReaderWriterLockSlim();
 
         public TcpServerPort(TcpPortConfig cfg)
         {
