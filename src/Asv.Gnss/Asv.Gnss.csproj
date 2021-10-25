@@ -70,6 +70,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Parsers\Asv\AsvParser.cs" />
+    <Compile Include="Parsers\Asv\AsvServer.cs" />
+    <Compile Include="Tools\Async\AsyncReaderWriterLock.cs" />
+    <Compile Include="Tools\SequenceCalc\IMessageSequenceCalculator.cs" />
+    <Compile Include="Tools\SequenceCalc\MessageSequenceCalculator.cs" />
     <Compile Include="Parsers\Asv\Messages\AsvMessageBase.cs" />
     <Compile Include="Parsers\Asv\Messages\AsvMessageGbasVdbSend.cs" />
     <Compile Include="Parsers\Asv\Messages\AsvMessageHeartBeat.cs" />
@@ -126,7 +130,7 @@
     <Compile Include="Parsers\RTCMv3\RtcmV3Helper.cs" />
     <Compile Include="Ports\IPort.cs" />
     <Compile Include="Ports\PortBase.cs" />
-    <Compile Include="Tools\AsyncLock.cs" />
+    <Compile Include="Tools\Async\AsyncLock.cs" />
     <Compile Include="Ports\Serial\CustomSerialPort.cs" />
     <Compile Include="Ports\Serial\SerialPortConfig.cs" />
     <Compile Include="Ports\Tcp\TcpClientPort.cs" />

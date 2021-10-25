@@ -36,7 +36,7 @@ namespace Asv.Gnss
                 case State.Sync1:
                     if (data != Sync1) return false;
                     _bufferIndex = 0;
-                    _buffer[_bufferIndex++] = 0xAA;
+                    _buffer[_bufferIndex++] = Sync1;
                     _state = State.Sync2;
                     break;
                 case State.Sync2:
@@ -47,7 +47,7 @@ namespace Asv.Gnss
                     else
                     {
                         _state = State.MessageLength;
-                        _buffer[_bufferIndex++] = 0x40;
+                        _buffer[_bufferIndex++] = Sync2;
                     }
                     break;
                 case State.MessageLength:
