@@ -4,6 +4,9 @@ namespace Asv.Gnss
 {
     public class AsvParser:GnssParserWithMessagesBase<AsvMessageBase,ushort>
     {
+        public static byte Sync1 = 0xAA;
+        public static byte Sync2 = 0x44;
+
         private enum State
         {
             Sync1,
@@ -31,13 +34,13 @@ namespace Asv.Gnss
             switch (_state)
             {
                 case State.Sync1:
-                    if (data != 0xAA) return false;
+                    if (data != Sync1) return false;
                     _bufferIndex = 0;
                     _buffer[_bufferIndex++] = 0xAA;
                     _state = State.Sync2;
                     break;
                 case State.Sync2:
-                    if (data != 0x44)
+                    if (data != Sync2)
                     {
                         _state = State.Sync1;
                     }

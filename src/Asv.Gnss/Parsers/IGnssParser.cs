@@ -54,6 +54,13 @@ namespace Asv.Gnss
             src.Register(() => new Nmea0183MessageGSV());
             return src;
         }
+
+        public static AsvParser RegisterDefaultFrames(this AsvParser src)
+        {
+            src.Register(() => new AsvMessageGbasVdbSend());
+            src.Register(() => new AsvMessageHeartBeat());
+            return src;
+        }
     }
 
 

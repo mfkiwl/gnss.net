@@ -71,6 +71,8 @@
   <ItemGroup>
     <Compile Include="Parsers\Asv\AsvParser.cs" />
     <Compile Include="Parsers\Asv\Messages\AsvMessageBase.cs" />
+    <Compile Include="Parsers\Asv\Messages\AsvMessageGbasVdbSend.cs" />
+    <Compile Include="Parsers\Asv\Messages\AsvMessageHeartBeat.cs" />
     <Compile Include="Parsers\ComNav\ComNavBinaryParser.cs" />
     <Compile Include="Parsers\ComNav\ComNavCrc32.cs" />
     <Compile Include="Parsers\ComNav\ComNavHelper.cs" />
