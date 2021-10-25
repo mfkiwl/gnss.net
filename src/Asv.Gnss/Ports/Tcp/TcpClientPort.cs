@@ -68,7 +68,7 @@ namespace Asv.Gnss
                     {
                         if ((DateTime.Now - _lastData).TotalMilliseconds > _cfg.ReconnectTimeout)
                         {
-                            throw new Exception($"RX data timeout");
+                            _tcp.GetStream().Write(new byte[0], 0, 0);
                         }
                     }
                     
