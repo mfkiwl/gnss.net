@@ -69,9 +69,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Parsers\Asv\AsvParser.cs" />
+    <Compile Include="Parsers\Asv\Messages\AsvMessageBase.cs" />
     <Compile Include="Parsers\ComNav\ComNavBinaryParser.cs" />
     <Compile Include="Parsers\ComNav\ComNavCrc32.cs" />
     <Compile Include="Parsers\ComNav\ComNavHelper.cs" />
+    <Compile Include="Parsers\GnssParserWithMessagesBase.cs" />
     <Compile Include="Parsers\NMEA\Msgs\Nmea0183MessageGST.cs" />
     <Compile Include="Parsers\SBF\Messages\SbfPacketBase.cs" />
     <Compile Include="Parsers\SBF\SbfBinaryParser.cs" />

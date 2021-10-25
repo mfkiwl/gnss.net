@@ -2,7 +2,7 @@
 
 namespace Asv.Gnss
 {
-    public abstract class RtcmV2MessageBase : GnssMessageBase
+    public abstract class RtcmV2MessageBase : GnssMessageBaseWithId<ushort>
     {
         protected virtual DateTime adjhour(double zcnt)
         {
@@ -118,7 +118,6 @@ namespace Asv.Gnss
 
         public ushort ReferenceStationId { get; set; }
 
-        public abstract ushort MessageId { get; }
     }
 
     public class DObservationItem : ISerializable

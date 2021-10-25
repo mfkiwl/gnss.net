@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Asv.Gnss
 {
-    public class ComNavBinaryParser: GnssParserBase
+    public class ComNavBinaryParser: GnssParserWithMessagesBase<ComNavBinaryPacketBase,ushort>
     {
         public const string GnssProtocolId = "BinaryComNav";
         public const int MaxPacketSize = 1024 * 4;
@@ -13,13 +13,10 @@ namespace Asv.Gnss
         private byte _headerLength;
         private ushort _messageLength;
         private int _stopMessageIndex;
-        private IDiagnosticSource _diag;
         public override string ProtocolId => GnssProtocolId;
-        private readonly Dictionary<ushort, Func<ComNavBinaryPacketBase>> _dict = new Dictionary<ushort, Func<ComNavBinaryPacketBase>>();
 
-        public ComNavBinaryParser(IDiagnostic diag)
+        public ComNavBinaryParser(IDiagnostic diag):base(diag)
         {
-            _diag = diag[GnssProtocolId];
         }
 
         private enum State
@@ -88,11 +85,12 @@ namespace Asv.Gnss
                         var readedHash = BitConverter.ToUInt32(_buffer, crc32Index);
                         if (calculatedHash == readedHash)
                         {
-                            ParsePacket(_buffer);
+                            var msgId = BitConverter.ToUInt16(_buffer, 4);
+                            ParsePacket(msgId,_buffer);
                         }
                         else
                         {
-                            _diag.Int["crc err"]++;
+                            Diag.Int["crc err"]++;
                             InternalOnError(new GnssParserException(ProtocolId, $"ComNav crc32 error"));
                         }
                         _state = State.Sync1;
@@ -103,46 +101,6 @@ namespace Asv.Gnss
 
             }
             return false;
-        }
-
-        public void Register(Func<ComNavBinaryPacketBase> factory)
-        {
-            var testPckt = factory();
-            _dict.Add(testPckt.MessageId, factory);
-        }
-
-        private void ParsePacket(byte[] data)
-        {
-            var msgId =  BitConverter.ToUInt16(data, 4);
-            _diag.Speed[msgId.ToString()].Increment(1);
-            if (_dict.TryGetValue(msgId, out var factory) == false)
-            {
-                _diag.Int["unk err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Unknown ComNavBinary packet message number [MSG={msgId}]"));
-                return;
-            }
-
-            var message = factory();
-
-            try
-            {
-                message.Deserialize(data);
-            }
-            catch (Exception e)
-            {
-                _diag.Int["parse err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Parse ComNavBinary packet error [MSG={msgId}]", e));
-            }
-
-            try
-            {
-                InternalOnMessage(message);
-            }
-            catch (Exception e)
-            {
-                _diag.Int["pub err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Parse ComNavBinary packet error [MSG={msgId}]", e));
-            }
         }
 
         public override void Reset()
