@@ -23,11 +23,11 @@ namespace Asv.Gnss
                 strm.Write(AsvParser.Sync1);
                 strm.Write(AsvParser.Sync2);
                 strm.Write(length);
-                strm.Write(0);
+                strm.Write(Sequence);
                 strm.Write(SenderId);
                 strm.Write(TargetId);
                 strm.Write(MessageId);
-                strm.BaseStream.Position = length + 11;
+                strm.BaseStream.Position = length + 10;
                 var crc = SbfCrc16.checksum(buffer, startIndex, length + 10);
                 strm.Write(crc);
             }

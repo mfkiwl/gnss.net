@@ -88,6 +88,13 @@ namespace Asv.Gnss
 
         protected override void InternalStop()
         {
+            _rw.EnterReadLock();
+            var clients = _clients.ToArray();
+            _rw.ExitReadLock();
+            foreach (var client in _clients)
+            {
+                client.Client.Disconnect(false);
+            }
             _stop?.Cancel(false);
             _stop?.Dispose();
             _stop = null;
