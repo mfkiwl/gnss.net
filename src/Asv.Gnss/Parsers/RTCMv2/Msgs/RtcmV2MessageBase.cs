@@ -86,7 +86,7 @@ namespace Asv.Gnss
             {
                 throw new Exception($"RTCMv2 Modified Z-count error: zcnt={ZCount}");
             }
-            UTC = adjhour(ZCount);
+            Gps = adjhour(ZCount);
             
             SequenceNumber = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 3); bitIndex += 3;
             // if (SequenceNumber - rtcm->seqno != 1 && SequenceNumber - rtcm->seqno != -7)
@@ -112,7 +112,7 @@ namespace Asv.Gnss
 
         public byte SequenceNumber { get; set; }
 
-        public DateTime UTC { get; set; }
+        public DateTime Gps { get; set; }
 
         public double ZCount { get; set; }
 
