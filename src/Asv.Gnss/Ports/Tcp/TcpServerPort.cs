@@ -18,7 +18,7 @@ namespace Asv.Gnss
         private CancellationTokenSource _stop;
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly List<TcpClient> _clients = new List<TcpClient>();
-        private ReaderWriterLockSlim _rw = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim _rw = new ReaderWriterLockSlim();
 
         public TcpServerPort(TcpPortConfig cfg)
         {
@@ -88,6 +88,13 @@ namespace Asv.Gnss
 
         protected override void InternalStop()
         {
+            _rw.EnterReadLock();
+            var clients = _clients.ToArray();
+            _rw.ExitReadLock();
+            foreach (var client in _clients)
+            {
+                client.Client.Disconnect(false);
+            }
             _stop?.Cancel(false);
             _stop?.Dispose();
             _stop = null;

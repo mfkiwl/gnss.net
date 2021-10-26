@@ -5,20 +5,18 @@ using System.Text;
 
 namespace Asv.Gnss
 {
-    public class Nmea0183Parser:GnssParserBase
+    public class Nmea0183Parser:GnssParserWithMessagesBase<Nmea0183MessageBase,string>
     {
         public const string GnssProtocolId = "NMEA0183";
 
         private State _state;
         private readonly byte[] _buffer = new byte[1024];
-        private byte[] crcBuffer = new byte[2];
+        private readonly byte[] crcBuffer = new byte[2];
         private int _msgReaded;
-        private readonly Dictionary<string, Func<Nmea0183MessageBase>> _dict = new Dictionary<string, Func<Nmea0183MessageBase>>();
-        private IDiagnosticSource _diag;
 
-        public Nmea0183Parser(IDiagnostic diagnostic)
+        public Nmea0183Parser(IDiagnostic diag):base(diag)
         {
-            _diag = diagnostic[GnssProtocolId];
+
         }
 
         public override string ProtocolId => GnssProtocolId;
@@ -92,12 +90,14 @@ namespace Asv.Gnss
                     var calcCrc = CalcCrc(strMessage);
                     if (readCrc == calcCrc)
                     {
-                        ParseMessage(strMessage);
+                        var msgId = strMessage.Substring(2, 3).ToUpper();
+                        var asciiBytes = Encoding.ASCII.GetBytes(strMessage);
+                        ParsePacket(msgId,asciiBytes);
                         return true;
                     }
                     else
                     {
-                        _diag.Int["crc err"]++;
+                        Diag.Int["crc err"]++;
                         InternalOnError(new GnssParserException(ProtocolId, $"NMEA crc error:'{strMessage}'"));
                     }
                     Reset();
@@ -106,47 +106,6 @@ namespace Asv.Gnss
                     throw new ArgumentOutOfRangeException();
             }
             return false;
-        }
-
-        private void ParseMessage(string strMessage)
-        {
-            var msgId = strMessage.Substring(2, 3).ToUpper();
-
-            _diag.Speed[msgId].Increment(1);
-
-            if (_dict.TryGetValue(msgId, out var factory) == false)
-            {
-                _diag.Int["unkn"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Unknown {ProtocolId} packet message number [MSG={msgId}]:'{strMessage}'"));
-                return;
-            }
-            var message = factory();
-
-            try
-            {
-                message.Deserialize(Encoding.ASCII.GetBytes(strMessage),0);
-            }
-            catch (Exception e)
-            {
-                _diag.Int["parse err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Parse RTCMv3 packet error [MSG={msgId}]:'{strMessage}':{e.Message}",e));
-            }
-
-            try
-            {
-                InternalOnMessage(message);
-            }
-            catch (Exception e)
-            {
-                _diag.Int["pub err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Parse RTCMv3 packet error [MSG={msgId}]:'{strMessage}':{e.Message}",e));
-            }
-        }
-
-        public void Register(Func<Nmea0183MessageBase> factory)
-        {
-            var testPckt = factory();
-            _dict.Add(testPckt.MessageId.ToUpper(), factory);
         }
 
         private string CalcCrc(string strMessage)
@@ -173,10 +132,6 @@ namespace Asv.Gnss
             _state = State.Sync;
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            _diag.Dispose();
-        }
+        
     }
 }

@@ -19,4 +19,9 @@ namespace Asv.Gnss
             return JsonConvert.SerializeObject(this);
         }
     }
+
+    public abstract class GnssMessageBaseWithId<TMsgId> : GnssMessageBase
+    {
+        public abstract TMsgId MessageId { get; }
+    }
 }

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
+using System.Threading.Tasks;
 using NLog;
 
 namespace Asv.Gnss
@@ -94,6 +95,18 @@ namespace Asv.Gnss
 
         public IObservable<GnssParserException> OnError => _onErrorSubject;
         public IObservable<GnssMessageBase> OnMessage => _onMessageSubject;
+        public Task Send(GnssMessageBase msg, CancellationToken cancel)
+        {
+            var buffer = new byte[msg.GetMaxByteSize()];
+            var sizeInBits = msg.Serialize(buffer, 0);
+            var additionalByte = 0;
+            if (sizeInBits % 8 != 0)
+            {
+                additionalByte = 1;
+                Debug.Fail("Not full byte!");
+            }
+            return DataStream.Send(buffer, (int) (sizeInBits/8) + additionalByte, cancel);
+        }
 
         public void Dispose()
         {

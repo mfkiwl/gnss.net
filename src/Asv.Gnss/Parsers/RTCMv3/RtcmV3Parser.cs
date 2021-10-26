@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Asv.Gnss
 {
-    public class RtcmV3Parser: GnssParserBase
+    public class RtcmV3Parser: GnssParserWithMessagesBase<RtcmV3MessageBase,ushort>
     {
         public const string GnssProtocolId = "RTCMv3";
 
@@ -23,12 +23,10 @@ namespace Asv.Gnss
         private State _state;
         private ushort _payloadReadedBytes;
         private uint _payloadLength;
-        private readonly Dictionary<ushort, Func<RtcmV3MessageBase>> _dict = new Dictionary<ushort, Func<RtcmV3MessageBase>>();
-        private IDiagnosticSource _diag;
 
-        public RtcmV3Parser(IDiagnostic diag)
+        public RtcmV3Parser(IDiagnostic diag):base(diag)
         {
-            _diag = diag[GnssProtocolId];
+
         }
 
         public override string ProtocolId => GnssProtocolId;
@@ -88,11 +86,12 @@ namespace Asv.Gnss
                     var sourceCrc = RtcmV3Helper.GetBitU(_buffer,_payloadLength * 8,24);
                     if (originalCrc == sourceCrc)
                     {
-                        ParsePacket(_buffer);
+                        var msgNumber = RtcmV3Helper.ReadMessageNumber(_buffer);
+                        ParsePacket(msgNumber,_buffer);
                     }
                     else
                     {
-                        _diag.Int["crc err"]++;
+                        Diag.Int["crc err"]++;
                         InternalOnError(new GnssParserException(ProtocolId,$"RTCMv3 crc error"));
                     }
                     Reset();
@@ -104,56 +103,10 @@ namespace Asv.Gnss
             return false;
         }
 
-        public void Register(Func<RtcmV3MessageBase> factory)
-        {
-            var testPckt = factory();
-            _dict.Add(testPckt.MessageId, factory);
-        }
-
-        private void ParsePacket(byte[] data)
-        {
-            var msgNumber = RtcmV3Helper.ReadMessageNumber(data);
-            _diag.Speed[msgNumber.ToString()].Increment(1);
-            if (_dict.TryGetValue(msgNumber, out var factory) == false)
-            {
-                _diag.Int["unk err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Unknown RTCMv3 packet message number [MSG={msgNumber}]"));
-                return;
-            }
-
-            var message = factory();
-                
-            try
-            {
-                message.Deserialize(data);
-            }
-            catch (Exception e)
-            {
-                _diag.Int["parse err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Parse RTCMv3 packet error [MSG={msgNumber}]",e));
-            }
-
-            try
-            {
-                InternalOnMessage(message);
-            }
-            catch (Exception e)
-            {
-                _diag.Int["pub err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Parse RTCMv3 packet error [MSG={msgNumber}]",e));
-            }
-            
-        }
-
         public override void Reset()
         {
             _state = State.Sync;
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            _diag.Dispose();
-        }
     };
 }

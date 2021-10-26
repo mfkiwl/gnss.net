@@ -3,11 +3,9 @@
 namespace Asv.Gnss
 {
 
-    public abstract class ComNavBinaryPacketBase: GnssMessageBase, ISerializable
+    public abstract class ComNavBinaryPacketBase: GnssMessageBaseWithId<ushort>
     {
         public override string ProtocolId => ComNavBinaryParser.GnssProtocolId;
-
-        public abstract ushort MessageId { get; }
 
         public override int GetMaxByteSize()
         {

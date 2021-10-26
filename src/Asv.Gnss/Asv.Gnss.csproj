@@ -70,11 +70,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Parsers\Asv\AsvParser.cs" />
+    <Compile Include="Parsers\Asv\AsvServer.cs" />
+    <Compile Include="Tools\Async\AsyncReaderWriterLock.cs" />
+    <Compile Include="Tools\SequenceCalc\IMessageSequenceCalculator.cs" />
+    <Compile Include="Tools\SequenceCalc\MessageSequenceCalculator.cs" />
+    <Compile Include="Parsers\Asv\Messages\AsvMessageBase.cs" />
+    <Compile Include="Parsers\Asv\Messages\AsvMessageGbasVdbSend.cs" />
+    <Compile Include="Parsers\Asv\Messages\AsvMessageHeartBeat.cs" />
     <Compile Include="Parsers\ComNav\ComNavBinaryParser.cs" />
     <Compile Include="Parsers\ComNav\ComNavCrc32.cs" />
     <Compile Include="Parsers\ComNav\ComNavHelper.cs" />
     <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2Message17.cs" />
     <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2Message21.cs" />
+    <Compile Include="Parsers\GnssParserWithMessagesBase.cs" />
+    <Compile Include="Parsers\NMEA\Msgs\Nmea0183MessageGST.cs" />
     <Compile Include="Parsers\SBF\Messages\SbfPacketBase.cs" />
     <Compile Include="Parsers\SBF\SbfBinaryParser.cs" />
     <Compile Include="Parsers\SBF\SbfCrc16.cs" />
@@ -123,7 +133,7 @@
     <Compile Include="Parsers\RTCMv3\RtcmV3Helper.cs" />
     <Compile Include="Ports\IPort.cs" />
     <Compile Include="Ports\PortBase.cs" />
-    <Compile Include="Tools\AsyncLock.cs" />
+    <Compile Include="Tools\Async\AsyncLock.cs" />
     <Compile Include="Ports\Serial\CustomSerialPort.cs" />
     <Compile Include="Ports\Serial\SerialPortConfig.cs" />
     <Compile Include="Ports\Tcp\TcpClientPort.cs" />

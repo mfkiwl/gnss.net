@@ -3,15 +3,11 @@ using System.Collections.Generic;
 
 namespace Asv.Gnss
 {
-    public class RtcmV2Parser : GnssParserBase
+    public class RtcmV2Parser : GnssParserWithMessagesBase<RtcmV2MessageBase,ushort>
     {
         private const byte SyncByte = 0x66;
 
-        private readonly Dictionary<ushort, Func<RtcmV2MessageBase>> _dict = new Dictionary<ushort, Func<RtcmV2MessageBase>>();
-        private readonly IDiagnosticSource _diag;
-        
         public const string GnssProtocolId = "RTCMv2";
-
         private readonly byte[] _buffer = new byte[33 * 3]; /* message buffer   */
         private uint _word;                /* word buffer for rtcm 2            */
         private int _readedBytes;          /* number of bytes in message buffer */
@@ -37,12 +33,9 @@ namespace Asv.Gnss
             return true;
         }
 
+
         public override string ProtocolId => GnssProtocolId;
 
-        public RtcmV2Parser(IDiagnostic diag)
-        {
-            _diag = diag[GnssProtocolId];
-        }
 
         public override bool Read(byte data)
         {
@@ -71,7 +64,7 @@ namespace Asv.Gnss
                 /* check parity */
                 if (!DecodeWord(_word, _buffer, _readedBytes))
                 {
-                    _diag.Int["crc err"]++;
+                    Diag.Int["crc err"]++;
                     InternalOnError(new GnssParserException(ProtocolId, $"RTCMv2 crc error"));
                     _readedBytes = 0; _word &= 0x3;
                     continue;
@@ -83,53 +76,12 @@ namespace Asv.Gnss
                 _word &= 0x3;
 
                 /* decode rtcm2 message */
-                ParsePacket(_buffer);
+                var msgType = (ushort)RtcmV3Helper.GetBitU(_buffer, 8, 6);
+                ParsePacket(msgType,_buffer);
                 Reset();
                 return true;
             }
             return false;
-
-        }
-
-        public void Register(Func<RtcmV2MessageBase> factory)
-        {
-            var testPckt = factory();
-            _dict.Add(testPckt.MessageId, factory);
-        }
-
-        private void ParsePacket(byte[] data)
-        {
-            var msgType = (ushort)RtcmV3Helper.GetBitU(data, 8, 6);
-            _diag.Speed[msgType.ToString()].Increment(1);
-
-            if (_dict.TryGetValue(msgType, out var factory) == false)
-            {
-                _diag.Int["unk err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Unknown RTCMv2 packet message number [MSG={msgType}]"));
-                return;
-            }
-
-            var message = factory();
-
-            try
-            {
-                message.Deserialize(data);
-            }
-            catch (Exception e)
-            {
-                _diag.Int["parse err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Parse RTCMv2 packet error [MSG={msgType}]", e));
-            }
-
-            try
-            {
-                InternalOnMessage(message);
-            }
-            catch (Exception e)
-            {
-                _diag.Int["pub err"]++;
-                InternalOnError(new GnssParserException(ProtocolId, $"Parse RTCMv2 packet error [MSG={msgType}]", e));
-            }
 
         }
 
@@ -140,5 +92,9 @@ namespace Asv.Gnss
             _readedBits = 0;
             _len = 0;
     }
+
+        public RtcmV2Parser(IDiagnostic diag) : base(diag)
+        {
+        }
     }
 }

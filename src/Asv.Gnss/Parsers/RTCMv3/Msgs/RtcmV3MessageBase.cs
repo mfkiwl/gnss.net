@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Asv.Gnss
 {
-    public abstract class RtcmV3MessageBase: GnssMessageBase
+    public abstract class RtcmV3MessageBase: GnssMessageBaseWithId<ushort>
     {
         public override string ProtocolId => RtcmV3Parser.GnssProtocolId;
 
@@ -40,6 +40,5 @@ namespace Asv.Gnss
         }
 
         public byte Reserved { get; set; }
-        public abstract ushort MessageId { get; }
     }
 }
