@@ -42,6 +42,7 @@ namespace Asv.Gnss
         {
             src.Register(() => new RtcmV2Message1());
             src.Register(() => new RtcmV2Message31());
+            src.Register(() => new RtcmV2Message17());
             return src;
         }
 
