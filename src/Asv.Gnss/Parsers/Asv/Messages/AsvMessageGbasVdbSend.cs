@@ -50,9 +50,9 @@ namespace Asv.Gnss
             Msgs = (AsvGbasMessage) BitConverter.ToUInt64(buffer, offsetInBytes + 1);
             LastByteLength = buffer[offsetInBytes + 9];
             Data = new byte[length - 10];
+            Array.Copy(buffer, offsetInBytes + 10, Data, 0, Data.Length);
             
-            buffer.CopyTo(Data, offsetInBytes + 10);
-            return 10; // full size heartbeat with 
+            return length; // full size heartbeat with 
         }
         public byte[] Data { get; set; }
         public byte LastByteLength { get; set; }
