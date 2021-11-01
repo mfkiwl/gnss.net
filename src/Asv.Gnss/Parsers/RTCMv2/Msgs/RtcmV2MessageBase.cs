@@ -9,7 +9,7 @@ namespace Asv.Gnss
             var utc = DateTime.UtcNow;
             double tow = 0;
             var week = 0;
-
+            
             /* if no time, get cpu time */
             var time = RtcmV3Helper.Utc2Gps(utc);
             
@@ -19,8 +19,8 @@ namespace Asv.Gnss
             var sec = tow - hour * 3600.0;
             if (zcnt < sec - 1800.0) zcnt += 3600.0;
             else if (zcnt > sec + 1800.0) zcnt -= 3600.0;
-
-            return RtcmV3Helper.GetFromGps(week, hour * 3600 + zcnt);
+            
+            return RtcmV3Helper.Gps2Utc(RtcmV3Helper.GetFromGps(week, hour * 3600 + zcnt));
         }
 
         private double? GetUdre(byte rsHealth)
@@ -117,7 +117,7 @@ namespace Asv.Gnss
         public double ZCount { get; set; }
 
         public ushort ReferenceStationId { get; set; }
-
+        
     }
 
     public class DObservationItem : ISerializable
@@ -150,7 +150,7 @@ namespace Asv.Gnss
             var rrcU = RtcmV3Helper.GetBitU(buffer, bitIndex + 16, 8);
             var prc = RtcmV3Helper.GetBits(buffer, bitIndex, 16); bitIndex += 16;
             var rrc = RtcmV3Helper.GetBits(buffer, bitIndex, 8); bitIndex += 8;
-            var iod = RtcmV3Helper.GetBits(buffer, bitIndex, 8); bitIndex += 8;
+            var iod = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 8); bitIndex += 8;
 
             if (prn == 0) prn = 32;
 
@@ -181,7 +181,7 @@ namespace Asv.Gnss
 
         public double Rrc { get; set; }
 
-        public int Iod { get; set; }
+        public byte Iod { get; set; }
 
         public byte Udre { get; set; }
     }

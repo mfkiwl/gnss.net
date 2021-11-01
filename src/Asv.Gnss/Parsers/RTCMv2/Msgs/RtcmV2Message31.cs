@@ -9,14 +9,14 @@ namespace Asv.Gnss
             var time = DateTime.UtcNow;
             double tow = 0;
             var week = 0;
-
+        
             RtcmV3Helper.GetFromTime(time, ref week, ref tow);
-
+        
             var hour = Math.Floor(tow / 3600.0);
             var sec = tow - hour * 3600.0;
             if (zcnt < sec - 1800.0) zcnt += 3600.0;
             else if (zcnt > sec + 1800.0) zcnt -= 3600.0;
-
+        
             return RtcmV3Helper.GetFromGps(week, hour * 3600 + zcnt);
         }
 
