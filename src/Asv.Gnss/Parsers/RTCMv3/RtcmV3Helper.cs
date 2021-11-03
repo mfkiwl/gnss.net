@@ -1278,16 +1278,46 @@ namespace Asv.Gnss
 
     public enum NavigationSystemEnum
     {
-        SYS_NONE = 0x00,               /* navigation system: none */
-        SYS_GPS = 0x01,                /* navigation system: GPS */
-        SYS_SBS = 0x02,                /* navigation system: SBAS */
-        SYS_GLO = 0x04,                /* navigation system: GLONASS */
-        SYS_GAL = 0x08,                /* navigation system: Galileo */
-        SYS_QZS = 0x10,                /* navigation system: QZSS */
-        SYS_CMP = 0x20,                /* navigation system: BeiDou */
-        SYS_IRN = 0x40,                /* navigation system: IRNS */
-        SYS_LEO = 0x80,                /* navigation system: LEO */
-        SYS_ALL = 0xFF                 /* navigation system: all */
+        /// <summary>
+        /// None
+        /// </summary>
+        SYS_NONE = 0x00,
+        /// <summary>
+        /// GPS
+        /// </summary>
+        SYS_GPS = 0x01,
+        /// <summary>
+        /// SBAS
+        /// </summary>
+        SYS_SBS = 0x02,
+        /// <summary>
+        /// GLONASS
+        /// </summary>
+        SYS_GLO = 0x04,
+        /// <summary>
+        /// Galileo
+        /// </summary>
+        SYS_GAL = 0x08,
+        /// <summary>
+        /// QZSS
+        /// </summary>
+        SYS_QZS = 0x10,
+        /// <summary>
+        /// BeiDou
+        /// </summary>
+        SYS_CMP = 0x20,
+        /// <summary>
+        /// IRNS
+        /// </summary>
+        SYS_IRN = 0x40,
+        /// <summary>
+        /// LEO
+        /// </summary>
+        SYS_LEO = 0x80,
+        /// <summary>
+        /// ALL
+        /// </summary>
+        SYS_ALL = 0xFF
     }
 
     public enum TimeSystemEnum

@@ -62,6 +62,12 @@ namespace Asv.Gnss
             src.Register(() => new AsvMessageHeartBeat());
             return src;
         }
+
+        public static SbfBinaryParser RegisterDefaultFrames(this SbfBinaryParser src)
+        {
+            src.Register(() => new SbfPacketGPSRawCA());
+            return src;
+        }
     }
 
 

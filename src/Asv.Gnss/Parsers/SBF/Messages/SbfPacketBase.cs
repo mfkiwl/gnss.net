@@ -53,7 +53,4 @@ namespace Asv.Gnss
         /// </summary>
         public ushort WNc { get; set; }
     }
-
-
-    
 }

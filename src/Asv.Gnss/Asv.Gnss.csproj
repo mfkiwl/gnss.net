@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="Parsers\Asv\AsvParser.cs" />
     <Compile Include="Parsers\Asv\AsvServer.cs" />
+    <Compile Include="Parsers\SBF\Messages\SbfPacketGPSRawCA.cs" />
     <Compile Include="Tools\Async\AsyncReaderWriterLock.cs" />
     <Compile Include="Tools\SequenceCalc\IMessageSequenceCalculator.cs" />
     <Compile Include="Tools\SequenceCalc\MessageSequenceCalculator.cs" />
@@ -83,7 +84,7 @@
     <Compile Include="Parsers\ComNav\ComNavHelper.cs" />
     <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2Message17.cs" />
     <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2Message21.cs" />
-    <Compile Include="Parsers\GnssParserWithMessagesBase.cs" />
+    <Compile Include="Parsers\Base\GnssParserWithMessagesBase.cs" />
     <Compile Include="Parsers\NMEA\Msgs\Nmea0183MessageGST.cs" />
     <Compile Include="Parsers\SBF\Messages\SbfPacketBase.cs" />
     <Compile Include="Parsers\SBF\SbfBinaryParser.cs" />
@@ -104,8 +105,8 @@
     <Compile Include="Parsers\ComNav\Msgs\ComNavBinaryPacketBase.cs" />
     <Compile Include="Parsers\ComNav\Msgs\ComNavBinaryPsrPosPacket.cs" />
     <Compile Include="Parsers\GnssConnection.cs" />
-    <Compile Include="Parsers\GnssMessageBase.cs" />
-    <Compile Include="Parsers\GnssParserException.cs" />
+    <Compile Include="Parsers\Base\GnssMessageBase.cs" />
+    <Compile Include="Parsers\Base\GnssParserException.cs" />
     <Compile Include="Parsers\IGnssConnection.cs" />
     <Compile Include="Parsers\NMEA\Msgs\Nmea0183Helper.cs" />
     <Compile Include="Parsers\NMEA\Msgs\Nmea0183MessageBase.cs" />
@@ -114,7 +115,7 @@
     <Compile Include="Parsers\NMEA\Msgs\Nmea0183MessageGSA.cs" />
     <Compile Include="Parsers\NMEA\Msgs\Nmea0183MessageGSV.cs" />
     <Compile Include="Parsers\NMEA\Nmea0183Parser.cs" />
-    <Compile Include="Parsers\GnssParserBase.cs" />
+    <Compile Include="Parsers\Base\GnssParserBase.cs" />
     <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2Message1.cs" />
     <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2Message31.cs" />
     <Compile Include="Parsers\RTCMv3\Msgs\MSM\RtcmV3MSM7.cs" />
@@ -157,7 +158,7 @@
     <Compile Include="Tools\ISerializable.cs" />
     <Compile Include="Parsers\RTCMv3\RtcmV3Parser.cs" />
     <Compile Include="Tools\Crc24.cs" />
-    <Compile Include="Parsers\IGnssParser.cs" />
+    <Compile Include="Parsers\Base\IGnssParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tools\RxValue\CancellationWrapper.cs" />
     <Compile Include="Tools\RxValue\IRxValue.cs" />
@@ -169,6 +170,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Parsers\CommonTypes\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
