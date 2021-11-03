@@ -107,5 +107,7 @@ namespace Asv.Gnss
         {
             _state = State.Sync1;
         }
+
+
     }
 }

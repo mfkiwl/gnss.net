@@ -71,9 +71,32 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Parsers\Asv\AsvParser.cs" />
+    <Compile Include="Parsers\Asv\AsvParserMessageFactory.cs" />
     <Compile Include="Parsers\Asv\AsvServer.cs" />
     <Compile Include="Parsers\ICD\IcdHelper.cs" />
-    <Compile Include="Parsers\SBF\Messages\SbfPacketGPSRawCA.cs" />
+    <Compile Include="Parsers\ComNav\ComNavMessageFactory.cs" />
+    <Compile Include="Parsers\NMEA\Nmea0183MessageFactory.cs" />
+    <Compile Include="Parsers\RTCMv2\RtcmV2MessageFactory.cs" />
+    <Compile Include="Parsers\RTCMv3\RtcmV3MessageFactory.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketBdsRaw.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketBdsRawB1C.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketBdsRawB2A.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketGalRawCnav.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketGalRawFnav.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketGalRawInav.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketGeoRawL1.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketGeoRawL5.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketGnssRawNavMsgBase.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketGloRawCa.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketGpsRawL5.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketGpsRawL2C.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketGpsRawCa.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketNavicRaw.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketQzsRawL1Ca.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketQzsRawL2C.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketQzsRawL5.cs" />
+    <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketQzsRawL6.cs" />
+    <Compile Include="Parsers\SBF\SbfMessageFactory.cs" />
     <Compile Include="Tools\Async\AsyncReaderWriterLock.cs" />
     <Compile Include="Tools\SequenceCalc\IMessageSequenceCalculator.cs" />
     <Compile Include="Tools\SequenceCalc\MessageSequenceCalculator.cs" />
@@ -172,8 +195,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Parsers\CommonTypes\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

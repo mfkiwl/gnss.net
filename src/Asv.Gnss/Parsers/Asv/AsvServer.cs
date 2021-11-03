@@ -18,6 +18,4 @@ namespace Asv.Gnss
             throw new System.NotImplementedException();
         }
     }
-
-    
 }
