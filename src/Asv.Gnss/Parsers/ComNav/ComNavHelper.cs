@@ -7,6 +7,8 @@ namespace Asv.Gnss
 
     public static class ComNavBinaryHelper
     {
+      
+
         public static ComNavSolutionStatus ParseSolutionStatus(byte[] buffer, int byteOffset)
         {
             var solStat = BitConverter.ToUInt32(buffer, byteOffset);
