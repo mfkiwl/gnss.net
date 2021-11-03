@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="Parsers\Asv\AsvParser.cs" />
     <Compile Include="Parsers\Asv\AsvServer.cs" />
+    <Compile Include="Parsers\ICD\IcdHelper.cs" />
     <Compile Include="Parsers\SBF\Messages\SbfPacketGPSRawCA.cs" />
     <Compile Include="Tools\Async\AsyncReaderWriterLock.cs" />
     <Compile Include="Tools\SequenceCalc\IMessageSequenceCalculator.cs" />
