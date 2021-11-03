@@ -5,12 +5,28 @@ namespace Asv.Gnss
 {
     public static class IcdHelper
     {
+        public static uint GetBitUReverse(byte[] buff, uint pos, uint len)
+        {
+            uint bits = 0;
+            for (var i = (int)(pos + len) - 1; i >= pos; i--)
+                bits = (uint)((bits << 1) + ((buff[i / 8] >> 7 - i % 8) & 1u));
+            return bits;
+        }
+
         public static byte[] GetGpsRawSubFrame(byte[] buffer, uint offsetBits, out uint tow, out byte sfNum)
         {
             byte sync = 0x8B;
             var bitIndex = offsetBits + 6;
-            var preamb = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 8); bitIndex += 24 + 2 + 6;
-            if (preamb != sync) throw new Exception($"Preamb = 0x{preamb:X2}. Sync = 0x{sync:X2}");
+
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine(buffer.ByteArrayToString((uint) (i*32), 32, 32));
+            }
+
+            Console.WriteLine(buffer.ByteArrayToString(0, 32,32));
+
+            var preamb = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex +16 , 8); bitIndex += 24 + 2 + 6;
+            // if (preamb != sync) throw new Exception($"Preamb = 0x{preamb:X2}. Sync = 0x{sync:X2}");
             tow = RtcmV3Helper.GetBitU(buffer, bitIndex, 17); bitIndex += 17 + 2;
             sfNum = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 3); bitIndex += 3 + 2 + 2; // 64 bit
             var result = new byte[24];

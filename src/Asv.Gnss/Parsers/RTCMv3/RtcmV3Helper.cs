@@ -2,6 +2,7 @@
 using System.Data;
 using System.Globalization;
 using System.Runtime.InteropServices.ComTypes;
+using System.Text;
 
 namespace Asv.Gnss
 {
@@ -1273,6 +1274,23 @@ namespace Asv.Gnss
             if (indicator == 704) return (2097152 * indicator - 1409286144) / 60000.0;
             if (705 <= indicator && indicator <= 1023) return 0;
             return 0.0;
+        }
+
+
+        public static string ByteArrayToString(this byte[] buff, uint startBitIndex, uint bitLength, int printLength = 4)
+        {
+            var sb = new StringBuilder();
+            for (uint i = 0; i < bitLength; i++)
+            {
+                sb.Append(GetBitU(buff, startBitIndex + i, 1) == 0 ? "0" : "1");
+
+                if ((i+1) % printLength == 0)
+                {
+                    sb.Append(" ");
+                }
+            }
+
+            return sb.ToString();
         }
     }
 

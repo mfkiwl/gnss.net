@@ -15,6 +15,7 @@ namespace Asv.Gnss
     /// </summary>
     public static class StringExtensions
     {
+        
 
         public static string RightMargin(this string src, int charCount, char fillChar = ' ')
         {
