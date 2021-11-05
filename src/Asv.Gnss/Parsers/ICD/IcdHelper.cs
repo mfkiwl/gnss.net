@@ -18,12 +18,7 @@ namespace Asv.Gnss
             byte sync = 0x8B;
             var bitIndex = offsetBits + 6;
 
-            for (int i = 0; i < 10; i++)
-            {
-                Console.WriteLine(buffer.ByteArrayToString((uint) (i*32), 32, 32));
-            }
-
-            Console.WriteLine(buffer.ByteArrayToString(0, 32,32));
+            
 
             var preamb = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex +16 , 8); bitIndex += 24 + 2 + 6;
             // if (preamb != sync) throw new Exception($"Preamb = 0x{preamb:X2}. Sync = 0x{sync:X2}");

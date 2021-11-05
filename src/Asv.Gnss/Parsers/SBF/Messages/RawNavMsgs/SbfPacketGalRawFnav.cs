@@ -12,7 +12,7 @@
     {
         public override ushort MessageId => 4022;
 
-        protected override int NavBytesLength => 32;
+        protected override int NavBitsU32Length => 8;
 
     }
 }

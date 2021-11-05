@@ -8,7 +8,7 @@ namespace Asv.Gnss
 
         public SbfNavSysEnum NavSystem { get; set; }
 
-        public byte[] NAVBits { get; set; }
+        public uint[] NAVBitsU32 { get; set; }
 
         /// <summary>
         /// Receiver channel (see 4.1.11)
@@ -50,7 +50,7 @@ namespace Asv.Gnss
         /// </summary>
         public string RinexSatCode { get; set; }
 
-        protected abstract int NavBytesLength { get; }
+        protected abstract int NavBitsU32Length { get; }
 
         protected override void DeserializeMessage(byte[] buffer, uint offsetBits)
         {
@@ -64,9 +64,13 @@ namespace Asv.Gnss
             Source = buffer[startIndex + 3];
             FreqNr = buffer[startIndex + 4];
             RxChannel = buffer[startIndex + 5];
-            NAVBits = new byte[NavBytesLength];
-            Array.Copy(buffer, startIndex + 5, NAVBits, 0, 40);
-            //Padding
+            NAVBitsU32 = new uint[NavBitsU32Length];
+            for (var i = 0; i < NavBitsU32Length; i++)
+            {
+                var index = (int) (startIndex + 6 + i * 4);
+                NAVBitsU32[i] = BitConverter.ToUInt32(buffer, index);
+            }
+            //Padding ignored
         }
     }
 }

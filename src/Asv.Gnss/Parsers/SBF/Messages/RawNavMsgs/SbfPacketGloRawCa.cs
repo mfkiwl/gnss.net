@@ -14,7 +14,7 @@ namespace Asv.Gnss
     {
         public override ushort MessageId => 4026;
 
-        protected override int NavBytesLength => 12;
+        protected override int NavBitsU32Length => 3;
 
     }
 }

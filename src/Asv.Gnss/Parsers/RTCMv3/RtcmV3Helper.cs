@@ -1277,19 +1277,38 @@ namespace Asv.Gnss
         }
 
 
-        public static string ByteArrayToString(this byte[] buff, uint startBitIndex, uint bitLength, int printLength = 4)
+        public static string ByteArrayToString(this byte[] buff, uint startBitIndex, uint bitLength, params int[] printLength)
         {
             var sb = new StringBuilder();
-            for (uint i = 0; i < bitLength; i++)
+            if (printLength == null || printLength.Length == 0)
             {
-                sb.Append(GetBitU(buff, startBitIndex + i, 1) == 0 ? "0" : "1");
-
-                if ((i+1) % printLength == 0)
+                for (uint i = 0; i < bitLength; i++)
                 {
-                    sb.Append(" ");
+                    sb.Append(GetBitU(buff, startBitIndex + i, 1) == 0 ? "0" : "1");
                 }
             }
+            else
+            {
+                int printIndex = 0;
+                int index = 1;
+                for (uint i = 0; i < bitLength; i++)
+                {
+                    sb.Append(GetBitU(buff, startBitIndex + i, 1) == 0 ? "0" : "1");
 
+                    if (index % printLength[printIndex] == 0)
+                    {
+                        sb.Append(" ");
+                        printIndex++;
+                        index = 0;
+                        if (printIndex >= printLength.Length)
+                        {
+                            printIndex = 0;
+                        }
+                    }
+
+                    index++;
+                }
+            }
             return sb.ToString();
         }
     }
