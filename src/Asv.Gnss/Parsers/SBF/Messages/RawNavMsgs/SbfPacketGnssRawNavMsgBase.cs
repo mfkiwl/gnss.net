@@ -16,7 +16,11 @@ namespace Asv.Gnss
         public byte RxChannel { get; set; }
 
         /// <summary>
-        /// Not applicable
+        /// GLONASS frequency number, with an offset of 8.
+        /// It ranges from 1 (corresponding to an actual frequency number of -7) to 21 (corresponding to an
+        /// actual frequency number of 13).
+        /// For non-GLONASS satellites, FreqNr is reserved
+        /// and must be ignored by the decoding software.
         /// </summary>
         public byte FreqNr { get; set; }
 
@@ -50,6 +54,12 @@ namespace Asv.Gnss
         /// </summary>
         public string RinexSatCode { get; set; }
 
+        public SbfSignalTypeEnum SignalType { get; set; }
+
+        public string RindexSignalCode { get; set; }
+
+        public double CarrierFreq { get; set; }
+
         protected abstract int NavBitsU32Length { get; }
 
         protected override void DeserializeMessage(byte[] buffer, uint offsetBits)
@@ -63,6 +73,11 @@ namespace Asv.Gnss
             ViterbiCnt = buffer[startIndex + 2];
             Source = buffer[startIndex + 3];
             FreqNr = buffer[startIndex + 4];
+            SignalType = SbfHelper.GetSignalType(Source, FreqNr, out var constellation, out var carrierFreq, out var signalRinexCode);
+
+            if (constellation != NavSystem) throw new Exception("Navigation system code not euqals");
+            CarrierFreq = carrierFreq;
+            RindexSignalCode = signalRinexCode;
             RxChannel = buffer[startIndex + 5];
             NAVBitsU32 = new uint[NavBitsU32Length];
             for (var i = 0; i < NavBitsU32Length; i++)
@@ -72,5 +87,7 @@ namespace Asv.Gnss
             }
             //Padding ignored
         }
+
+        
     }
 }

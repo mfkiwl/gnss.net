@@ -23,6 +23,7 @@ namespace Asv.Gnss
             var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
 
             var week = RtcmV3Helper.GetBitU(buffer, bitIndex, 10); bitIndex += 10;
+            WeekNumberRaw = week;
             Idot = RtcmV3Helper.GetBits(buffer, bitIndex, 14) * RtcmV3Helper.P2_43 * RtcmV3Helper.SC2RAD; bitIndex += 14;
             Iode = RtcmV3Helper.GetBitU(buffer, bitIndex, 8); bitIndex += 8;
             var toc = RtcmV3Helper.GetBitU(buffer, bitIndex, 16) * 16.0; bitIndex += 16;
@@ -63,8 +64,10 @@ namespace Asv.Gnss
             return bitIndex - offsetBits;
         }
 
-        public int Satellite { get; set; }
+        
 
+        public int Satellite { get; set; }
+        public uint WeekNumberRaw { get; set; }
         public int WeekNumber { get; set; }
 
         /// <summary>
