@@ -22,5 +22,15 @@ namespace Asv.Gnss
         public override ushort MessageId => 4017;
 
         protected override int NavBitsU32Length => 10;
+
+        public override uint Deserialize(byte[] buffer, uint offsetBits)
+        {
+            var val = base.Deserialize(buffer, offsetBits);
+            GpsSubFrame = GpsSubFrameFactory.Create(NAVBitsU32);
+            return val;
+
+        }
+
+        public GpsSubframeBase GpsSubFrame { get; set; }
     }
 }

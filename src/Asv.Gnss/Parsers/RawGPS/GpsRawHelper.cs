@@ -5,8 +5,19 @@ namespace Asv.Gnss
 {
     public static class GpsRawHelper
     {
-       
 
+        /// <summary>
+        /// 2^-31
+        /// </summary>
+        public const double P2_31 = 4.656612873077393E-10;
+        /// <summary>
+        /// 2^-55
+        /// </summary>
+        public const double P2_55 = 2.775557561562891E-17;
+        /// <summary>
+        /// 2^-43
+        /// </summary>
+        public const double P2_43 = 1.136868377216160E-13;
 
 
         public const byte GpsSubframePreamble = 0x8B;
@@ -18,9 +29,9 @@ namespace Asv.Gnss
             for (int i = 0; i < navBits.Length; i++)
             {
                 var value = (navBits[i] >> 6) & 0xFF_FFFF; // skip 6 parity bits and get 24 data
-                result[i * 4 + 0] = (byte)((value >> 16)  & 0xFF);
-                result[i * 4 + 1] = (byte)((value >> 8) & 0xFF);
-                result[i * 4 + 2] = (byte)(value & 0xFF);
+                result[i * 3 + 0] = (byte)((value >> 16)  & 0xFF);
+                result[i * 3 + 1] = (byte)((value >> 8) & 0xFF);
+                result[i * 3 + 2] = (byte)(value & 0xFF);
             }
 
             return result;
@@ -81,6 +92,12 @@ namespace Asv.Gnss
         {
             if (navBits.Length != 10) throw new Exception($"Length of {nameof(navBits)} array must be 10 u32 word (as GPS ICD subframe length)");
             var subframeId = (byte)(navBits[1] >> 8) & 0x07; // 8 bits offset, 3 bit
+            return GetSubframeId(subframeId);
+
+        }
+
+        public static byte GetSubframeId(int subframeId)
+        {
             switch (subframeId)
             {
                 case 0b001:
@@ -94,9 +111,10 @@ namespace Asv.Gnss
                 case 0b101:
                     return 5;
                 default:
-                    throw new Exception($"Unknown GPS subframe ID:{Convert.ToString(subframeId,2).PadRight(8)}");
+                    throw new Exception($"Unknown GPS subframe ID:{Convert.ToString(subframeId, 2).PadRight(8)}");
             }
         }
+
         // public static int SubFrameId(UInt32[] navBits)
         // {
         //     return (navBits[1]>>)
