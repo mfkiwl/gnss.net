@@ -32,7 +32,7 @@ namespace Asv.Gnss
                     throw new Exception($"Unknown GPS subframe ID:{Convert.ToString(subframeId, 2).PadRight(8)}");
             }
             subframe.Deserialize(data);
-            if (tow != subframe.TOW1_5Epoh) throw new Exception("Something goes wrong.");
+            if (tow != subframe.TOW1_5Epoh) throw new Exception("Something goes wrong with byte conversion from uint to byte array.");
             return subframe;
         }
     }
