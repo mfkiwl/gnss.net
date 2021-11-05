@@ -73,6 +73,7 @@
     <Compile Include="Parsers\Asv\AsvParser.cs" />
     <Compile Include="Parsers\Asv\AsvParserMessageFactory.cs" />
     <Compile Include="Parsers\Asv\AsvServer.cs" />
+    <Compile Include="Parsers\RawGlonass\GlonassRawHelper.cs" />
     <Compile Include="Parsers\RawGPS\GpsRawHelper.cs" />
     <Compile Include="Parsers\ComNav\ComNavMessageFactory.cs" />
     <Compile Include="Parsers\NMEA\Nmea0183MessageFactory.cs" />

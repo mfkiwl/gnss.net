@@ -5,6 +5,7 @@
         public static SbfBinaryParser RegisterDefaultFrames(this SbfBinaryParser src)
         {
             src.Register(() => new SbfPacketGpsRawCa());
+            src.Register(() => new SbfPacketGloRawCa());
             return src;
         }
     }
