@@ -74,6 +74,15 @@
     <Compile Include="Parsers\Asv\AsvParserMessageFactory.cs" />
     <Compile Include="Parsers\Asv\AsvServer.cs" />
     <Compile Include="Parsers\RawGlonass\GlonassRawHelper.cs" />
+    <Compile Include="Parsers\RawGlonass\Words\GlonassWord1.cs" />
+    <Compile Include="Parsers\RawGlonass\Words\GlonassWord2.cs" />
+    <Compile Include="Parsers\RawGlonass\Words\GlonassWord3.cs" />
+    <Compile Include="Parsers\RawGlonass\Words\GlonassWord4.cs" />
+    <Compile Include="Parsers\RawGlonass\Words\GlonassWord5.cs" />
+    <Compile Include="Parsers\RawGlonass\Words\GlonassWordCn1.cs" />
+    <Compile Include="Parsers\RawGlonass\Words\GlonassWordCn2.cs" />
+    <Compile Include="Parsers\RawGlonass\Words\GlonassWordBase.cs" />
+    <Compile Include="Parsers\RawGlonass\GlonassWordFactory.cs" />
     <Compile Include="Parsers\RawGPS\GpsRawHelper.cs" />
     <Compile Include="Parsers\ComNav\ComNavMessageFactory.cs" />
     <Compile Include="Parsers\NMEA\Nmea0183MessageFactory.cs" />
