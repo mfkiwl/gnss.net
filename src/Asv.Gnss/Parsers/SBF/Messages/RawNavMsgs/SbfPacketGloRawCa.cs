@@ -16,5 +16,13 @@ namespace Asv.Gnss
 
         protected override int NavBitsU32Length => 3;
 
+        public override uint Deserialize(byte[] buffer, uint offsetBits)
+        {
+            var val =  base.Deserialize(buffer, offsetBits);
+            GpsSubFrame = GlonassWordFactory.Create(NAVBitsU32);
+            return val;
+        }
+
+        public GlonassWordBase GpsSubFrame { get; set; }
     }
 }
