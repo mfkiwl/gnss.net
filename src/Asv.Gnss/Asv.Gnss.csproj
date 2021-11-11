@@ -93,6 +93,7 @@
     <Compile Include="Parsers\RawGPS\Subframes\GPSSubFrame5.cs" />
     <Compile Include="Parsers\RawGPS\Subframes\GpsSubframeBase.cs" />
     <Compile Include="Parsers\RawGPS\GpsSubFrameFactory.cs" />
+    <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2Message14.cs" />
     <Compile Include="Parsers\RTCMv2\RtcmV2MessageFactory.cs" />
     <Compile Include="Parsers\RTCMv3\RtcmV3MessageFactory.cs" />
     <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketBdsRaw.cs" />
