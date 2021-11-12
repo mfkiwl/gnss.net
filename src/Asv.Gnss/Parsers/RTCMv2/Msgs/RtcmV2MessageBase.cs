@@ -23,7 +23,7 @@ namespace Asv.Gnss
             return RtcmV3Helper.Gps2Utc(RtcmV3Helper.GetFromGps(week, hour * 3600 + zcnt));
         }
 
-        private double? GetUdre(byte rsHealth)
+        private double GetUdre(byte rsHealth)
         {
             switch (rsHealth)
             {
@@ -40,11 +40,11 @@ namespace Asv.Gnss
                 case 5:
                     return 0.1;
                 case 6:
-                    return null;
+                    return double.NaN;
                 case 7:
                     return 0.0;
                 default:
-                    return null;
+                    return double.NaN;
             }
         }
 
@@ -158,8 +158,8 @@ namespace Asv.Gnss
 
             if (prcU == 0x80000000 || rrcU == 0xFFFF8000)
             {
-                Prc = 0.0;
-                Rrc = 0.0;
+                Prc = double.NaN;
+                Rrc = double.NaN;
             }
             else
             {
