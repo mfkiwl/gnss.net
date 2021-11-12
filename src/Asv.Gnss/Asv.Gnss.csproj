@@ -116,6 +116,8 @@
     <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketQzsRawL6.cs" />
     <Compile Include="Parsers\SBF\SbfMessageFactory.cs" />
     <Compile Include="Tools\Async\AsyncReaderWriterLock.cs" />
+    <Compile Include="Tools\CircularTimeBuffer\ConcurrentCircularTimeBuffer.cs" />
+    <Compile Include="Tools\TimeService\ITimeService.cs" />
     <Compile Include="Tools\SequenceCalc\IMessageSequenceCalculator.cs" />
     <Compile Include="Tools\SequenceCalc\MessageSequenceCalculator.cs" />
     <Compile Include="Parsers\Asv\Messages\AsvMessageBase.cs" />

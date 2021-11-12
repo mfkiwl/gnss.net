@@ -40,14 +40,29 @@ namespace Asv.Gnss
                 if (!string.IsNullOrEmpty(items[i+1])) elevationDeg = int.Parse(items[i+1]);
                 if (!string.IsNullOrEmpty(items[i+2])) azimuthDeg = int.Parse(items[i+2]);
                 if (!string.IsNullOrEmpty(items[i+3])) snrdB = int.Parse(items[i+3]);
-                
-                Satellites[index] = new Satellite
+                if (Nmea0183Helper.GetPrnFromNmeaSatId(number, out var PRN, out var nav))
                 {
-                    Number = number,
-                    ElevationDeg = elevationDeg,
-                    AzimuthDeg = azimuthDeg,
-                    SnrdB = snrdB
-                };
+                    Satellites[index] = new Satellite
+                    {
+                        Number = number,
+                        ElevationDeg = elevationDeg,
+                        AzimuthDeg = azimuthDeg,
+                        SnrdB = snrdB,
+                        ExtPRN = number,
+                        ExtNavSys = nav,
+                    };
+                }
+                else
+                {
+                    Satellites[index] = new Satellite
+                    {
+                        Number = number,
+                        ElevationDeg = elevationDeg,
+                        AzimuthDeg = azimuthDeg,
+                        SnrdB = snrdB
+                    };
+                }
+                
                 index++;
             }
         }
@@ -64,6 +79,9 @@ namespace Asv.Gnss
             public int ElevationDeg { get; set; }
             public int AzimuthDeg { get; set; }
             public int SnrdB { get; set; }
+            // extended computed values
+            public int? ExtPRN { get; set; }
+            public NavigationSystemEnum? ExtNavSys { get; set; }
         }
 
         public Satellite[] Satellites { get; set; }
