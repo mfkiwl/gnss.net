@@ -5,6 +5,57 @@ namespace Asv.Gnss
 {
     public static class Nmea0183Helper
     {
+        public static bool GetPrnFromNmeaSatId(int NMEASatId, out int PRN, out NavigationSystemEnum nav)
+        {
+            nav = NavigationSystemEnum.SYS_NONE;
+            PRN = -1;
+            if (NMEASatId <= 0) return false;
+            if (NMEASatId <= 32)
+            {
+                nav = NavigationSystemEnum.SYS_GPS;
+                PRN = NMEASatId;
+                return true;
+            }
+
+            if (NMEASatId <= 54)
+            {
+                nav = NavigationSystemEnum.SYS_SBS;
+                PRN = NMEASatId + 87;
+                return true;
+            }
+
+            if (NMEASatId <= 64)
+            {
+                return false;
+            }
+
+            if (NMEASatId <= 96)
+            {
+                nav = NavigationSystemEnum.SYS_GLO;
+                PRN = NMEASatId - 64;
+                return true;
+            }
+
+            // TODO: 
+            // 1 - 32	GPS
+            // 33 - 54	Various SBAS systems (EGNOS, WAAS, SDCM, GAGAN, MSAS)
+            // 55 - 64	not used (might be assigned to further SBAS systems)
+            // 65 - 88	GLONASS
+            // 89 - 96	GLONASS (future extensions?)
+            // 97 - 119	not used
+            // 120 - 151	not used (SBAS PRNs occupy this range)
+            // 152 - 158	Various SBAS systems (EGNOS, WAAS, SDCM, GAGAN, MSAS)
+            // 159 - 172	not used
+            // 173 - 182	IMES
+            // 193 - 197	QZSS
+            // 196 - 200	QZSS (future extensions?)
+            // 201 - 235	BeiDou (u-blox, not NMEA)
+            // 301 - 336	GALILEO
+            // 401 - 437	BeiDou (NMEA)
+            return false;
+        }
+
+
         public static string TryFindSourceTitleById(string value)
         {
             switch (value)
@@ -281,6 +332,8 @@ namespace Asv.Gnss
             if (value.IsNullOrWhiteSpace()) return double.NaN;
             return double.Parse(value, CultureInfo.InvariantCulture);
         }
+
+
     }
 
     public enum GpsQuality
