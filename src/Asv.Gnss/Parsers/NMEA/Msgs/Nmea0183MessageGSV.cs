@@ -48,7 +48,7 @@ namespace Asv.Gnss
                         ElevationDeg = elevationDeg,
                         AzimuthDeg = azimuthDeg,
                         SnrdB = snrdB,
-                        ExtPRN = number,
+                        ExtPRN = PRN,
                         ExtNavSys = nav,
                     };
                 }
