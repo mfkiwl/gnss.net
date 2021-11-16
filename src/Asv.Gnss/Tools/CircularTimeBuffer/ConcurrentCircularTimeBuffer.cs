@@ -106,7 +106,7 @@ namespace Asv.Gnss
                     (now - rcvTime) >= _maxAge) // старый пакет
                 {
                     itemsToDeleteFromFirst++;
-                    current = _items.First.Next;
+                    current = current.Next;
                 }
                 else
                 {
