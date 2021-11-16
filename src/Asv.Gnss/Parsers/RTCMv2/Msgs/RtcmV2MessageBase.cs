@@ -124,6 +124,21 @@ namespace Asv.Gnss
     {
         private readonly NavigationSystemEnum _system;
 
+        private DateTime GetDateTime(uint tb)
+        {
+            var utc = DateTime.UtcNow;
+            var week = 0;
+            var tow = 0.0;
+            RtcmV3Helper.GetFromTime(utc, ref week, ref tow);
+            var toe = (double)tb; /* lt->utc */
+            var toh = tow % 3600.0;
+            tow -= toh;
+
+            if (toe < toh - 1800.0) toe += 3600.0;
+            else if (toe > toh + 1800.0) toe -= 3600.0;
+            return RtcmV3Helper.GetFromGps(week, tow + toe).AddHours(3.0);
+        }
+
         public DObservationItem(NavigationSystemEnum system)
         {
             _system = system;
@@ -146,8 +161,6 @@ namespace Asv.Gnss
             var fact = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 1); bitIndex += 1;
             var udre = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 2); bitIndex += 2;
             var prn = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 5); bitIndex += 5;
-            var prcU = RtcmV3Helper.GetBitU(buffer, bitIndex, 16);
-            var rrcU = RtcmV3Helper.GetBitU(buffer, bitIndex + 16, 8);
             var prc = RtcmV3Helper.GetBits(buffer, bitIndex, 16); bitIndex += 16;
             var rrc = RtcmV3Helper.GetBits(buffer, bitIndex, 8); bitIndex += 8;
             var iod = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 8); bitIndex += 8;
@@ -156,7 +169,7 @@ namespace Asv.Gnss
 
             Prn = prn;
 
-            if (prcU == 0x80000000 || rrcU == 0xFFFF8000)
+            if (prc == -32_768 || rrc == -128)
             {
                 Prc = double.NaN;
                 Rrc = double.NaN;
@@ -167,7 +180,9 @@ namespace Asv.Gnss
                 Rrc = rrc * (fact == 1 ? 0.032 : 0.002);
             }
             SatelliteId = RtcmV3Helper.satno(_system, prn);
-            Iod = iod;
+            Iod = _system == NavigationSystemEnum.SYS_GLO ? (byte)(iod & 0x7F) : iod;
+            if (_system == NavigationSystemEnum.SYS_GLO)
+                Tk = GetDateTime((uint) (Iod * 30));
             Udre = udre;
 
             return bitIndex - offsetBits;
@@ -184,5 +199,7 @@ namespace Asv.Gnss
         public byte Iod { get; set; }
 
         public byte Udre { get; set; }
+
+        public DateTime Tk { get; set; }
     }
 }

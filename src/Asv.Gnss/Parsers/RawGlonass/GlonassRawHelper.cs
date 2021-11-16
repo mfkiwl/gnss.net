@@ -23,6 +23,11 @@ namespace Asv.Gnss
         /// </summary>
         public const double P2_30 = 9.313225746154785E-10;
 
+        /// <summary>
+        /// 2^-31
+        /// </summary>
+        public const double P2_31 = 4.656612873077393E-10;
+
         public static void GetFromTime(DateTime time, ref int week, ref double seconds)
         {
             var datum = new DateTime(1980, 1, 6, 0, 0, 0, DateTimeKind.Utc);

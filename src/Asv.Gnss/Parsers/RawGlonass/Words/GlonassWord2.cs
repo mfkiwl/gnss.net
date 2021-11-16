@@ -13,8 +13,8 @@ namespace Asv.Gnss
 
             Bn = (byte)GlonassRawHelper.GetBitU(data, bitIndex, 3); bitIndex += 3;
             P2 = (byte)GlonassRawHelper.GetBitU(data, bitIndex, 1); bitIndex += 1;
-            var tb = GlonassRawHelper.GetBitU(data, bitIndex, 7); bitIndex += 7 + 5;
-            Tb = GetDateTime(tb);
+            TbRaw = (byte)GlonassRawHelper.GetBitU(data, bitIndex, 7); bitIndex += 7 + 5;
+            Tb = GetDateTime(TbRaw);
             
             VelocityY = GlonassRawHelper.GetBitU(data, bitIndex, 24) * GlonassRawHelper.P2_20 * 1E3; bitIndex += 24;
             AccelerationY = GlonassRawHelper.GetBitU(data, bitIndex, 5) * GlonassRawHelper.P2_30 * 1E3; bitIndex += 5;
@@ -35,6 +35,8 @@ namespace Asv.Gnss
             else if (toe > tod + 43200.0) toe -= 86400.0;
             return RtcmV3Helper.GetFromGps(week, tow + toe).AddHours(3.0);
         }
+
+        public byte TbRaw { get; set; }
 
         public DateTime Tb { get; set; }
 

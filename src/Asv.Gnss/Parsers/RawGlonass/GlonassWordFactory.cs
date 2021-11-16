@@ -35,14 +35,14 @@ namespace Asv.Gnss
                 case 10:
                 case 12:
                 case 14:
-                    subframe = new GlonassWordCn1();
+                    subframe = new GlonassWordEven();
                     break;
                 case 7:
                 case 9:
                 case 11:
                 case 13:
                 case 15:
-                    subframe = new GlonassWordCn2();
+                    subframe = new GlonassWordOdd();
                     break;
                 default:
                     throw new Exception($"Unknown Glonass word ID:{Convert.ToString(wordId, 2).PadRight(8)}");

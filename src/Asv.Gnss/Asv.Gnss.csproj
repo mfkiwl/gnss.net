@@ -79,8 +79,8 @@
     <Compile Include="Parsers\RawGlonass\Words\GlonassWord3.cs" />
     <Compile Include="Parsers\RawGlonass\Words\GlonassWord4.cs" />
     <Compile Include="Parsers\RawGlonass\Words\GlonassWord5.cs" />
-    <Compile Include="Parsers\RawGlonass\Words\GlonassWordCn1.cs" />
-    <Compile Include="Parsers\RawGlonass\Words\GlonassWordCn2.cs" />
+    <Compile Include="Parsers\RawGlonass\Words\GlonassWordEven.cs" />
+    <Compile Include="Parsers\RawGlonass\Words\GlonassWordOdd.cs" />
     <Compile Include="Parsers\RawGlonass\Words\GlonassWordBase.cs" />
     <Compile Include="Parsers\RawGlonass\GlonassWordFactory.cs" />
     <Compile Include="Parsers\RawGPS\GpsRawHelper.cs" />
@@ -94,6 +94,7 @@
     <Compile Include="Parsers\RawGPS\Subframes\GpsSubframeBase.cs" />
     <Compile Include="Parsers\RawGPS\GpsSubFrameFactory.cs" />
     <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2Message14.cs" />
+    <Compile Include="Parsers\RTCMv2\Msgs\RtcmV2Message15.cs" />
     <Compile Include="Parsers\RTCMv2\RtcmV2MessageFactory.cs" />
     <Compile Include="Parsers\RTCMv3\RtcmV3MessageFactory.cs" />
     <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketBdsRaw.cs" />

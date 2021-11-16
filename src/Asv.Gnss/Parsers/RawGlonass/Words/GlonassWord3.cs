@@ -12,7 +12,7 @@
             P3 = (byte)GlonassRawHelper.GetBitU(data, bitIndex, 1); bitIndex += 1;
             RelativeFreqBias = GlonassRawHelper.GetBitG(data, bitIndex, 11) * RtcmV3Helper.P2_40; bitIndex += 11 + 1;
             P = (byte)GlonassRawHelper.GetBitU(data, bitIndex, 2); bitIndex += 2;
-            Ln = (byte)GlonassRawHelper.GetBitU(data, bitIndex, 1); bitIndex += 1;
+            ln = (byte)GlonassRawHelper.GetBitU(data, bitIndex, 1); bitIndex += 1;
 
             VelocityZ = GlonassRawHelper.GetBitU(data, bitIndex, 24) * GlonassRawHelper.P2_20 * 1E3; bitIndex += 24;
             AccelerationZ = GlonassRawHelper.GetBitU(data, bitIndex, 5) * GlonassRawHelper.P2_30 * 1E3; bitIndex += 5;
@@ -27,9 +27,15 @@
         /// </summary>
         public double RelativeFreqBias { get; set; }
 
+        /// <summary>
+        /// Признак режима работы НКА по ЧВИ 
+        /// </summary>
         public byte P { get; set; }
 
-        public byte Ln { get; set; }
+        /// <summary>
+        /// Признак недостоверности кадра n-го НКА; ln = 0 свидетельствует о пригодности НКА для навигации;  ln = 1 означает факт непригодности данного НКА для навигации
+        /// </summary>
+        public byte ln { get; set; }
 
         /// <summary>
         /// satellite position (ecef) (m). Координаты n-го спутника в системе координат ПЗ-90 на момент времени tb
