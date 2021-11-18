@@ -28,6 +28,8 @@ namespace Asv.Gnss
 
         public int Count => _items.Count;
 
+        public object Tag { get; set; }
+
         public List<T> GetItemsWithTimeMoreThen(DateTime beginTime)
         {
             _lock.EnterReadLock();
