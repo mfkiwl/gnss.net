@@ -80,7 +80,9 @@ namespace Asv.Gnss
 
             ReferenceStationId = (ushort)RtcmV3Helper.GetBitU(buffer, bitIndex, 10); bitIndex += 10;
 
-            ZCount = RtcmV3Helper.GetBitU(buffer, bitIndex, 13) * 0.6; bitIndex += 13;
+            ZCountRaw = RtcmV3Helper.GetBitU(buffer, bitIndex, 13);
+
+            ZCount = ZCountRaw * 0.6; bitIndex += 13;
 
             if (ZCount >= 3600.0)
             {
@@ -115,6 +117,8 @@ namespace Asv.Gnss
         public DateTime Gps { get; set; }
 
         public double ZCount { get; set; }
+
+        public uint ZCountRaw { get; set; }
 
         public ushort ReferenceStationId { get; set; }
         

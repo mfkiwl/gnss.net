@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Asv.Gnss
 {
@@ -20,6 +21,10 @@ namespace Asv.Gnss
         {
             var val =  base.Deserialize(buffer, offsetBits);
             GlonassWord = GlonassWordFactory.Create(NAVBitsU32);
+            if (GlonassWord == null)
+            {
+                Debug.Fail("Null reference");
+            }
             return val;
         }
 

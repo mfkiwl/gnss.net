@@ -135,10 +135,10 @@ namespace Asv.Gnss
         }
 
 
-        public T[] GetAll()
+        public List<T> GetAll()
         {
             _lock.EnterReadLock();
-            var result = _items.ToArray();
+            var result = _items.ToList();
             _lock.ExitReadLock();
             return result;
         }
