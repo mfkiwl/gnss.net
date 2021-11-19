@@ -108,7 +108,7 @@ namespace Asv.Gnss
             return bitIndex - offsetBits;
         }
 
-        public double? Udre { get; set; }
+        public double Udre { get; set; }
 
         public byte PayloadLength { get; set; }
 
