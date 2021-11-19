@@ -183,9 +183,26 @@ namespace Asv.Gnss
             Iod = _system == NavigationSystemEnum.SYS_GLO ? (byte)(iod & 0x7F) : iod;
             if (_system == NavigationSystemEnum.SYS_GLO)
                 Tk = GetDateTime((uint) (Iod * 30));
-            Udre = udre;
+            Udre = GetUdre(udre);
 
             return bitIndex - offsetBits;
+        }
+
+        private SatUdreEnum GetUdre(byte udre)
+        {
+            switch (udre)
+            {
+                case 0:
+                    return SatUdreEnum.LessOne;
+                case 1:
+                    return SatUdreEnum.BetweenOneAndFour;
+                case 2:
+                    return SatUdreEnum.BetweenFourAndEight;
+                case 3:
+                    return SatUdreEnum.MoreEight;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(udre));
+            }
         }
 
         public int SatelliteId { get; set; }
@@ -198,8 +215,16 @@ namespace Asv.Gnss
 
         public byte Iod { get; set; }
 
-        public byte Udre { get; set; }
+        public SatUdreEnum Udre { get; set; }
 
         public DateTime Tk { get; set; }
+    }
+
+    public enum SatUdreEnum
+    {
+        LessOne = 0,
+        BetweenOneAndFour = 1,
+        BetweenFourAndEight = 2,
+        MoreEight = 3
     }
 }
