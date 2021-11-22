@@ -2,6 +2,103 @@
 
 namespace Asv.Gnss
 {
+    /// <summary>
+    /// Bit field containing flags common to all measurements.
+    /// </summary>
+    [Flags]
+    public enum MeasEpochCommonFlags : byte
+    {
+        /// <summary>
+        /// Bit 0: Multipath mitigation: if this bit is set, multipath mitigation is enabled. (see the setMultipathMitigation command).
+        /// </summary>
+        MultipathMitigationEnabled,
+        /// <summary>
+        /// Bit 1: Smoothing of code: if this bit is set, at least one of the code measurements are smoothed values (see setSmoothingInterval command).
+        /// </summary>
+        MeasurementsAreSmoothed,
+        /// <summary>
+        /// Bit 2: Carrier phase align: if this bit is set, the fractional part of the carrier phase measurements from different modulations on the same
+        /// carrier frequency (e.g. GPS L2C and L2P) are aligned, i.e. multiplexing biases (0.25 or 0.5 cycles) are corrected. Aligned carrier phase
+        /// measurements can be directly included in RINEX files. If this bit is
+        /// unset, this block contains raw carrier phase measurements. This bit
+        /// is always set in the current firmware version.
+        /// </summary>
+        CarrierPhaseAlign,
+        /// <summary>
+        /// Bit 3: Clock steering: this bit is set if clock steering is active (seesetClockSyncThreshold command).
+        /// </summary>
+        ClockSteering,
+        /// <summary>
+        /// Bit 4: Not applicable.
+        /// </summary>
+        NotApplicable,
+        /// <summary>
+        /// Bit 5: High dynamics: this bit is set when the receiver is in high-dynamics mode (see the setReceiverDynamics command).
+        /// </summary>
+        HighDynamics,
+        /// <summary>
+        /// Bit 6: Reserved
+        /// </summary>
+        Reserved,
+        /// <summary>
+        /// Bit 7: Scrambling: bit set when the measurements are scrambled. Scrambling is applied when the "Measurement Availability" permission is
+        /// not granted (see the lif, Permissions command)
+        /// </summary>
+        Scrambling,
+    }
+
+    public class MeasEpochChannelType1
+    {
+        public uint Deserialize(byte[] buffer, uint offsetInBytes, uint blockLength)
+        {
+            //TODO: implement block deserialization
+            return 0;
+        }
+    }
+
+    public class SbfPacketMeasEpoch : SbfPacketBase
+    {
+        public override ushort MessageId => 4027;
+
+        protected override void DeserializeMessage(byte[] buffer, uint offsetBits)
+        {
+            uint offsetInBytes = offsetBits / 8;
+            N1 = buffer[offsetInBytes]; offsetInBytes+=1;
+            SB1Length = buffer[offsetInBytes]; offsetInBytes += 1;
+            SB2Length = buffer[offsetInBytes]; offsetInBytes += 1;
+            CommonFlags = (MeasEpochCommonFlags) buffer[offsetInBytes]; offsetInBytes += 1;
+            Reserved = buffer[offsetInBytes]; offsetInBytes += 1;
+            SubBlocks = new MeasEpochChannelType1[N1];
+            foreach (var measEpochChannelType1 in SubBlocks)
+            {
+                offsetInBytes+= measEpochChannelType1.Deserialize(buffer, offsetInBytes, SB1Length);
+            }
+
+        }
+
+        public MeasEpochChannelType1[] SubBlocks { get; set; }
+
+        /// <summary>
+        /// Reserved for future use, to be ignored by decoding software
+        /// </summary>
+        public byte Reserved { get; set; }
+
+
+        public MeasEpochCommonFlags CommonFlags { get; set; }
+        /// <summary>
+        /// Length of a MeasEpochChannelType2 sub-block
+        /// </summary>
+        public byte SB2Length { get; set; }
+        /// <summary>
+        /// Length of a MeasEpochChannelType1 sub-block, excluding the nested MeasEpochChannelType2 sub-blocks
+        /// </summary>
+        public byte SB1Length { get; set; }
+
+        /// <summary>
+        /// Number of MeasEpochChannelType1 sub-blocks in this MeasEpoch block
+        /// </summary>
+        public byte N1 { get; set; }
+    }
 
     public abstract class SbfPacketBase: GnssMessageBase
     {
