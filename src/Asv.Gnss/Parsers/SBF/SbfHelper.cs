@@ -99,6 +99,70 @@ namespace Asv.Gnss
             return null;
         }
 
+        public static int GetSattelitePrn(byte svidOrPrn)
+        {
+            if (37 >= svidOrPrn && svidOrPrn >= 1)
+            {
+                return svidOrPrn;
+            }
+
+            if (61 >= svidOrPrn && svidOrPrn >= 38)
+            {
+                return svidOrPrn - 37;
+            }
+
+            // 62: GLONASS satellite of which the slot number is not known
+            if (svidOrPrn == 62)
+            {
+                return 0;
+            }
+            if (68 >= svidOrPrn && svidOrPrn >= 63)
+            {
+                return svidOrPrn - 38;
+            }
+            if (106 >= svidOrPrn && svidOrPrn >= 71)
+            {
+                return svidOrPrn - 70;
+            }
+            // 107-119: L-Band (MSS) satellite. Corresponding
+            // satellite name can be found in the LBandBeams block.
+            if (119 >= svidOrPrn && svidOrPrn >= 107)
+            {
+                return 0;
+            }
+
+            if (140 >= svidOrPrn && svidOrPrn >= 120)
+            {
+                return svidOrPrn - 100;
+            }
+            if (180 >= svidOrPrn && svidOrPrn >= 141)
+            {
+                return svidOrPrn - 140;
+            }
+            if (187 >= svidOrPrn && svidOrPrn >= 181)
+            {
+                return svidOrPrn - 180;
+            }
+            if (197 >= svidOrPrn && svidOrPrn >= 191)
+            {
+                return svidOrPrn - 190;
+            }
+            if (215 >= svidOrPrn && svidOrPrn >= 198)
+            {
+                return svidOrPrn - 157;
+            }
+            if (222 >= svidOrPrn && svidOrPrn >= 216)
+            {
+                return svidOrPrn - 208;
+            }
+            if (245 >= svidOrPrn && svidOrPrn >= 223)
+            {
+                return svidOrPrn - 182;
+            }
+
+            return 0;
+        }
+
         /// <summary>
         /// 4.1.10 Signal Type
         /// Some sub-blocks contain a signal type field, which identifies the type of signal and modulation the sub-blocks applies to.The signal numbering is defined as follows:

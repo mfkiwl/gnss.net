@@ -68,6 +68,7 @@ namespace Asv.Gnss
 
             SvId = buffer[startIndex];
             RinexSatCode = SbfHelper.GetRinexSatteliteCode(SvId, out var nav);
+            SatPrn = SbfHelper.GetSattelitePrn(SvId);
             NavSystem = nav;
             CrcPassed = buffer[startIndex + 1] != 0;
             ViterbiCnt = buffer[startIndex + 2];
@@ -88,6 +89,6 @@ namespace Asv.Gnss
             //Padding ignored
         }
 
-        
+        public int SatPrn { get; set; }
     }
 }
