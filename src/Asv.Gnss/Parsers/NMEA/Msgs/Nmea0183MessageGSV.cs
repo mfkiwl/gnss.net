@@ -27,9 +27,9 @@ namespace Asv.Gnss
             if (!string.IsNullOrEmpty(items[2])) MessageNumber = int.Parse(items[2]);
             if (!string.IsNullOrEmpty(items[3])) SatellitesInView = int.Parse(items[3]);
 
-            Satellites = new Satellite[SatellitesInView];
+            Satellites = new Satellite[(items.Length - 4)/4];
             var index = 0;
-            for (var i = 4; i < 4 + SatellitesInView * 4; i+=4)
+            for (var i = 4; i < 4 + Satellites.Length * 4; i+=4)
             {
                 var number = 0;
                 var elevationDeg = 0;
