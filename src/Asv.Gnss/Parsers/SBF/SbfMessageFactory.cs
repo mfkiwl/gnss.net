@@ -6,6 +6,8 @@
         {
             src.Register(() => new SbfPacketGpsRawCa());
             src.Register(() => new SbfPacketGloRawCa());
+            //src.Register(() => new SbfPacketMeasEpoch()); // TODO: not complete
+            src.Register(()=> new SbfPacketPvtGeodeticRev2());
             return src;
         }
     }

@@ -112,6 +112,7 @@ namespace Asv.Gnss
             {
                 _diag.Int["parse err"]++;
                 InternalOnError(new GnssParserException(ProtocolId, $"Parse SBF packet error [MSG={_msgId}]", e));
+                return;
             }
 
             try

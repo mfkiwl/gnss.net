@@ -41,6 +41,7 @@ namespace Asv.Gnss
             {
                 _diag.Int["parse err"]++;
                 InternalOnError(new GnssParserException(ProtocolId, $"Parse {ProtocolId} packet error [MSG={id}]", e));
+                return;
             }
 
             try

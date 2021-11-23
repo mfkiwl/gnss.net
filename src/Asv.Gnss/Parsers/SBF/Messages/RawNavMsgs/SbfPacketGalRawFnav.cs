@@ -10,7 +10,8 @@
     /// </summary>
     public class SbfPacketGalRawFnav : SbfPacketGnssRawNavMsgBase
     {
-        public override ushort MessageId => 4022;
+        public override ushort MessageType => 4022;
+        public override ushort MessageRevision => 0;
 
         protected override int NavBitsU32Length => 8;
 

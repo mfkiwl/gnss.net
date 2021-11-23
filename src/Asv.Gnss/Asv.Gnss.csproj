@@ -115,6 +115,8 @@
     <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketQzsRawL2C.cs" />
     <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketQzsRawL5.cs" />
     <Compile Include="Parsers\SBF\Messages\RawNavMsgs\SbfPacketQzsRawL6.cs" />
+    <Compile Include="Parsers\SBF\Messages\SbfPacketMeasEpoch.cs" />
+    <Compile Include="Parsers\SBF\Messages\SbfPacketPvtGeodeticRev2.cs" />
     <Compile Include="Parsers\SBF\SbfMessageFactory.cs" />
     <Compile Include="Tools\Async\AsyncReaderWriterLock.cs" />
     <Compile Include="Tools\CircularTimeBuffer\ConcurrentCircularTimeBuffer.cs" />

@@ -19,7 +19,8 @@ namespace Asv.Gnss
     /// </summary>
     public class SbfPacketGpsRawCa : SbfPacketGnssRawNavMsgBase
     {
-        public override ushort MessageId => 4017;
+        public override ushort MessageType => 4017;
+        public override ushort MessageRevision => 0;
 
         protected override int NavBitsU32Length => 10;
 
