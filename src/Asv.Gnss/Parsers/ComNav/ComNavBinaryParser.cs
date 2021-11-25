@@ -15,8 +15,12 @@ namespace Asv.Gnss
         private int _stopMessageIndex;
         public override string ProtocolId => GnssProtocolId;
 
-        public ComNavBinaryParser(IDiagnostic diag):base(diag)
+        public ComNavBinaryParser(IDiagnostic diag):this(diag[GnssProtocolId])
         {
+        }
+        public ComNavBinaryParser(IDiagnosticSource diagSource) : base(diagSource)
+        {
+
         }
 
         private enum State

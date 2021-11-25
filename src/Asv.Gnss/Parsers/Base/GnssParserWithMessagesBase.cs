@@ -8,9 +8,9 @@ namespace Asv.Gnss
         private readonly Dictionary<TMsgId, Func<TMessage>> _dict = new Dictionary<TMsgId, Func<TMessage>>();
         private readonly IDiagnosticSource _diag;
 
-        protected GnssParserWithMessagesBase(IDiagnostic diag)
+        protected GnssParserWithMessagesBase(IDiagnosticSource diagSource)
         {
-            _diag = diag[ProtocolId];
+            _diag = diagSource;
         }
 
         public void Register(Func<TMessage> factory)
@@ -23,7 +23,7 @@ namespace Asv.Gnss
 
         protected void ParsePacket(TMsgId id, byte[] data)
         {
-            _diag.Speed[id.ToString()].Increment(1);
+            _diag.Speed[$"{ProtocolId}_{id}"].Increment(1);
             if (_dict.TryGetValue(id, out var factory) == false)
             {
                 _diag.Int["unk err"]++;

@@ -14,7 +14,12 @@ namespace Asv.Gnss
         private readonly byte[] crcBuffer = new byte[2];
         private int _msgReaded;
 
-        public Nmea0183Parser(IDiagnostic diag):base(diag)
+        public Nmea0183Parser(IDiagnostic diag):this(diag[GnssProtocolId])
+        {
+
+        }
+
+        public Nmea0183Parser(IDiagnosticSource diagSource) : base(diagSource)
         {
 
         }

@@ -24,7 +24,12 @@ namespace Asv.Gnss
         private ushort _payloadReadedBytes;
         private uint _payloadLength;
 
-        public RtcmV3Parser(IDiagnostic diag):base(diag)
+        public RtcmV3Parser(IDiagnostic diag) : this(diag[GnssProtocolId])
+        {
+
+        }
+
+        public RtcmV3Parser(IDiagnosticSource diagSource):base(diagSource)
         {
 
         }

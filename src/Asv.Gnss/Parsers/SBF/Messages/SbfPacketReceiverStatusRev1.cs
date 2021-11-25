@@ -17,7 +17,7 @@ namespace Asv.Gnss
             var N = buffer[offset]; offset += 1;
             var sbLength = buffer[offset]; offset += 1;
             CmdCount = buffer[offset]; offset += 1;
-            Temperature = buffer[offset]; offset += 1;
+            Temperature = buffer[offset] - 100; offset += 1;
             AGCState = new SbfReceiverStatusAGCState[N];
             for (var i = 0; i < N; i++)
             {
@@ -34,7 +34,7 @@ namespace Asv.Gnss
         /// <summary>
         /// Receiver temperature with an offset of 100. Remove 100 to get the temperature in degree Celsius.
         /// </summary>
-        public byte Temperature { get; set; }
+        public int Temperature { get; set; }
         /// <summary>
         /// Command cyclic counter, incremented each time a command is entered
         /// that changes the receiver configuration.After the counter has reached

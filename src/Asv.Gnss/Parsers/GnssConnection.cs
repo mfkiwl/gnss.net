@@ -21,6 +21,31 @@ namespace Asv.Gnss
         private readonly SpeedIndicator _rxInd;
         private static IDisposable _portSubscribe;
 
+        public GnssConnection(string connectionString, IDiagnosticSource diagSource, params IGnssParser[] parsers)
+        {
+            DataStream = ConnectionStringConvert(connectionString);
+            _parsers = parsers;
+            foreach (var parser in parsers)
+            {
+                parser.OnError.Subscribe(_onErrorSubject, _disposeCancel.Token);
+                parser.OnMessage.Subscribe(_onMessageSubject, _disposeCancel.Token);
+            }
+            DataStream.SelectMany(_ => _).Subscribe(OnByteRecv, _disposeCancel.Token);
+
+
+            Logger.Info($"GNSS connection string: {connectionString}");
+
+            _diag = diagSource;
+
+            // diagnostic
+            _diag.Str["conn"] = connectionString;
+            _diag.Speed["rx", "# ##0 b/s"].Increment(0);
+            foreach (var parser in parsers)
+            {
+                _diag.Speed[parser.ProtocolId, "# ##0 pkt/s"].Increment(0);
+            }
+        }
+
         public GnssConnection(string connectionString, IDiagnostic diag, params IGnssParser[] parsers) 
         {
             DataStream = ConnectionStringConvert(connectionString);
@@ -32,9 +57,10 @@ namespace Asv.Gnss
             }
             DataStream.SelectMany(_ => _).Subscribe(OnByteRecv, _disposeCancel.Token);
 
-            _diag = diag[DataStream.ToString()];
+            
             Logger.Info($"GNSS connection string: {connectionString}");
 
+            _diag = diag[DataStream.ToString()];
             // diagnostic
             _diag.Str["conn"] = connectionString;
             _diag.Speed["rx", "# ##0 b/s"].Increment(0);
@@ -42,6 +68,7 @@ namespace Asv.Gnss
             {
                 _diag.Speed[parser.ProtocolId, "# ##0 pkt/s"].Increment(0);
             }
+            
         }
 
       

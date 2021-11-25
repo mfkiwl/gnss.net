@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Reactive.Linq;
+using System.Threading;
 
 namespace Asv.Gnss
 {
@@ -38,6 +39,12 @@ namespace Asv.Gnss
                     ex => o.OnError(ex),
                     () => o.OnCompleted()
                 ));
+        }
+
+        public static IObservable<T> SubscribeEx<T>(this IObservable<T> src, IObserver<T> observer, CancellationToken cancel)
+        {
+            src.Subscribe(observer, cancel);
+            return src;
         }
     }
 }

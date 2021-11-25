@@ -24,7 +24,12 @@ namespace Asv.Gnss
 
         public override string ProtocolId => GnssProtocolId;
 
-        public AsvParser(IDiagnostic diag):base(diag)
+        public AsvParser(IDiagnostic diag):this(diag[GnssProtocolId])
+        {
+
+        }
+
+        public AsvParser(IDiagnosticSource diagSource) : base(diagSource)
         {
 
         }

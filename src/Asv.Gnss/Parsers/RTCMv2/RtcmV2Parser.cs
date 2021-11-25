@@ -93,7 +93,12 @@ namespace Asv.Gnss
             _len = 0;
     }
 
-        public RtcmV2Parser(IDiagnostic diag) : base(diag)
+        public RtcmV2Parser(IDiagnostic diag) : base(diag[GnssProtocolId])
+        {
+
+        }
+
+        public RtcmV2Parser(IDiagnosticSource diagSource) : base(diagSource)
         {
         }
     }

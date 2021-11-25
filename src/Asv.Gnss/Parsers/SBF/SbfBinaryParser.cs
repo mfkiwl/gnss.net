@@ -17,9 +17,14 @@ namespace Asv.Gnss
         private ushort _msgId;
         private ushort _length;
 
-        public SbfBinaryParser(IDiagnostic diag)
+        public SbfBinaryParser(IDiagnostic diag):this(diag[GnssProtocolId])
         {
-            _diag = diag[GnssProtocolId];
+            
+        }
+
+        public SbfBinaryParser(IDiagnosticSource diag)
+        {
+            _diag = diag;
         }
 
         private enum State
@@ -93,8 +98,10 @@ namespace Asv.Gnss
 
         private void ParsePacket(byte[] data)
         {
-            
-            _diag.Speed[_msgId.ToString()].Increment(1);
+            var messageType = (ushort)(_msgId & 0x1fff << 0);
+            var messageRevision = (ushort)(_msgId >> 13);
+
+            _diag.Speed[$"SBF_{messageType}({messageRevision})"].Increment(1);
             if (_dict.TryGetValue(_msgId, out var factory) == false)
             {
                 _diag.Int["unk err"]++;
