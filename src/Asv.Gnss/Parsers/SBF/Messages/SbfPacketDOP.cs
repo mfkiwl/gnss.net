@@ -12,6 +12,7 @@ namespace Asv.Gnss
             NrSV = buffer[offset]; offset+=1;
             Reserved = buffer[offset]; offset +=1;
             PDOP = BitConverter.ToUInt16(buffer, offset)*0.01;offset+=2;
+            if (Math.Abs(PDOP) < double.Epsilon) PDOP = Double.NaN;
             TDOP = BitConverter.ToUInt16(buffer, offset) * 0.01; offset += 2;
             HDOP = BitConverter.ToUInt16(buffer, offset) * 0.01; offset += 2;
             VDOP = BitConverter.ToUInt16(buffer, offset) * 0.01; offset += 2;

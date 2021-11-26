@@ -376,7 +376,9 @@ namespace Asv.Gnss
         /// Latitude, from −π/2 to +π/2, positive North of Equator
         /// </summary>
         public double Latitude { get; set; }
-
+        /// <summary>
+        /// if 0, no error
+        /// </summary>
         public byte Error { get; set; }
         public bool Flag2D3D { get; set; }
         public SbfPVTSolution Solution { get; set; }
