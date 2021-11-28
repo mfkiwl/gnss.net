@@ -59,7 +59,7 @@ namespace Asv.Gnss
                     _buffer[_bufferIndex++] = data;
                     if (_bufferIndex == 4)
                     {
-                        _stopIndex = BitConverter.ToUInt16(_buffer, 2) + 12 + 1; // 10 header + 2 crc = 12
+                        _stopIndex = BitConverter.ToUInt16(_buffer, 2) + 12; // 10 header + 2 crc = 12
                         if (_stopIndex >= _buffer.Length)
                         {
                             // wrong length
@@ -76,8 +76,8 @@ namespace Asv.Gnss
                     _buffer[_bufferIndex++] = data;
                     if (_bufferIndex == _stopIndex)
                     {
-                        var crc = BitConverter.ToUInt16(_buffer, _stopIndex - 3);
-                        var calcCrc = SbfCrc16.checksum(_buffer, 0, _stopIndex - 3);
+                        var crc = BitConverter.ToUInt16(_buffer, _stopIndex - 2);
+                        var calcCrc = SbfCrc16.checksum(_buffer, 0, _stopIndex - 2);
                         if (calcCrc == crc)
                         {
                             var msgId = BitConverter.ToUInt16(_buffer, 8);

@@ -22,7 +22,7 @@ namespace Asv.Gnss
             opt = new TcpPortConfig
             {
                 IsServer = bool.Parse(coll["srv"] ?? bool.FalseString),
-                ReconnectTimeout = int.Parse(coll["rx_timeout"] ?? "0"),
+                ReconnectTimeout = int.Parse(coll["rx_timeout"] ?? "1000"),
                 Host = IPAddress.Parse(uri.Host).ToString(),
                 Port = uri.Port,
             };

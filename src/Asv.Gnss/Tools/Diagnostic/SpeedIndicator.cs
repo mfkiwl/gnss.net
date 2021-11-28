@@ -26,8 +26,8 @@ namespace Asv.Gnss
             {
                 var delay = DateTime.Now - _lastUpdate;
                 _lastUpdate = DateTime.Now;
-                source[name] = (double)_value / delay.TotalSeconds;
-                _value = 0;
+                var value = Interlocked.Exchange(ref _value, 0);
+                source[name] = (double)value / delay.TotalSeconds;
             });
         }
 
