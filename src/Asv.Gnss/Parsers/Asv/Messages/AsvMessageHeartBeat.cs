@@ -22,7 +22,9 @@ namespace Asv.Gnss
 
     public class AsvMessageHeartBeat : AsvMessageBase
     {
-        public override ushort MessageId => 0x0001;
+        public static ushort PacketMessageId = 0x0001;
+
+        public override ushort MessageId => PacketMessageId;
 
         public AsvDeviceType DeviceType { get; set; }
         public AsvDeviceState DeviceState { get; set; }
