@@ -80,9 +80,9 @@ namespace Asv.Gnss
 
             ReferenceStationId = (ushort)RtcmV3Helper.GetBitU(buffer, bitIndex, 10); bitIndex += 10;
 
-            var zCountRaw = RtcmV3Helper.GetBitU(buffer, bitIndex, 13);
+            var zCountRaw = RtcmV3Helper.GetBitU(buffer, bitIndex, 13); bitIndex += 13;
 
-            ZCount = zCountRaw * 0.6; bitIndex += 13;
+            ZCount = zCountRaw * 0.6;
 
             if (ZCount >= 3600.0)
             {

@@ -28,7 +28,7 @@ namespace Asv.Gnss
         {
             var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
 
-            ZCount += 18;
+            //ZCount += 18;
 
             var itmCnt = PayloadLength / 5;
             ObservationItems = new DObservationItem[itmCnt];
