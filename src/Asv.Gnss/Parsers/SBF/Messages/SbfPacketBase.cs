@@ -38,7 +38,7 @@ namespace Asv.Gnss
             TOW = BitConverter.ToUInt32(buffer, offsetInBytes + 8);
             WNc = BitConverter.ToUInt16(buffer, offsetInBytes + 12);
 
-            UtcTime = new DateTime(1980,1,06).AddMilliseconds(TOW + WNc * 604800000 /* ms in 1 week */);
+            UtcTime = new DateTime(1980,1,06, 0, 0, 0, DateTimeKind.Utc).AddDays(7 * WNc).AddMilliseconds(TOW/* ms in 1 week */);
             DeserializeMessage(buffer, offsetBits + 14 * 8U);
             return (4U + msgLength ) * 8U;
         }

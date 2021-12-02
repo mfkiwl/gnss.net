@@ -4,8 +4,6 @@ namespace Asv.Gnss
 {
     public abstract class SbfPacketGnssRawNavMsgBase : SbfPacketBase
     {
-
-
         public SbfNavSysEnum NavSystem { get; set; }
 
         public uint[] NAVBitsU32 { get; set; }

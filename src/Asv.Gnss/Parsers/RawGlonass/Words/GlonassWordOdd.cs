@@ -12,7 +12,7 @@ namespace Asv.Gnss
         public override void Deserialize(byte[] data)
         {
             base.Deserialize(data);
-            var startBitIndex = 8U;
+            // var bitIndex = 8U;
         }
     }
 }

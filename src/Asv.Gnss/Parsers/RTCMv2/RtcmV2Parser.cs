@@ -25,7 +25,7 @@ namespace Asv.Gnss
             {
                 parity <<= 1;
                 for (var w = (word & hamming[i]) >> 6; w != 0; w >>= 1) 
-                    parity ^= w & 1;
+                    parity ^= w & 0x1;
             }
             if (parity != (word & 0x3F)) return false;
 
@@ -60,7 +60,7 @@ namespace Asv.Gnss
                 }
                 if (++_readedBits < 30) continue;
                 _readedBits = 0;
-                
+
                 /* check parity */
                 if (!DecodeWord(_word, _buffer, _readedBytes))
                 {
