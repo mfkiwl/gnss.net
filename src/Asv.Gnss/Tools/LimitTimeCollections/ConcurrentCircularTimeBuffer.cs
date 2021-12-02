@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
 namespace Asv.Gnss
 {
-
-
-
     public class ConcurrentCircularTimeBuffer<T>:IDisposable
     {
         private readonly TimeSpan _maxAge;
@@ -127,6 +125,43 @@ namespace Asv.Gnss
                 _lock.ExitWriteLock();
             }
             _lock.ExitUpgradeableReadLock();
+        }
+
+        public List<T> ClearOldAndGetRemaining()
+        {
+            if (_items.Count == 0) return null;
+            var now = _timeService.Now;
+            _lock.EnterUpgradeableReadLock();
+            var current = _items.First;
+            var itemsToDeleteFromFirst = 0;
+            while (current != null)
+            {
+                var rcvTime = _getTimeCallback(current.Value);
+                if (rcvTime > now || // Элемент из будущего!!! Вдруг системные часы резко ушли, поэтому заглядываем и проверяем, что элементы из будущего. Их тоже удаляем.
+                    (now - rcvTime) >= _maxAge) // старый пакет
+                {
+                    itemsToDeleteFromFirst++;
+                    current = current.Next;
+                }
+                else
+                {
+                    // если первый(самый старый) нормальный, то остальные тоже, так как добавляются в конец очереди (т.е. сортированы по времени)
+                    current = null;
+                }
+            }
+
+            if (itemsToDeleteFromFirst > 0)
+            {
+                _lock.EnterWriteLock();
+                for (var i = 0; i < itemsToDeleteFromFirst; i++)
+                {
+                    _items.RemoveFirst();
+                }
+                _lock.ExitWriteLock();
+            }
+            var result = _items.ToList();
+            _lock.ExitUpgradeableReadLock();
+            return result;
         }
 
         public void Dispose()

@@ -57,6 +57,11 @@ namespace Asv.Gnss
                     }
                     break;
                 case State.CrcAndIdAndLength:
+                    if (_bufferIndex >= _buffer.Length)
+                    {
+                        _state = State.Sync1;
+                        return false;
+                    }
                     _buffer[_bufferIndex++] = data;
                     if (_bufferIndex == 8)
                     {
@@ -67,6 +72,11 @@ namespace Asv.Gnss
                     }
                     break;
                 case State.Message:
+                    if (_bufferIndex >= _buffer.Length)
+                    {
+                        _state = State.Sync1;
+                        return false;
+                    }
                     _buffer[_bufferIndex++] = data;
                     if (_bufferIndex == _length)
                     {
@@ -74,6 +84,7 @@ namespace Asv.Gnss
                         if (calculatedHash == _crc)
                         {
                             ParsePacket(_buffer);
+                            return true;
                         }
                         else
                         {
