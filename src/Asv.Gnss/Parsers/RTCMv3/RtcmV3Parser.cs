@@ -93,6 +93,7 @@ namespace Asv.Gnss
                     {
                         var msgNumber = RtcmV3Helper.ReadMessageNumber(_buffer);
                         ParsePacket(msgNumber,_buffer);
+                        return true;
                     }
                     else
                     {

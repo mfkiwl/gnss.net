@@ -79,6 +79,7 @@ namespace Asv.Gnss
             try
             {
                 await client.GetStream().WriteAsync(data, 0, count, cancel);
+                await client.GetStream().FlushAsync(cancel);
             }
             catch (Exception e)
             {
