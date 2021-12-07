@@ -33,7 +33,7 @@ namespace Asv.Gnss
             var leap = RtcmV3Helper.GetBitU(buffer, bitIndex, 6); bitIndex += 6;
 
             week = AdjustGpsWeek(week, leap);
-            Gps = RtcmV3Helper.GetFromGps((int)week, hour * 3600.0 + ZCount);
+            GpsTime = RtcmV3Helper.GetFromGps((int)week, hour * 3600.0 + ZCount);
             
             return bitIndex - offsetBits;
         }

@@ -17,7 +17,7 @@ namespace Asv.Gnss
             if (zcnt < sec - 1800.0) zcnt += 3600.0;
             else if (zcnt > sec + 1800.0) zcnt -= 3600.0;
         
-            return RtcmV3Helper.GetFromGps(week, hour * 3600 + zcnt);
+            return RtcmV3Helper.Utc2Gps(RtcmV3Helper.GetFromGps(week, hour * 3600 + zcnt));
         }
 
         public const int RtcmMessageId = 31;

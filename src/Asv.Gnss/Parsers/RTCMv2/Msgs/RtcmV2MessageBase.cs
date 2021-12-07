@@ -20,7 +20,7 @@ namespace Asv.Gnss
             if (zcnt < sec - 1800.0) zcnt += 3600.0;
             else if (zcnt > sec + 1800.0) zcnt -= 3600.0;
             
-            return RtcmV3Helper.Gps2Utc(RtcmV3Helper.GetFromGps(week, hour * 3600 + zcnt));
+            return RtcmV3Helper.GetFromGps(week, hour * 3600 + zcnt);
         }
 
         private double GetUdre(byte rsHealth)
@@ -88,7 +88,7 @@ namespace Asv.Gnss
             {
                 throw new Exception($"RTCMv2 Modified Z-count error: zcnt={ZCount}");
             }
-            Gps = adjhour(ZCount);
+            GpsTime = adjhour(ZCount);
             
             SequenceNumber = (byte)RtcmV3Helper.GetBitU(buffer, bitIndex, 3); bitIndex += 3;
             // if (SequenceNumber - rtcm->seqno != 1 && SequenceNumber - rtcm->seqno != -7)
@@ -114,7 +114,7 @@ namespace Asv.Gnss
 
         public byte SequenceNumber { get; set; }
 
-        public DateTime Gps { get; set; }
+        public DateTime GpsTime { get; set; }
 
         public double ZCount { get; set; }
 
