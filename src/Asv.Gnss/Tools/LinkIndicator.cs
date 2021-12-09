@@ -18,6 +18,7 @@ namespace Asv.Gnss
         public LinkIndicator(int downgradeErrors = 3)
         {
             _downgradeErrors = downgradeErrors;
+            OnNext(LinkState.Disconnected);
         }
 
         public void Downgrade()

@@ -39,7 +39,11 @@ namespace Asv.Gnss
             tcp.Connect(_cfg.Host,_cfg.Port);
             _tcp = tcp;
             _stop = new CancellationTokenSource();
-            var recvThread = new Thread(ListenAsync) { IsBackground = true };
+            var recvThread = new Thread(ListenAsync)
+            {
+                IsBackground = true, 
+                Priority = ThreadPriority.Highest
+            };
             _stop.Token.Register(() =>
             {
                 try
