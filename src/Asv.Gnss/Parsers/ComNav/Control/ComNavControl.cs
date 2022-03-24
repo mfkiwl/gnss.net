@@ -2,6 +2,7 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Asv.Tools;
 using NLog;
 
 namespace Asv.Gnss.Control

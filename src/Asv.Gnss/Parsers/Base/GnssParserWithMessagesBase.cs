@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Asv.Tools;
 
 namespace Asv.Gnss
 {
@@ -23,7 +24,7 @@ namespace Asv.Gnss
 
         protected void ParsePacket(TMsgId id, byte[] data)
         {
-            _diag.Speed[$"{ProtocolId}_{id}"].Increment(1);
+            _diag.Rate[$"{ProtocolId}_{id}"].Increment(1);
             if (_dict.TryGetValue(id, out var factory) == false)
             {
                 _diag.Int["unk err"]++;

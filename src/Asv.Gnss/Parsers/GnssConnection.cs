@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
+using Asv.Tools;
 using NLog;
 
 namespace Asv.Gnss
@@ -18,7 +18,7 @@ namespace Asv.Gnss
         private readonly Subject<GnssMessageBase> _onMessageSubject = new Subject<GnssMessageBase>();
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly IDiagnosticSource _diag;
-        private readonly SpeedIndicator _rxInd;
+        private readonly RateIndicator _rxInd;
         private static IDisposable _portSubscribe;
 
         public GnssConnection(string connectionString, IDiagnosticSource diagSource, params IGnssParser[] parsers)
@@ -39,10 +39,10 @@ namespace Asv.Gnss
 
             // diagnostic
             _diag.Str["conn"] = connectionString;
-            _diag.Speed["rx", "# ##0 b/s"].Increment(0);
+            _diag.Rate["rx", "# ##0 b/s"].Increment(0);
             foreach (var parser in parsers)
             {
-                _diag.Speed[parser.ProtocolId, "# ##0 pkt/s"].Increment(0);
+                _diag.Rate[parser.ProtocolId, "# ##0 pkt/s"].Increment(0);
             }
         }
 
@@ -63,10 +63,10 @@ namespace Asv.Gnss
             _diag = diag[DataStream.ToString()];
             // diagnostic
             _diag.Str["conn"] = connectionString;
-            _diag.Speed["rx", "# ##0 b/s"].Increment(0);
+            _diag.Rate["rx", "# ##0 b/s"].Increment(0);
             foreach (var parser in parsers)
             {
-                _diag.Speed[parser.ProtocolId, "# ##0 pkt/s"].Increment(0);
+                _diag.Rate[parser.ProtocolId, "# ##0 pkt/s"].Increment(0);
             }
             
         }
@@ -86,7 +86,7 @@ namespace Asv.Gnss
         {
             lock (_sync)
             {
-                _diag.Speed["rx"].Increment(1);
+                _diag.Rate["rx"].Increment(1);
                 try
                 {
                     var packetFound = false;
@@ -95,7 +95,7 @@ namespace Asv.Gnss
                         var parser = _parsers[index];
                         if (parser.Read(data))
                         {
-                            _diag.Speed[parser.ProtocolId].Increment(1);
+                            _diag.Rate[parser.ProtocolId].Increment(1);
                             packetFound = true;
                             break;
                         }

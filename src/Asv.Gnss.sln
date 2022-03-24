@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asv.Gnss", "Asv.Gnss\Asv.Gn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asv.Gnss.Shell", "Asv.Gnss.Shell\Asv.Gnss.Shell.csproj", "{126E87F2-C8CC-40B4-963C-D482045A9DD7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{12387CAD-234E-44D7-AC02-FE7596B65B74}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Asv.Tools", "..\asv-tools\src\Asv.Tools\Asv.Tools.csproj", "{0AB36074-881B-4550-93D5-8FEBB3C77840}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,9 +25,16 @@ Global
 		{126E87F2-C8CC-40B4-963C-D482045A9DD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{126E87F2-C8CC-40B4-963C-D482045A9DD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{126E87F2-C8CC-40B4-963C-D482045A9DD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AB36074-881B-4550-93D5-8FEBB3C77840}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AB36074-881B-4550-93D5-8FEBB3C77840}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AB36074-881B-4550-93D5-8FEBB3C77840}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AB36074-881B-4550-93D5-8FEBB3C77840}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0AB36074-881B-4550-93D5-8FEBB3C77840} = {12387CAD-234E-44D7-AC02-FE7596B65B74}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6F5F8516-CD8E-4273-8BD8-E27F08AA3C48}

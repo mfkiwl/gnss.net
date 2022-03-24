@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Asv.Gnss
+﻿namespace Asv.Gnss
 {
     /// <summary>
     /// This block contains the 300 bits of a GPS C/A subframe. It is generated each time a new

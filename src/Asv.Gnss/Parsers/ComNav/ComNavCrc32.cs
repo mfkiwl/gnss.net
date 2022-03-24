@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
-
-namespace Asv.Gnss
+﻿namespace Asv.Gnss
 {
     /// <summary>
     /// Source https://docs.novatel.com/OEM7/Content/Messages/32_Bit_CRC.htm

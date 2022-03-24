@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Data;
-using System.Globalization;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
 namespace Asv.Gnss

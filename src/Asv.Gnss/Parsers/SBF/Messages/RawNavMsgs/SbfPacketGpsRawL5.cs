@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Asv.Gnss
+﻿namespace Asv.Gnss
 {
     /// <summary>
     /// This block contains the 300 bits of a GPS L5 CNAV subframe (the so-called Dc(t) data stream).

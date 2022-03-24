@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Asv.Tools;
 
 namespace Asv.Gnss
 {
@@ -112,7 +113,7 @@ namespace Asv.Gnss
             var messageType = (ushort)(_msgId & 0x1fff << 0);
             var messageRevision = (ushort)(_msgId >> 13);
 
-            _diag.Speed[$"SBF_{messageType}({messageRevision})"].Increment(1);
+            _diag.Rate[$"SBF_{messageType}({messageRevision})"].Increment(1);
             if (_dict.TryGetValue(_msgId, out var factory) == false)
             {
                 _diag.Int["unk err"]++;

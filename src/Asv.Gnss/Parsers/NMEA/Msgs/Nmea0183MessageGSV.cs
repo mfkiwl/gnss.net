@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Asv.Gnss
+﻿namespace Asv.Gnss
 {
     /// <summary>
     /// GSV Satellites in view 

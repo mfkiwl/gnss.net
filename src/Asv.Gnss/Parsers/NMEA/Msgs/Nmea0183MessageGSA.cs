@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics.Contracts;
-using System.Globalization;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Asv.Gnss
 {

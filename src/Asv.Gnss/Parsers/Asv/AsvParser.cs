@@ -1,4 +1,5 @@
 ﻿using System;
+using Asv.Tools;
 
 namespace Asv.Gnss
 {

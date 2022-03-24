@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
+using Asv.Tools;
 
 namespace Asv.Gnss
 {
@@ -22,7 +23,7 @@ namespace Asv.Gnss
         private readonly CancellationTokenSource _disposeCancel = new CancellationTokenSource();
         private readonly MessageSequenceCalculator _sequenceCalculator;
         private int _heartBeatIsBusy;
-        private readonly SpeedIndicator _hbSpeed;
+        private readonly RateIndicator _hbSpeed;
         private readonly LinkQualityCalculator _qualityCalculator;
 
         public AsvServer(GnssConnection conn, IDiagnosticSource diag, AsvServerConfig config)
@@ -36,7 +37,7 @@ namespace Asv.Gnss
                     TimeSpan.FromMilliseconds(config.HeartBeatSendIntervalMs)).Subscribe(SendHeartBeat, _disposeCancel.Token);
             }
             _sequenceCalculator = new MessageSequenceCalculator();
-            _hbSpeed = _diag.Speed["HB TX"];
+            _hbSpeed = _diag.Rate["HB TX"];
 
             _qualityCalculator = new LinkQualityCalculator(conn, config.HeartBeatListenTimeMs);
             _disposeCancel.Token.Register(() => _qualityCalculator.Dispose());
