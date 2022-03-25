@@ -9,17 +9,15 @@ using NLog;
 
 namespace Asv.Gnss
 {
-    public class GnssConnection : IGnssConnection
+    public class GnssConnection : DisposableOnceWithCancel, IGnssConnection
     {
         private readonly IGnssParser[] _parsers;
-        private readonly CancellationTokenSource _disposeCancel = new CancellationTokenSource();
         private readonly object _sync = new object();
         private readonly Subject<GnssParserException> _onErrorSubject = new Subject<GnssParserException>();
         private readonly Subject<GnssMessageBase> _onMessageSubject = new Subject<GnssMessageBase>();
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly IDiagnosticSource _diag;
         private readonly RateIndicator _rxInd;
-        private static IDisposable _portSubscribe;
 
         public GnssConnection(string connectionString, IDiagnosticSource diagSource, params IGnssParser[] parsers)
         {
@@ -27,15 +25,17 @@ namespace Asv.Gnss
             _parsers = parsers;
             foreach (var parser in parsers)
             {
-                parser.OnError.Subscribe(_onErrorSubject, _disposeCancel.Token);
-                parser.OnMessage.Subscribe(_onMessageSubject, _disposeCancel.Token);
+                parser.OnError.Subscribe(_onErrorSubject, DisposeCancel);
+                parser.OnMessage.Subscribe(_onMessageSubject, DisposeCancel);
             }
-            DataStream.SelectMany(_ => _).Subscribe(OnByteRecv, _disposeCancel.Token);
-
+            DataStream.SelectMany(_ => _).Subscribe(OnByteRecv, DisposeCancel);
+            Disposable.Add(_onErrorSubject);
+            Disposable.Add(_onMessageSubject);
 
             Logger.Info($"GNSS connection string: {connectionString}");
 
             _diag = diagSource;
+            Disposable.Add(_diag);
 
             // diagnostic
             _diag.Str["conn"] = connectionString;
@@ -52,10 +52,10 @@ namespace Asv.Gnss
             _parsers = parsers;
             foreach (var parser in parsers)
             {
-                parser.OnError.Subscribe(_onErrorSubject, _disposeCancel.Token);
-                parser.OnMessage.Subscribe(_onMessageSubject, _disposeCancel.Token);
+                parser.OnError.Subscribe(_onErrorSubject, DisposeCancel);
+                parser.OnMessage.Subscribe(_onMessageSubject, DisposeCancel);
             }
-            DataStream.SelectMany(_ => _).Subscribe(OnByteRecv, _disposeCancel.Token);
+            DataStream.SelectMany(_ => _).Subscribe(OnByteRecv, DisposeCancel);
 
             
             Logger.Info($"GNSS connection string: {connectionString}");
@@ -137,10 +137,6 @@ namespace Asv.Gnss
 
         public void Dispose()
         {
-            _portSubscribe?.Dispose();
-            _diag?.Dispose();
-            _disposeCancel.Cancel(false);
-            _disposeCancel.Dispose();
             _onErrorSubject?.Dispose();
             _onMessageSubject?.Dispose();
             (DataStream as IDisposable)?.Dispose();
