@@ -135,11 +135,10 @@ namespace Asv.Gnss
             return DataStream.Send(buffer, (int) (sizeInBits/8) + additionalByte, cancel);
         }
 
-        public void Dispose()
+        protected override void InternalDisposeOnce()
         {
-            _onErrorSubject?.Dispose();
-            _onMessageSubject?.Dispose();
             (DataStream as IDisposable)?.Dispose();
+            base.InternalDisposeOnce();
         }
     }
 }

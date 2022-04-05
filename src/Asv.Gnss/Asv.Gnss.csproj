@@ -14,6 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\asv-tools\src\Asv.Tools\Asv.Tools.csproj" />
+    <ProjectReference Include="..\..\..\mavlink.net\asv-tools\src\Asv.Tools\Asv.Tools.csproj" />
   </ItemGroup>
 </Project>
