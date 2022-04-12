@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
@@ -71,8 +73,6 @@ namespace Asv.Gnss
             
         }
 
-      
-
         private static IDataStream ConnectionStringConvert(string connString)
         {
             var p = PortFactory.Create(connString);
@@ -120,6 +120,7 @@ namespace Asv.Gnss
 
         public IDataStream DataStream { get; }
 
+        public IEnumerable<IGnssParser> Parsers => _parsers;
         public IObservable<GnssParserException> OnError => _onErrorSubject;
         public IObservable<GnssMessageBase> OnMessage => _onMessageSubject;
         public Task Send(GnssMessageBase msg, CancellationToken cancel)

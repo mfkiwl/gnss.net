@@ -18,14 +18,6 @@ namespace Asv.Gnss
             Galileo = 4
         }
 
-        public static byte[] SetRate(double rateHz)
-        {
-            var msg = new UbxRateSettings { RateHz = rateHz };
-            var result = new byte[msg.GetMaxByteSize()];
-            msg.Serialize(result, 0);
-            return result;
-        }
-
         public TimeSystemEnum TimeSystem { get; set; } = TimeSystemEnum.Gps;
 
         public override int GetMaxByteSize()
@@ -33,23 +25,23 @@ namespace Asv.Gnss
             return base.GetMaxByteSize() + 6;
         }
 
-        protected override uint InternalSerialize(byte[] buffer, uint offset)
+        protected override uint InternalSerialize(byte[] buffer, uint offsetBytes)
         {
-            var bitIndex = offset;
+            var byteIndex = offsetBytes;
 
             var rateHz = BitConverter.GetBytes(GetRate(RateHz));
-            buffer[bitIndex++] = rateHz[0];
-            buffer[bitIndex++] = rateHz[1];
+            buffer[byteIndex++] = rateHz[0];
+            buffer[byteIndex++] = rateHz[1];
 
             var navRate = BitConverter.GetBytes(NavRate);
-            buffer[bitIndex++] = navRate[0];
-            buffer[bitIndex++] = navRate[1];
+            buffer[byteIndex++] = navRate[0];
+            buffer[byteIndex++] = navRate[1];
 
             var timeSystem = BitConverter.GetBytes((ushort)TimeSystem);
-            buffer[bitIndex++] = timeSystem[0];
-            buffer[bitIndex++] = timeSystem[1];
+            buffer[byteIndex++] = timeSystem[0];
+            buffer[byteIndex++] = timeSystem[1];
 
-            return bitIndex - offset;
+            return byteIndex - offsetBytes;
         }
 
         private ushort GetRate(double rateHz)
@@ -65,13 +57,13 @@ namespace Asv.Gnss
 
         public override uint Deserialize(byte[] buffer, uint offsetBits)
         {
-            var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
+            var byteIndex = (offsetBits + base.Deserialize(buffer, offsetBits)) / 8;
 
-            RateHz = 1000.0 / BitConverter.ToUInt16(buffer, (int)bitIndex); bitIndex += 2;
-            NavRate = BitConverter.ToUInt16(buffer, (int)bitIndex); bitIndex += 2;
-            TimeSystem = (TimeSystemEnum)BitConverter.ToUInt16(buffer, (int)bitIndex); bitIndex += 2;
+            RateHz = 1000.0 / BitConverter.ToUInt16(buffer, (int)byteIndex); byteIndex += 2;
+            NavRate = BitConverter.ToUInt16(buffer, (int)byteIndex); byteIndex += 2;
+            TimeSystem = (TimeSystemEnum)BitConverter.ToUInt16(buffer, (int)byteIndex); byteIndex += 2;
 
-            return bitIndex - offsetBits;
+            return byteIndex * 8 - offsetBits;
         }
     }
 }

@@ -13,29 +13,33 @@
             return base.GetMaxByteSize() + 2;
         }
 
-        public override byte[] GenerateRequest()
+        public override GnssMessageBase GetRequest()
         {
-            return UbxHelper.GenerateRequest(Class, SubClass, new []{MsgClass, MsgId});
+            return new UbxMessageConfigurationRequest
+            {
+                MsgClass = MsgClass,
+                MsgId = MsgId
+            };
         }
 
-        protected override uint InternalSerialize(byte[] buffer, uint offset)
+        protected override uint InternalSerialize(byte[] buffer, uint offsetBytes)
         {
-            var bitIndex = offset;
+            var byteIndex = offsetBytes;
 
-            buffer[bitIndex++] = MsgClass;
-            buffer[bitIndex++] = MsgId;
+            buffer[byteIndex++] = MsgClass;
+            buffer[byteIndex++] = MsgId;
 
-            return bitIndex - offset;
+            return byteIndex - offsetBytes;
         }
 
         public override uint Deserialize(byte[] buffer, uint offsetBits)
         {
-            var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
+            var byteIndex = (offsetBits + base.Deserialize(buffer, offsetBits)) / 8;
 
-            MsgClass = buffer[bitIndex++];
-            MsgId = buffer[bitIndex++];
+            MsgClass = buffer[byteIndex++];
+            MsgId = buffer[byteIndex++];
 
-            return bitIndex - offsetBits;
+            return byteIndex * 8 - offsetBits;
         }
     }
 
@@ -43,34 +47,41 @@
     {
         public byte[] Rate { get; set; }
 
+        public UbxMessageConfiguration(byte msgClass, byte msgId, byte msgRate)
+        {
+            MsgClass = msgClass;
+            MsgId = msgId;
+            Rate = new byte[] { 0, msgRate, 0, msgRate, 0, 0 };
+        }
+
         public override int GetMaxByteSize()
         {
             return base.GetMaxByteSize() + (Rate?.Length ?? 6);
         }
 
-        protected override uint InternalSerialize(byte[] buffer, uint offset)
+        protected override uint InternalSerialize(byte[] buffer, uint offsetBytes)
         {
-            var bitIndex = offset + base.InternalSerialize(buffer, offset);
+            var byteIndex = offsetBytes + base.InternalSerialize(buffer, offsetBytes);
 
             foreach (var rate in Rate)
             {
-                buffer[bitIndex++] = rate;
+                buffer[byteIndex++] = rate;
             }
 
-            return bitIndex - offset;
+            return byteIndex - offsetBytes;
         }
 
         public override uint Deserialize(byte[] buffer, uint offsetBits)
         {
-            var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
+            var byteIndex = (offsetBits + base.Deserialize(buffer, offsetBits)) / 8;
 
             Rate = new byte[PayloadLength - 2];
             for (var i = 0; i < Rate.Length; i++)
             {
-                Rate[i] = buffer[bitIndex++];
+                Rate[i] = buffer[byteIndex++];
             }
 
-            return bitIndex - offsetBits;
+            return byteIndex * 8 - offsetBits;
         }
     }
 

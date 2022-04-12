@@ -17,6 +17,7 @@ namespace Asv.Gnss
         public bool ApplyDGPS { get; set; } = true;
         public bool ApplyCnoThreshold { get; set; } = true;
         public bool ApplyUTC { get; set; } = true;
+        
 
         public enum ModelEnum
         {
@@ -65,21 +66,15 @@ namespace Asv.Gnss
             return base.GetMaxByteSize() + 36;
         }
 
-        public static byte[] SetStationaryModel()
+        public UbxNavigationEngineSettings(ModelEnum model)
         {
-            var msg = new UbxNavigationEngineSettings
-            {
-                PlatformModel = ModelEnum.Stationary,
-                PositionMode = PositionModeEnum.Auto
-            };
-            var result = new byte[msg.GetMaxByteSize()];
-            msg.Serialize(result, 0);
-            return result;
+            PlatformModel = model;
+            PositionMode = PositionModeEnum.Auto;
         }
 
-        protected override uint InternalSerialize(byte[] buffer, uint offset)
+        protected override uint InternalSerialize(byte[] buffer, uint offsetBytes)
         {
-            var bitIndex = offset;
+            var byteIndex = offsetBytes;
 
             ushort appliedBitMask = 0;
             if (ApplyDynamicModel) appliedBitMask |= 0x01;
@@ -94,62 +89,62 @@ namespace Asv.Gnss
             if (ApplyUTC) appliedBitMask |= 0x400;
             
             var appliedBitMaskBuff = BitConverter.GetBytes(appliedBitMask);
-            buffer[bitIndex++] = appliedBitMaskBuff[0];
-            buffer[bitIndex++] = appliedBitMaskBuff[1];
+            buffer[byteIndex++] = appliedBitMaskBuff[0];
+            buffer[byteIndex++] = appliedBitMaskBuff[1];
 
-            buffer[bitIndex++] = (byte)PlatformModel;
-            buffer[bitIndex++] = (byte)PositionMode;
+            buffer[byteIndex++] = (byte)PlatformModel;
+            buffer[byteIndex++] = (byte)PositionMode;
 
             var fixedAltitude = BitConverter.GetBytes((int)Math.Round(FixedAltitude * 100));
-            buffer[bitIndex++] = fixedAltitude[0];
-            buffer[bitIndex++] = fixedAltitude[1];
-            buffer[bitIndex++] = fixedAltitude[2];
-            buffer[bitIndex++] = fixedAltitude[3];
+            buffer[byteIndex++] = fixedAltitude[0];
+            buffer[byteIndex++] = fixedAltitude[1];
+            buffer[byteIndex++] = fixedAltitude[2];
+            buffer[byteIndex++] = fixedAltitude[3];
 
             var fixedAltitudeVariance = BitConverter.GetBytes((uint)Math.Round(FixedAltitudeVariance * 10000));
-            buffer[bitIndex++] = fixedAltitudeVariance[0];
-            buffer[bitIndex++] = fixedAltitudeVariance[1];
-            buffer[bitIndex++] = fixedAltitudeVariance[2];
-            buffer[bitIndex++] = fixedAltitudeVariance[3];
+            buffer[byteIndex++] = fixedAltitudeVariance[0];
+            buffer[byteIndex++] = fixedAltitudeVariance[1];
+            buffer[byteIndex++] = fixedAltitudeVariance[2];
+            buffer[byteIndex++] = fixedAltitudeVariance[3];
 
-            buffer[bitIndex++] = (byte)MinimumElevation;
-            buffer[bitIndex++] = DrLimit;
+            buffer[byteIndex++] = (byte)MinimumElevation;
+            buffer[byteIndex++] = DrLimit;
 
             var positionDOP = BitConverter.GetBytes((ushort)Math.Round(PositionDOP * 10));
-            buffer[bitIndex++] = positionDOP[0];
-            buffer[bitIndex++] = positionDOP[1];
+            buffer[byteIndex++] = positionDOP[0];
+            buffer[byteIndex++] = positionDOP[1];
 
             var timeDOP = BitConverter.GetBytes((ushort)Math.Round(TimeDOP * 10));
-            buffer[bitIndex++] = timeDOP[0];
-            buffer[bitIndex++] = timeDOP[1];
+            buffer[byteIndex++] = timeDOP[0];
+            buffer[byteIndex++] = timeDOP[1];
 
             var positionAccuracy = BitConverter.GetBytes(PositionAccuracy);
-            buffer[bitIndex++] = positionAccuracy[0];
-            buffer[bitIndex++] = positionAccuracy[1];
+            buffer[byteIndex++] = positionAccuracy[0];
+            buffer[byteIndex++] = positionAccuracy[1];
 
             var timeAccuracy = BitConverter.GetBytes(TimeAccuracy);
-            buffer[bitIndex++] = timeAccuracy[0];
-            buffer[bitIndex++] = timeAccuracy[1];
+            buffer[byteIndex++] = timeAccuracy[0];
+            buffer[byteIndex++] = timeAccuracy[1];
 
-            buffer[bitIndex++] = (byte)Math.Round(StaticHoldThreshold * 100);
-            buffer[bitIndex++] = DGNSSTimeout;
-            buffer[bitIndex++] = CnoThreshNumSVs;
-            buffer[bitIndex] = CnoThreshold; bitIndex += 3;
+            buffer[byteIndex++] = (byte)Math.Round(StaticHoldThreshold * 100);
+            buffer[byteIndex++] = DGNSSTimeout;
+            buffer[byteIndex++] = CnoThreshNumSVs;
+            buffer[byteIndex] = CnoThreshold; byteIndex += 3;
 
             var staticHoldMaxDistance = BitConverter.GetBytes(StaticHoldMaxDistance);
-            buffer[bitIndex++] = staticHoldMaxDistance[0];
-            buffer[bitIndex++] = staticHoldMaxDistance[1];
+            buffer[byteIndex++] = staticHoldMaxDistance[0];
+            buffer[byteIndex++] = staticHoldMaxDistance[1];
 
-            buffer[bitIndex] = UtcStandard; bitIndex += 6;
+            buffer[byteIndex] = UtcStandard; byteIndex += 6;
 
-            return bitIndex - offset;
+            return byteIndex - offsetBytes;
         }
 
         public override uint Deserialize(byte[] buffer, uint offsetBits)
         {
-            var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
+            var byteIndex = (offsetBits + base.Deserialize(buffer, offsetBits)) / 8;
 
-            var appliedBitMask = BitConverter.ToUInt16(buffer, (int)bitIndex); bitIndex += 2;
+            var appliedBitMask = BitConverter.ToUInt16(buffer, (int)byteIndex); byteIndex += 2;
             ApplyDynamicModel = (appliedBitMask & 0x01) != 0;
             ApplyMinimumElevation = (appliedBitMask & 0x02) != 0;
             ApplyFixMode = (appliedBitMask & 0x04) != 0;
@@ -161,25 +156,26 @@ namespace Asv.Gnss
             ApplyCnoThreshold = (appliedBitMask & 0x100) != 0;
             ApplyUTC = (appliedBitMask & 0x400) != 0;
 
-            PlatformModel = (ModelEnum)buffer[bitIndex++];
-            PositionMode = (PositionModeEnum)buffer[bitIndex++];
-            FixedAltitude = BitConverter.ToInt32(buffer, (int)bitIndex) * 0.01; bitIndex += 4;
-            FixedAltitudeVariance = BitConverter.ToUInt32(buffer, (int)bitIndex) * 0.0001; bitIndex += 4;
-            MinimumElevation = (sbyte)buffer[bitIndex++];
-            DrLimit = buffer[bitIndex++];
-            PositionDOP = BitConverter.ToUInt16(buffer, (int)bitIndex) * 0.1; bitIndex += 2;
-            TimeDOP = BitConverter.ToUInt16(buffer, (int)bitIndex) * 0.1; bitIndex += 2;
-            PositionAccuracy = BitConverter.ToUInt16(buffer, (int)bitIndex); bitIndex += 2;
-            TimeAccuracy = BitConverter.ToUInt16(buffer, (int)bitIndex); bitIndex += 2;
-            StaticHoldThreshold = buffer[bitIndex++] * 0.01;
-            DGNSSTimeout = buffer[bitIndex++];
-            CnoThreshNumSVs = buffer[bitIndex++];
-            CnoThreshold = buffer[bitIndex]; bitIndex += 3;
-            StaticHoldMaxDistance = BitConverter.ToUInt16(buffer, (int)bitIndex); bitIndex += 2;
-            UtcStandard = buffer[bitIndex]; bitIndex += 6;
+            PlatformModel = (ModelEnum)buffer[byteIndex++];
+            PositionMode = (PositionModeEnum)buffer[byteIndex++];
+            FixedAltitude = BitConverter.ToInt32(buffer, (int)byteIndex) * 0.01; byteIndex += 4;
+            FixedAltitudeVariance = BitConverter.ToUInt32(buffer, (int)byteIndex) * 0.0001; byteIndex += 4;
+            MinimumElevation = (sbyte)buffer[byteIndex++];
+            DrLimit = buffer[byteIndex++];
+            PositionDOP = BitConverter.ToUInt16(buffer, (int)byteIndex) * 0.1; byteIndex += 2;
+            TimeDOP = BitConverter.ToUInt16(buffer, (int)byteIndex) * 0.1; byteIndex += 2;
+            PositionAccuracy = BitConverter.ToUInt16(buffer, (int)byteIndex); byteIndex += 2;
+            TimeAccuracy = BitConverter.ToUInt16(buffer, (int)byteIndex); byteIndex += 2;
+            StaticHoldThreshold = buffer[byteIndex++] * 0.01;
+            DGNSSTimeout = buffer[byteIndex++];
+            CnoThreshNumSVs = buffer[byteIndex++];
+            CnoThreshold = buffer[byteIndex]; byteIndex += 3;
+            StaticHoldMaxDistance = BitConverter.ToUInt16(buffer, (int)byteIndex); byteIndex += 2;
+            UtcStandard = buffer[byteIndex]; byteIndex += 6;
 
 
-            return bitIndex - offsetBits;
+            return byteIndex * 8 - offsetBits;
         }
     }
+
 }

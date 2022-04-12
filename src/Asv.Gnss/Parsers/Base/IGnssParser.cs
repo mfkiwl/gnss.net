@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reactive;
+using System.Reactive.Subjects;
 
 namespace Asv.Gnss
 {
@@ -10,8 +12,4 @@ namespace Asv.Gnss
         IObservable<GnssParserException> OnError { get; }
         IObservable<GnssMessageBase> OnMessage { get; }
     }
-
-
-    
-
 }

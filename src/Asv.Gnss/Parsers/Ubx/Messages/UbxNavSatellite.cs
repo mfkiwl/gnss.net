@@ -47,9 +47,9 @@ namespace Asv.Gnss
             /// </summary>
             public double PrResM { get; set; }
 
-            public uint Deserialize(byte[] buffer, uint offsetBits)
+            public uint Deserialize(byte[] buffer, uint offsetBytes)
             {
-                var bitIndex = offsetBits;
+                var bitIndex = offsetBytes;
 
                 GnssId = buffer[bitIndex++];
                 GnssType = (GnssId)GnssId;
@@ -59,7 +59,7 @@ namespace Asv.Gnss
                 AzimDeg = BitConverter.ToInt16(buffer, (int)bitIndex); bitIndex += 2;
                 PrResM = BitConverter.ToInt16(buffer, (int)bitIndex) * 0.1; bitIndex += 6;
 
-                return bitIndex - offsetBits;
+                return bitIndex - offsetBytes;
             }
 
             public override string ToString()
@@ -83,18 +83,18 @@ namespace Asv.Gnss
 
         public override uint Deserialize(byte[] buffer, uint offsetBits)
         {
-            var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
+            var byteIndex = (offsetBits + base.Deserialize(buffer, offsetBits)) / 8;
 
-            iTOW = BitConverter.ToUInt64(buffer, (int)bitIndex); bitIndex += 4;
-            Version = buffer[bitIndex++];
-            NumSvs = buffer[bitIndex]; bitIndex += 3;
+            iTOW = BitConverter.ToUInt64(buffer, (int)byteIndex); byteIndex += 4;
+            Version = buffer[byteIndex++];
+            NumSvs = buffer[byteIndex]; byteIndex += 3;
             Items = new UbxNavSatelliteItem[NumSvs];
             for (var i = 0; i < NumSvs; i++)
             {
                 Items[i] = new UbxNavSatelliteItem();
-                bitIndex += Items[i].Deserialize(buffer, bitIndex);
+                byteIndex += Items[i].Deserialize(buffer, byteIndex);
             }
-            return bitIndex - offsetBits;
+            return byteIndex * 8 - offsetBits;
         }
     }
 }

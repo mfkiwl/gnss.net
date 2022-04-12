@@ -28,11 +28,9 @@ namespace Asv.Gnss
         /// </summary>
         public List<string> Extensions { get; set; }
 
-        public override uint Deserialize(byte[] buffer, uint offset)
+        public override uint Deserialize(byte[] buffer, uint offsetBits)
         {
-            GenerateRequest();
-
-            var bitIndex = offset + base.Deserialize(buffer, offset);
+            var byteIndex = (offsetBits + base.Deserialize(buffer, offsetBits)) / 8;
 
             // 40 + 30*N = PayloadLength
             var extLength = (PayloadLength - 40) / 30;
@@ -41,27 +39,27 @@ namespace Asv.Gnss
             for (var i = 0; i < 30; i++)
             {
                 stringSize = i;
-                if (buffer[bitIndex + i] == 0)
+                if (buffer[byteIndex + i] == 0)
                 {
                     break;
                 }
             }
 
-            Software = Encoding.ASCII.GetString(buffer, (int)bitIndex, stringSize);
-            bitIndex += 30;
+            Software = Encoding.ASCII.GetString(buffer, (int)byteIndex, stringSize);
+            byteIndex += 30;
 
             stringSize = 0;
             for (var i = 0; i < 10; i++)
             {
                 stringSize = i;
-                if (buffer[bitIndex + i] == 0)
+                if (buffer[byteIndex + i] == 0)
                 {
                     break;
                 }
             }
 
-            Hardware = Encoding.ASCII.GetString(buffer, (int)bitIndex, stringSize);
-            bitIndex += 10;
+            Hardware = Encoding.ASCII.GetString(buffer, (int)byteIndex, stringSize);
+            byteIndex += 10;
 
             Extensions = new List<string>();
             for (var i = 0; i < extLength; i++)
@@ -69,16 +67,16 @@ namespace Asv.Gnss
                 for (var j = 0; j < 30; j++)
                 {
                     stringSize = j;
-                    if (buffer[bitIndex + j] == 0)
+                    if (buffer[byteIndex + j] == 0)
                     {
                         break;
                     }
                 }
-                Extensions.Add(Encoding.ASCII.GetString(buffer, (int)bitIndex, stringSize));
-                bitIndex += 30;
+                Extensions.Add(Encoding.ASCII.GetString(buffer, (int)byteIndex, stringSize));
+                byteIndex += 30;
             }
 
-            return bitIndex - offset;
+            return byteIndex * 8 - offsetBits;
         }
     }
 }

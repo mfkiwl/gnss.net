@@ -245,63 +245,63 @@ namespace Asv.Gnss
 
         public override uint Deserialize(byte[] buffer, uint offsetBits)
         {
-            var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
+            var byteIndex = (offsetBits + base.Deserialize(buffer, offsetBits)) / 8;
 
-            iTOW = BitConverter.ToUInt32(buffer, (int)bitIndex); bitIndex += 4;
-            Year = BitConverter.ToUInt16(buffer, (int)bitIndex); bitIndex += 2;
-            Month = buffer[bitIndex++];
-            Day = buffer[bitIndex++];
-            Hour = buffer[bitIndex++];
-            Min = buffer[bitIndex++];
-            Sec = buffer[bitIndex++];
+            iTOW = BitConverter.ToUInt32(buffer, (int)byteIndex); byteIndex += 4;
+            Year = BitConverter.ToUInt16(buffer, (int)byteIndex); byteIndex += 2;
+            Month = buffer[byteIndex++];
+            Day = buffer[byteIndex++];
+            Hour = buffer[byteIndex++];
+            Min = buffer[byteIndex++];
+            Sec = buffer[byteIndex++];
 
             //UTC Date and Time Confirmation Status   Date: CONFIRMED, Time: CONFIRMED
 
-            UTCDateIsConfirmation = (buffer[bitIndex] & 0b0000_0001) != 0;
-            UTCTimeIsConfirmation = (buffer[bitIndex] & 0b0000_0010) != 0;
-            UTCTimeOfDayIsFullyResolved = (buffer[bitIndex] & 0b0000_0100) != 0;
-            IsValidMagneticDeclination = (buffer[bitIndex++] & 0b0000_1000) != 0;
+            UTCDateIsConfirmation = (buffer[byteIndex] & 0b0000_0001) != 0;
+            UTCTimeIsConfirmation = (buffer[byteIndex] & 0b0000_0010) != 0;
+            UTCTimeOfDayIsFullyResolved = (buffer[byteIndex] & 0b0000_0100) != 0;
+            IsValidMagneticDeclination = (buffer[byteIndex++] & 0b0000_1000) != 0;
 
-            UTCTimeAccuracyEstimate = BitConverter.ToUInt32(buffer, (int)bitIndex) * 1e-9; bitIndex += 4;
-            UTCFractionOfSecond = BitConverter.ToInt32(buffer, (int)bitIndex); bitIndex += 4;
-            FixType = (GNSSFixType)buffer[bitIndex++];
+            UTCTimeAccuracyEstimate = BitConverter.ToUInt32(buffer, (int)byteIndex) * 1e-9; byteIndex += 4;
+            UTCFractionOfSecond = BitConverter.ToInt32(buffer, (int)byteIndex); byteIndex += 4;
+            FixType = (GNSSFixType)buffer[byteIndex++];
 
-            GnssFixOK = (buffer[bitIndex] & 0b0000_0001) != 0;
-            IsAppliedDifferentialCorrections = (buffer[bitIndex] & 0b0000_0010) != 0;
-            IsValidVehicleHeading = (buffer[bitIndex] & 0b0010_0000) != 0;
-            PsmState = (byte)((buffer[bitIndex] & 0b0001_1100) >> 2);
-            CarrierSolution = (CarrierSolutionStatus)((buffer[bitIndex++] & 0b1100_0000) >> 6);
+            GnssFixOK = (buffer[byteIndex] & 0b0000_0001) != 0;
+            IsAppliedDifferentialCorrections = (buffer[byteIndex] & 0b0000_0010) != 0;
+            IsValidVehicleHeading = (buffer[byteIndex] & 0b0010_0000) != 0;
+            PsmState = (byte)((buffer[byteIndex] & 0b0001_1100) >> 2);
+            CarrierSolution = (CarrierSolutionStatus)((buffer[byteIndex++] & 0b1100_0000) >> 6);
 
-            UTCConfirmedAvailable = (buffer[bitIndex] & 0b0010_0000) != 0;
-            UTCConfirmedDate = (buffer[bitIndex] & 0b0100_0000) != 0;
-            UTCConfirmedTime = (buffer[bitIndex++] & 0b1000_0000) != 0;
+            UTCConfirmedAvailable = (buffer[byteIndex] & 0b0010_0000) != 0;
+            UTCConfirmedDate = (buffer[byteIndex] & 0b0100_0000) != 0;
+            UTCConfirmedTime = (buffer[byteIndex++] & 0b1000_0000) != 0;
 
-            NumberOfSatellites = buffer[bitIndex++];
-            Longitude = BitConverter.ToInt32(buffer, (int)bitIndex) * 1e-7; bitIndex += 4;
-            Latitude = BitConverter.ToInt32(buffer, (int)bitIndex) * 1e-7; bitIndex += 4;
-            AltElipsoid = BitConverter.ToInt32(buffer, (int)bitIndex) * 0.001; bitIndex += 4;
-            AltMsl = BitConverter.ToInt32(buffer, (int)bitIndex) * 0.001; bitIndex += 4;
-            HorizontalAccuracyEstimate = BitConverter.ToUInt32(buffer, (int)bitIndex) * 0.001; bitIndex += 4;
-            VerticalAccuracyEstimate = BitConverter.ToUInt32(buffer, (int)bitIndex) * 0.001; bitIndex += 4;
-            VelocityNorth = BitConverter.ToInt32(buffer, (int)bitIndex) * 0.001; bitIndex += 4;
-            VelocityEast = BitConverter.ToInt32(buffer, (int)bitIndex) * 0.001; bitIndex += 4;
-            VelocityDown = BitConverter.ToInt32(buffer, (int)bitIndex) * 0.001; bitIndex += 4;
-            GroundSpeed2D = BitConverter.ToInt32(buffer, (int)bitIndex) * 0.001; bitIndex += 4;
-            HeadingOfMotion2D = BitConverter.ToInt32(buffer, (int)bitIndex) * 1e-5; bitIndex += 4;
-            SpeedAccuracyEstimate = BitConverter.ToUInt32(buffer, (int)bitIndex) * 0.001; bitIndex += 4;
-            HeadingAccuracyEstimate = BitConverter.ToUInt32(buffer, (int)bitIndex) * 1e-5; bitIndex += 4;
-            PositionDOP = BitConverter.ToUInt16(buffer, (int)bitIndex) * 0.01; bitIndex += 2;
-            IsValidLLH = (buffer[bitIndex] & 0b0000_0001) == 0; bitIndex += 6;
-            HeadingOfVehicle2D = BitConverter.ToInt32(buffer, (int)bitIndex) * 1e-5; bitIndex += 4;
-            MagneticDeclination = BitConverter.ToInt16(buffer, (int)bitIndex) * 1e-2; bitIndex += 2;
-            MagneticDeclinationAccuracy = BitConverter.ToUInt16(buffer, (int)bitIndex) * 1e-2; bitIndex += 2;
+            NumberOfSatellites = buffer[byteIndex++];
+            Longitude = BitConverter.ToInt32(buffer, (int)byteIndex) * 1e-7; byteIndex += 4;
+            Latitude = BitConverter.ToInt32(buffer, (int)byteIndex) * 1e-7; byteIndex += 4;
+            AltElipsoid = BitConverter.ToInt32(buffer, (int)byteIndex) * 0.001; byteIndex += 4;
+            AltMsl = BitConverter.ToInt32(buffer, (int)byteIndex) * 0.001; byteIndex += 4;
+            HorizontalAccuracyEstimate = BitConverter.ToUInt32(buffer, (int)byteIndex) * 0.001; byteIndex += 4;
+            VerticalAccuracyEstimate = BitConverter.ToUInt32(buffer, (int)byteIndex) * 0.001; byteIndex += 4;
+            VelocityNorth = BitConverter.ToInt32(buffer, (int)byteIndex) * 0.001; byteIndex += 4;
+            VelocityEast = BitConverter.ToInt32(buffer, (int)byteIndex) * 0.001; byteIndex += 4;
+            VelocityDown = BitConverter.ToInt32(buffer, (int)byteIndex) * 0.001; byteIndex += 4;
+            GroundSpeed2D = BitConverter.ToInt32(buffer, (int)byteIndex) * 0.001; byteIndex += 4;
+            HeadingOfMotion2D = BitConverter.ToInt32(buffer, (int)byteIndex) * 1e-5; byteIndex += 4;
+            SpeedAccuracyEstimate = BitConverter.ToUInt32(buffer, (int)byteIndex) * 0.001; byteIndex += 4;
+            HeadingAccuracyEstimate = BitConverter.ToUInt32(buffer, (int)byteIndex) * 1e-5; byteIndex += 4;
+            PositionDOP = BitConverter.ToUInt16(buffer, (int)byteIndex) * 0.01; byteIndex += 2;
+            IsValidLLH = (buffer[byteIndex] & 0b0000_0001) == 0; byteIndex += 6;
+            HeadingOfVehicle2D = BitConverter.ToInt32(buffer, (int)byteIndex) * 1e-5; byteIndex += 4;
+            MagneticDeclination = BitConverter.ToInt16(buffer, (int)byteIndex) * 1e-2; byteIndex += 2;
+            MagneticDeclinationAccuracy = BitConverter.ToUInt16(buffer, (int)byteIndex) * 1e-2; byteIndex += 2;
 
             if (FixType >= GNSSFixType.Fix3D && GnssFixOK)
             {
                 MovingBaseLocation = new GeoPoint(Latitude, Longitude, AltElipsoid);
             }
 
-            return bitIndex - offsetBits;
+            return byteIndex * 8 - offsetBits;
         }
     }
 }

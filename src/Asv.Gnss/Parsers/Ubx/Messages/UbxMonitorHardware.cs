@@ -55,36 +55,36 @@ namespace Asv.Gnss
 
         public override uint Deserialize(byte[] buffer, uint offsetBits)
         {
-            var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
+            var byteIndex = (offsetBits + base.Deserialize(buffer, offsetBits)) / 8;
 
-            PinSel = BitConverter.ToInt32(buffer, (int)bitIndex); bitIndex += 4;
-            PinBank = BitConverter.ToInt32(buffer, (int)bitIndex); bitIndex += 4;
-            PinDir = BitConverter.ToInt32(buffer, (int)bitIndex); bitIndex += 4;
-            PinVal = BitConverter.ToInt32(buffer, (int)bitIndex); bitIndex += 4;
-            Noise = BitConverter.ToUInt16(buffer, (int)bitIndex); bitIndex += 2;
-            AgcCnt = BitConverter.ToUInt16(buffer, (int)bitIndex); bitIndex += 2;
-            AStatus = (AntennaSupervisorStateMachineStatus)buffer[bitIndex++];
-            APower = (AntennaPowerStatus)buffer[bitIndex++];
-            RtcCalib = (buffer[bitIndex] & 0x1) != 0;
-            SafeBoot = (buffer[bitIndex] & 0x2) != 0;
-            JammingState = (JammingStateEnum)((buffer[bitIndex] & 0x0C) >> 2);
-            XTalAbsent = (buffer[bitIndex] & 0x10) != 0; bitIndex += 2;
-            UsedMask = BitConverter.ToInt32(buffer, (int)bitIndex); bitIndex += 4;
+            PinSel = BitConverter.ToInt32(buffer, (int)byteIndex); byteIndex += 4;
+            PinBank = BitConverter.ToInt32(buffer, (int)byteIndex); byteIndex += 4;
+            PinDir = BitConverter.ToInt32(buffer, (int)byteIndex); byteIndex += 4;
+            PinVal = BitConverter.ToInt32(buffer, (int)byteIndex); byteIndex += 4;
+            Noise = BitConverter.ToUInt16(buffer, (int)byteIndex); byteIndex += 2;
+            AgcCnt = BitConverter.ToUInt16(buffer, (int)byteIndex); byteIndex += 2;
+            AStatus = (AntennaSupervisorStateMachineStatus)buffer[byteIndex++];
+            APower = (AntennaPowerStatus)buffer[byteIndex++];
+            RtcCalib = (buffer[byteIndex] & 0x1) != 0;
+            SafeBoot = (buffer[byteIndex] & 0x2) != 0;
+            JammingState = (JammingStateEnum)((buffer[byteIndex] & 0x0C) >> 2);
+            XTalAbsent = (buffer[byteIndex] & 0x10) != 0; byteIndex += 2;
+            UsedMask = BitConverter.ToInt32(buffer, (int)byteIndex); byteIndex += 4;
             VP = new byte[17];
-            for (var i = bitIndex; i < 17; i++)
+            for (var i = byteIndex; i < 17 + byteIndex; i++)
             {
                 VP[i] = buffer[i];
             }
-            bitIndex += 17;
-            JamInd = buffer[bitIndex]; bitIndex += 3;
-            PinIrq = BitConverter.ToInt32(buffer, (int)bitIndex); bitIndex += 4;
-            PullH = BitConverter.ToInt32(buffer, (int)bitIndex); bitIndex += 4;
-            PullL = BitConverter.ToInt32(buffer, (int)bitIndex); bitIndex += 4;
+            byteIndex += 17;
+            JamInd = buffer[byteIndex]; byteIndex += 3;
+            PinIrq = BitConverter.ToInt32(buffer, (int)byteIndex); byteIndex += 4;
+            PullH = BitConverter.ToInt32(buffer, (int)byteIndex); byteIndex += 4;
+            PullL = BitConverter.ToInt32(buffer, (int)byteIndex); byteIndex += 4;
 
             AgcMonitor = AgcCnt / 8191.0;
             CwJammingIndicator = JamInd / 255.0;
             
-            return bitIndex - offsetBits;
+            return byteIndex * 8 - offsetBits;
         }
     }
 }

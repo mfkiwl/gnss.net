@@ -10,12 +10,12 @@
 
         public override uint Deserialize(byte[] buffer, uint offsetBits)
         {
-            var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
+            var byteIndex = (offsetBits + base.Deserialize(buffer, offsetBits)) / 8;
 
-            AckClassId = buffer[bitIndex]; bitIndex++;
-            AckSubclassId = buffer[bitIndex]; bitIndex++;
+            AckClassId = buffer[byteIndex]; byteIndex++;
+            AckSubclassId = buffer[byteIndex]; byteIndex++;
 
-            return bitIndex - offsetBits;
+            return byteIndex * 8 - offsetBits;
         }
     }
 }

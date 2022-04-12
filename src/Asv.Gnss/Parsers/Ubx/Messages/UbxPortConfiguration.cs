@@ -4,59 +4,54 @@ using Asv.Tools.Serial;
 
 namespace Asv.Gnss
 {
-    public class UbxPortConfigurationRequest : UbxMessageBase
+
+    public class UbxUartConfigurationRequest : UbxPortConfigurationRequest
+    {
+        protected override byte PortId
+        {
+            get => 1;
+            set => throw new NotImplementedException();
+        }
+    }
+
+    public class UbxUsbConfigurationRequest : UbxPortConfigurationRequest
+    {
+        protected override byte PortId
+        {
+            get => 3;
+            set => throw new NotImplementedException();
+        }
+    }
+
+    public abstract class UbxPortConfigurationRequest : UbxMessageBase
     {
         public override byte Class => 0x06;
         public override byte SubClass => 0x00;
 
-        public byte PortId { get; set; }
+        protected abstract byte PortId { get; set; }
 
-        public override byte[] GenerateRequest()
-        {
-            return UbxHelper.GenerateRequest(Class, SubClass, new []{PortId});
-        }
-
-        public UbxPortConfigurationRequest()
-        {
-        }
-
-        public UbxPortConfigurationRequest(PortType portType)
-        {
-            PortId = portType switch
-            {
-                PortType.Uart => 1,
-                PortType.Usb => 3,
-                _ => throw new ArgumentOutOfRangeException(nameof(portType), portType, null)
-            };
-        }
-
-        public enum PortType
-        {
-            Uart = 0,
-            Usb = 1
-        }
-
+        
         public override int GetMaxByteSize()
         {
             return base.GetMaxByteSize() + 1;
         }
 
-        protected override uint InternalSerialize(byte[] buffer, uint offset)
+        protected override uint InternalSerialize(byte[] buffer, uint offsetBytes)
         {
-            var bitIndex = offset;
+            var byteIndex = offsetBytes;
 
-            buffer[bitIndex++] = PortId;
+            buffer[byteIndex++] = PortId;
 
-            return bitIndex - offset;
+            return byteIndex - offsetBytes;
         }
 
         public override uint Deserialize(byte[] buffer, uint offsetBits)
         {
-            var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
+            var byteIndex = (offsetBits + base.Deserialize(buffer, offsetBits)) / 8;
 
-            PortId = buffer[bitIndex]; bitIndex++;
+            PortId = buffer[byteIndex]; byteIndex++;
             
-            return bitIndex - offsetBits;
+            return byteIndex * 8 - offsetBits;
         }
     }
 
@@ -69,86 +64,67 @@ namespace Asv.Gnss
             LowActive = 1
         }
 
-        public PortPolarity Polarity { get; set; }
+        public UbxPortConfiguration(PortType type)
+        {
+            switch (type)
+            {
+                case PortType.Uart:
+                    PortId = 1;
+                    SerialPortConfig = new SerialPortConfig();
+                    break;
+                case PortType.Usb:
+                    PortId = 3;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+        }
+
+        public override GnssMessageBase GetRequest()
+        {
+            switch (PortId)
+            {
+                case 1:
+                    return new UbxUartConfigurationRequest();
+                case 3:
+                    return new UbxUsbConfigurationRequest();
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public PortPolarity Polarity { get; set; } = PortPolarity.HighActive;
         public byte Pin { get; set; }
         public ushort Threshold { get; set; }
 
         public SerialPortConfig SerialPortConfig { get; set; }
 
-        public bool IsInUbxProtocol { get; set; }
-        public bool IsInNmeaProtocol { get; set; }
+        public bool IsInUbxProtocol { get; set; } = true;
+        public bool IsInNmeaProtocol { get; set; } = true;
         public bool IsInRtcm2Protocol { get; set; }
-        public bool IsInRtcm3Protocol { get; set; }
+        public bool IsInRtcm3Protocol { get; set; } = true;
 
-        public bool IsOutUbxProtocol { get; set; }
-        public bool IsOutNmeaProtocol { get; set; }
-        public bool IsOutRtcm3Protocol { get; set; }
+        public bool IsOutUbxProtocol { get; set; } = true;
+        public bool IsOutNmeaProtocol { get; set; } = true;
+        public bool IsOutRtcm3Protocol { get; set; } = true;
 
         public bool IsExtendedTxTimeout { get; set; }
+
+        protected sealed override byte PortId { get; set; }
 
         public override int GetMaxByteSize()
         {
             return base.GetMaxByteSize() + 19;
         }
 
-        public UbxPortConfiguration()
+        protected override uint InternalSerialize(byte[] buffer, uint offsetBytes)
         {
-        }
+            var byteIndex = offsetBytes + base.InternalSerialize(buffer, offsetBytes);
 
-        protected UbxPortConfiguration(PortType portType) : base(portType)
-        {
-            if (portType == PortType.Uart)
-            {
-                SerialPortConfig = new SerialPortConfig
-                {
-                    BoundRate = 115200
-                };
-            }
-
-        }
-
-        public static byte[] SetUart(int boundRate = 115200)
-        {
-            var msg = new UbxPortConfiguration(PortType.Uart)
-            {
-                IsInUbxProtocol = true,
-                IsInNmeaProtocol = true,
-                IsInRtcm2Protocol = false,
-                IsInRtcm3Protocol = true,
-                IsOutUbxProtocol = true,
-                IsOutNmeaProtocol = true,
-                IsOutRtcm3Protocol = true,
-                SerialPortConfig = {BoundRate = boundRate}
-            };
-            var result = new byte[msg.GetMaxByteSize()];
-            msg.Serialize(result, 0);
-            return result;
-        }
-
-        public static byte[] SetUsb()
-        {
-            var msg = new UbxPortConfiguration(PortType.Usb)
-            {
-                IsInUbxProtocol = true,
-                IsInNmeaProtocol = true,
-                IsInRtcm2Protocol = false,
-                IsInRtcm3Protocol = true,
-                IsOutUbxProtocol = true,
-                IsOutNmeaProtocol = true,
-                IsOutRtcm3Protocol = true
-            };
-            var result = new byte[msg.GetMaxByteSize()];
-            msg.Serialize(result, 0);
-            return result;
-        }
-
-        protected override uint InternalSerialize(byte[] buffer, uint offset)
-        {
-            var bitIndex = offset + base.InternalSerialize(buffer, offset) + 1;
-
+            buffer[byteIndex++] = 0;
             var txReady = BitConverter.GetBytes((ushort)((IsEnable ? 1 : 0) | ((byte)Polarity << 1) | (Pin << 2) | (Threshold << 7)));
-            buffer[bitIndex++] = txReady[0];
-            buffer[bitIndex++] = txReady[1];
+            buffer[byteIndex++] = txReady[0];
+            buffer[byteIndex++] = txReady[1];
 
             if (SerialPortConfig != null)
             {
@@ -156,50 +132,49 @@ namespace Asv.Gnss
                 var parity = (uint)(SerialPortHelper.GetByteFromParity(SerialPortConfig.Parity) << 9);
                 var stopBits = (uint)(SerialPortHelper.GetByteFromStopBit(SerialPortConfig.StopBits) << 12);
                 var uartMode = BitConverter.GetBytes(dataBits | parity | stopBits);
-                buffer[bitIndex++] = uartMode[0];
-                buffer[bitIndex++] = uartMode[1];
-                buffer[bitIndex++] = uartMode[2];
-                buffer[bitIndex++] = uartMode[3];
+                buffer[byteIndex++] = uartMode[0];
+                buffer[byteIndex++] = uartMode[1];
+                buffer[byteIndex++] = uartMode[2];
+                buffer[byteIndex++] = uartMode[3];
 
                 var boundRate = BitConverter.GetBytes((uint)SerialPortConfig.BoundRate);
-                buffer[bitIndex++] = boundRate[0];
-                buffer[bitIndex++] = boundRate[1];
-                buffer[bitIndex++] = boundRate[2];
-                buffer[bitIndex++] = boundRate[3];
+                buffer[byteIndex++] = boundRate[0];
+                buffer[byteIndex++] = boundRate[1];
+                buffer[byteIndex++] = boundRate[2];
+                buffer[byteIndex++] = boundRate[3];
             }
             else
             {
-                for (var i = bitIndex; i < bitIndex + 8; i++)
+                for (var i = 0; i < 8; i++)
                 {
-                    buffer[i] = 0;
+                    buffer[byteIndex++] = 0;
                 }
-                bitIndex += 8;
             }
 
             var inProtocol = BitConverter.GetBytes((ushort)((IsInUbxProtocol ? 1 : 0) | ((IsInNmeaProtocol ? 1 : 0) << 1) |
                                                             ((IsInRtcm2Protocol ? 1 : 0) << 2) | ((IsInRtcm3Protocol ? 1 : 0) << 5)));
-            buffer[bitIndex++] = inProtocol[0];
-            buffer[bitIndex++] = inProtocol[1];
+            buffer[byteIndex++] = inProtocol[0];
+            buffer[byteIndex++] = inProtocol[1];
 
             var outProtocol = BitConverter.GetBytes((ushort)((IsOutUbxProtocol ? 1 : 0) | ((IsOutNmeaProtocol ? 1 : 0) << 1) | ((IsOutRtcm3Protocol ? 1 : 0) << 5)));
-            buffer[bitIndex++] = outProtocol[0];
-            buffer[bitIndex++] = outProtocol[1];
+            buffer[byteIndex++] = outProtocol[0];
+            buffer[byteIndex++] = outProtocol[1];
 
 
             var isExtendedTxTimeout = BitConverter.GetBytes((ushort)((IsExtendedTxTimeout ? 1 : 0) << 1));
-            buffer[bitIndex++] = isExtendedTxTimeout[0];
-            buffer[bitIndex++] = isExtendedTxTimeout[1];
+            buffer[byteIndex++] = isExtendedTxTimeout[0];
+            buffer[byteIndex++] = isExtendedTxTimeout[1];
 
-            bitIndex += 2;
+            byteIndex += 2;
 
-            return bitIndex - offset;
+            return byteIndex - offsetBytes;
         }
 
         public override uint Deserialize(byte[] buffer, uint offsetBits)
         {
-            var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits) + 1;
+            var byteIndex = (offsetBits + base.Deserialize(buffer, offsetBits)) / 8 + 1;
 
-            var txReady = BitConverter.ToUInt16(buffer, (int)bitIndex); bitIndex += 2;
+            var txReady = BitConverter.ToUInt16(buffer, (int)byteIndex); byteIndex += 2;
             IsEnable = (txReady & 0x01) != 0;
             Polarity = (PortPolarity)((txReady & 0x02) >> 1);
             Pin = (byte)((txReady & 0x7C) >> 2);
@@ -207,35 +182,35 @@ namespace Asv.Gnss
 
             if (PortId != 0 && PortId != 3 && PortId != 4) // Serial Port
             {
-                var uartMode = BitConverter.ToUInt32(buffer, (int)bitIndex); bitIndex += 4;
+                var uartMode = BitConverter.ToUInt32(buffer, (int)byteIndex); byteIndex += 4;
                 SerialPortConfig = new SerialPortConfig
                 {
                     DataBits = SerialPortHelper.GetCharLength((uartMode & 0xC0) >> 6),
                     Parity = SerialPortHelper.GetParity((byte)((uartMode & 0xE00) >> 9)),
                     StopBits = SerialPortHelper.GetStopBit((byte)((uartMode & 0x3000) >> 12)),
-                    BoundRate = (int)BitConverter.ToUInt32(buffer, (int)bitIndex)
+                    BoundRate = (int)BitConverter.ToUInt32(buffer, (int)byteIndex)
                 };
-                bitIndex += 4;
+                byteIndex += 4;
             }
             else
             {
-                bitIndex += 8;
+                byteIndex += 8;
             }
 
-            var inProtocol = BitConverter.ToUInt16(buffer, (int)bitIndex); bitIndex += 2;
+            var inProtocol = BitConverter.ToUInt16(buffer, (int)byteIndex); byteIndex += 2;
             IsInUbxProtocol = (inProtocol & 0x01) != 0;
             IsInNmeaProtocol = (inProtocol & 0x02) != 0;
             IsInRtcm2Protocol = (inProtocol & 0x04) != 0;
             IsInRtcm3Protocol = (inProtocol & 0x20) != 0;
 
-            var outProtocol = BitConverter.ToUInt16(buffer, (int)bitIndex); bitIndex += 2;
+            var outProtocol = BitConverter.ToUInt16(buffer, (int)byteIndex); byteIndex += 2;
             IsOutUbxProtocol = (outProtocol & 0x01) != 0;
             IsOutNmeaProtocol = (outProtocol & 0x02) != 0;
             IsOutRtcm3Protocol = (outProtocol & 0x20) != 0;
 
-            IsExtendedTxTimeout = (BitConverter.ToUInt16(buffer, (int)bitIndex) & 0x02) != 0; bitIndex += 4;
+            IsExtendedTxTimeout = (BitConverter.ToUInt16(buffer, (int)byteIndex) & 0x02) != 0; byteIndex += 4;
 
-            return bitIndex - offsetBits;
+            return byteIndex * 8 - offsetBits;
         }
 
         private static class SerialPortHelper
@@ -311,5 +286,11 @@ namespace Asv.Gnss
                 };
             }
         }
+    }
+
+    public enum PortType
+    {
+        Uart,
+        Usb
     }
 }

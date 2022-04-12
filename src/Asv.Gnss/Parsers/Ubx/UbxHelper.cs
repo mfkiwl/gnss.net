@@ -103,24 +103,6 @@ namespace Asv.Gnss
             return (ushort)(buffer[4] + (buffer[5] << 8));
         }
 
-        public static byte[] MsgTurnOn(byte msgClass, byte msgId, byte msgRate)
-        {
-            var msgCfg = new UbxMessageConfiguration
-            {
-                MsgClass = msgClass,
-                MsgId = msgId,
-                Rate = new byte[] { 0, msgRate, 0, msgRate, 0, 0 }
-            };
-            var result = new byte[msgCfg.GetMaxByteSize()];
-            msgCfg.Serialize(result, 0);
-            return result;
-        }
-
-        public static byte[] MsgTurnOff(byte msgClass, byte msgId)
-        {
-            return MsgTurnOn(msgClass, msgId, 0);
-        }
-
         public static byte[] GenerateRequest(byte @class, byte subclass, byte[] payload = null)
         {
             var payloadLength = payload?.Length ?? 0;

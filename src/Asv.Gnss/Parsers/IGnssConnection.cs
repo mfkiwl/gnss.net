@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ namespace Asv.Gnss
 {
     public interface IGnssConnection:IDisposable
     {
+        IEnumerable<IGnssParser> Parsers { get; }
         IObservable<GnssParserException> OnError { get; }
         IObservable<GnssMessageBase> OnMessage { get; }
         Task Send(GnssMessageBase msg, CancellationToken cancel);

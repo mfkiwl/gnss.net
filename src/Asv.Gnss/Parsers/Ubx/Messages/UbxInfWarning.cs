@@ -9,11 +9,11 @@ namespace Asv.Gnss
 
         public override uint Deserialize(byte[] buffer, uint offsetBits)
         {
-            var bitIndex = offsetBits + base.Deserialize(buffer, offsetBits);
+            var byteIndex = (offsetBits + base.Deserialize(buffer, offsetBits)) / 8;
 
-            Warning = PayloadLength == 0 ? string.Empty : Encoding.ASCII.GetString(buffer, (int)bitIndex, PayloadLength);
+            Warning = PayloadLength == 0 ? string.Empty : Encoding.ASCII.GetString(buffer, (int)byteIndex, PayloadLength);
 
-            return bitIndex - offsetBits;
+            return byteIndex * 8 - offsetBits;
         }
 
         public string Warning { get; set; }

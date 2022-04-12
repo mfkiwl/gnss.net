@@ -5,31 +5,39 @@ using Asv.Tools;
 
 namespace Asv.Gnss
 {
-    public interface IUbxDevice : IRtkStation
+    public interface IUbxDevice
     {
         IObservable<UbxMessageBase> OnUbx { get; }
-        IObservable<UbxAck> OnAck { get; }
-        IObservable<UbxNak> OnNak { get; }
+        IObservable<RtcmV3MessageBase> OnRtcm { get; }
 
         /// <summary>
         /// Местоположение точки относимости антенны реф. станции RTK
         /// </summary>
-        IRxValue<GeoPoint> OnMovingBasePosition { get; }
+        IRxValue<GeoPoint> OnLocation { get; }
         IRxValue<UbxNavSurveyIn> OnSurveyIn { get; }
         IRxValue<UbxNavPvt> OnMovingBase { get; }
+        IRxValue<UbxVelocitySolutionInNED> OnVelocitySolution { get; }
         IRxValue<UbxMonitorHardware> OnHwInfo { get; }
-        IRxValue<UbxMonitorVersion> OnVersion { get; }
+        IRxValue<bool> OnReboot { get; }
+
+        IObservable<UbxTimeModeConfiguration> OnUbxTimeMode { get; }
+        IObservable<UbxMonitorVersion> OnVersion { get; }
+        IObservable<UbxInfWarning> UbxWarning { get; }
+
+        #region TimeMode
+
+        Task StopSurveyInTimeMode(CancellationToken cancel);
+        Task SetSurveyInTimeMode(uint duration, double accLimit, CancellationToken cancel);
+        Task SetFixedBaseTimeMode(GeoPoint location, double accLimit, CancellationToken cancel);
+        Task SetStandaloneTimeMode(CancellationToken cancel);
+
+
+
+        #endregion
+
+        Task SetRtcmRate(byte msgRate, CancellationToken cancel);
 
         Task SetupByDefault(CancellationToken cancel);
-        Task StopSurveyIn(CancellationToken cancel);
-        Task SetTMode3SurveyIn(uint duration, double accLimit, CancellationToken cancel);
-        Task SetTMode3FixedBase(GeoPoint location, double accLimit, CancellationToken cancel);
-        Task SetTMode3MovingBase(CancellationToken cancel);
-
-        Task SetStationaryMode(bool movingBase, CancellationToken cancel);
-        Task TurnOffNMEA(CancellationToken cancel);
-        Task SetMessageRate(byte msgClass, byte msgSubClass, byte msgRate, CancellationToken cancel);
-        Task PollMsg(byte msgClass, byte msgSubClass, CancellationToken cancel);
 
         Task<UbxNavSatellite> GetUbxNavSat(CancellationToken cancel = default);
         Task<UbxNavPvt> GetUbxNavPvt(CancellationToken cancel = default);

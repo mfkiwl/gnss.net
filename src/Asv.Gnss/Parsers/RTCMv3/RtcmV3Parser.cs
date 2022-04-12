@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reactive.Subjects;
 using Asv.Tools;
 
 namespace Asv.Gnss
@@ -23,6 +25,8 @@ namespace Asv.Gnss
         private State _state;
         private ushort _payloadReadedBytes;
         private uint _payloadLength;
+        private readonly Subject<GnssRawPacket<ushort>> _onRawData = new();
+        private readonly Dictionary<ushort, Func<RawRtcmV3Message>> _rawDict = new();
 
         public RtcmV3Parser(IDiagnostic diag) : this(diag[GnssProtocolId])
         {
@@ -35,6 +39,12 @@ namespace Asv.Gnss
         }
 
         public override string ProtocolId => GnssProtocolId;
+
+        public void Register(Func<RawRtcmV3Message> factory)
+        {
+            var testPckt = factory();
+            _rawDict.Add(testPckt.MessageId, factory);
+        }
 
         public override bool Read(byte data)
         {
@@ -76,23 +86,30 @@ namespace Asv.Gnss
                     }
                     break;
                 case State.Crc1:
-                    _buffer[_payloadReadedBytes + 3] = data;
+                    _buffer[_payloadLength + 3] = data;
                     _state = State.Crc2;
                     break;
                 case State.Crc2:
-                    _buffer[_payloadReadedBytes + 3 + 1] = data;
+                    _buffer[_payloadLength + 3 + 1] = data;
                     _state = State.Crc3;
                     break;
                 case State.Crc3:
-                    _buffer[_payloadReadedBytes + 3 + 2] = data;
-                    _payloadLength = _payloadLength + 3;
+                    _buffer[_payloadLength + 3 + 2] = data;
                     
-                    var originalCrc = Crc24.Calc(_buffer, _payloadLength, 0);
-                    var sourceCrc = RtcmV3Helper.GetBitU(_buffer,_payloadLength * 8,24);
+                    var originalCrc = Crc24.Calc(_buffer, _payloadLength + 3, 0);
+                    var sourceCrc = RtcmV3Helper.GetBitU(_buffer,(_payloadLength + 3) * 8, 24);
                     if (originalCrc == sourceCrc)
                     {
                         var msgNumber = RtcmV3Helper.ReadMessageNumber(_buffer);
                         ParsePacket(msgNumber,_buffer);
+
+                        if (_onRawData.HasObservers && _rawDict.TryGetValue(msgNumber, out var factory))
+                        {
+                            var rawPacket = factory();
+                            rawPacket.Deserialize(_buffer, 0, (int)(3 + _payloadLength + 3));
+                            _onRawData.OnNext(rawPacket);
+                        }
+
                         return true;
                     }
                     else
@@ -108,6 +125,8 @@ namespace Asv.Gnss
 
             return false;
         }
+
+        public IObservable<GnssRawPacket<ushort>> OnRawData => _onRawData;
 
         public override void Reset()
         {

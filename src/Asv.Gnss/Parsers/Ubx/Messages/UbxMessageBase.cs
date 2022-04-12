@@ -19,32 +19,32 @@ namespace Asv.Gnss
 
         public override uint Serialize(byte[] buffer, uint offsetBits)
         {
-            var bitIndex = offsetBits;
-
-            buffer[bitIndex++] = UbxHelper.SyncByte1;
-            buffer[bitIndex++] = UbxHelper.SyncByte2;
-            buffer[bitIndex++] = Class;
-            buffer[bitIndex++] = SubClass;
-            PayloadLength = (ushort)InternalSerialize(buffer, bitIndex + 2);
+            var byteIndex = offsetBits / 8;
+            
+            buffer[byteIndex++] = UbxHelper.SyncByte1;
+            buffer[byteIndex++] = UbxHelper.SyncByte2;
+            buffer[byteIndex++] = Class;
+            buffer[byteIndex++] = SubClass;
+            PayloadLength = (ushort)InternalSerialize(buffer, byteIndex + 2);
             var length = BitConverter.GetBytes(PayloadLength);
-            buffer[bitIndex++] = length[0];
-            buffer[bitIndex++] = length[1];
-            bitIndex += PayloadLength;
+            buffer[byteIndex++] = length[0];
+            buffer[byteIndex++] = length[1];
+            byteIndex += PayloadLength;
             var crc = UbxCrc16.CalculateCheckSum(buffer, UbxHelper.HeaderOffset + PayloadLength);
-            buffer[bitIndex++] = crc.Crc1;
-            buffer[bitIndex++] = crc.Crc2;
+            buffer[byteIndex++] = crc.Crc1;
+            buffer[byteIndex++] = crc.Crc2;
 
-            return bitIndex - offsetBits;
+            return byteIndex * 8 - offsetBits;
         }
 
-        protected virtual uint InternalSerialize(byte[] buffer, uint offset)
+        protected virtual uint InternalSerialize(byte[] buffer, uint offsetBytes)
         {
             return 0;
         }
 
         public override uint Deserialize(byte[] buffer, uint offsetBits)
         {
-            var bitIndex = offsetBits;
+            var byteIndex = offsetBits / 8;
             if (buffer[0] != UbxHelper.SyncByte1 || buffer[1] != UbxHelper.SyncByte2)
             {
                 throw new Exception($"Deserialization UBX message failed: want {UbxHelper.SyncByte1:X} {UbxHelper.SyncByte2:X}. Read {buffer[0]:X} {buffer[1]:X}");
@@ -64,21 +64,35 @@ namespace Asv.Gnss
 
             PayloadLength = payloadLength;
             
-            bitIndex += UbxHelper.HeaderOffset;
+            byteIndex += UbxHelper.HeaderOffset;
 
-            return bitIndex - offsetBits;
+            return byteIndex * 8 - offsetBits;
         }
 
-        public ushort PayloadLength { get; protected set; }
+        protected ushort PayloadLength { get; private set; }
 
-        public virtual byte[] GenerateRequest()
+        public virtual GnssMessageBase GetRequest()
         {
-            return UbxHelper.GenerateRequest(Class, SubClass);
+            return new UbxMessageRequest(Class, SubClass);
         }
-
+        
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented, new StringEnumConverter());
         }
     }
+
+    public class UbxMessageRequest : UbxMessageBase
+    {
+        public override byte Class { get; }
+        public override byte SubClass { get; }
+
+        public UbxMessageRequest(byte @class, byte subClass)
+        {
+            Class = @class;
+            SubClass = subClass;
+        }
+    }
+
+
 }

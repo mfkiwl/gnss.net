@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace Asv.Gnss
 {
@@ -17,6 +18,26 @@ namespace Asv.Gnss
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
+        }
+    }
+
+    public abstract class GnssRawPacket<TMsgId>
+    {
+        public abstract string ProtocolId { get; }
+        public TMsgId MessageId { get; }
+        public byte[] RawData { get; private set; }
+
+        protected GnssRawPacket(TMsgId messageId)
+        {
+            MessageId = messageId;
+        }
+
+        public uint Deserialize(byte[] buffer, int offsetByte, int lengthByte)
+        {
+            var message = new byte[lengthByte];
+            Array.Copy(buffer, offsetByte, message, 0, lengthByte);
+            RawData = message;
+            return (uint)(offsetByte + lengthByte);
         }
     }
 
