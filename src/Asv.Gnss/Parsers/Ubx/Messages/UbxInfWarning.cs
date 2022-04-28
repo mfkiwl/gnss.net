@@ -11,7 +11,7 @@ namespace Asv.Gnss
         {
             var byteIndex = (offsetBits + base.Deserialize(buffer, offsetBits)) / 8;
 
-            Warning = PayloadLength == 0 ? string.Empty : Encoding.ASCII.GetString(buffer, (int)byteIndex, PayloadLength);
+            Warning = PayloadLength == 0 ? string.Empty : Encoding.ASCII.GetString(buffer, (int)byteIndex, PayloadLength).Trim('\0');
 
             return byteIndex * 8 - offsetBits;
         }

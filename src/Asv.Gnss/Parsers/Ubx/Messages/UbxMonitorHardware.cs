@@ -71,9 +71,9 @@ namespace Asv.Gnss
             XTalAbsent = (buffer[byteIndex] & 0x10) != 0; byteIndex += 2;
             UsedMask = BitConverter.ToInt32(buffer, (int)byteIndex); byteIndex += 4;
             VP = new byte[17];
-            for (var i = byteIndex; i < 17 + byteIndex; i++)
+            for (var i = 0; i < 17; i++)
             {
-                VP[i] = buffer[i];
+                VP[i] = buffer[i + byteIndex];
             }
             byteIndex += 17;
             JamInd = buffer[byteIndex]; byteIndex += 3;
