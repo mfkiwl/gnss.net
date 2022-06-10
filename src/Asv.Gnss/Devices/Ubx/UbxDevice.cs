@@ -91,7 +91,7 @@ namespace Asv.Gnss
         private readonly IGnssConnection _connection;
         private readonly IConfiguration _cfgSrv;
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly TimeSpan CommandTimeoutMs = TimeSpan.FromSeconds(1);
+        private readonly TimeSpan _commandTimeoutMs = TimeSpan.FromSeconds(1);
         private const byte AttemptCount = 3;
         
         private readonly Subject<UbxMessageBase> _onUbxPacket = new Subject<UbxMessageBase>();
@@ -114,7 +114,6 @@ namespace Asv.Gnss
         private volatile int _bytesRtkBytesPerSecond;
 
         private int _rebootNotComplete;
-        private int _requestInfoNotComplete;
         private readonly UbxConfig _config;
         private bool _isInit;
 
@@ -490,7 +489,7 @@ namespace Asv.Gnss
                 try
                 {
                     using var linkedCancel = CancellationTokenSource.CreateLinkedTokenSource(cancel);
-                    linkedCancel.CancelAfter(CommandTimeoutMs);
+                    linkedCancel.CancelAfter(_commandTimeoutMs);
                     var tcs = new TaskCompletionSource<bool>();
                     using var c1 = linkedCancel.Token.Register(() => tcs.TrySetCanceled());
                     
@@ -516,7 +515,7 @@ namespace Asv.Gnss
 
             throw new TimeoutException(string.Format(
                 "Timeout to execute command '{0}' with '{1}' attempts (timeout {1} times by {2:g} )", typeof(TPacket).Name,
-                currentAttempt, CommandTimeoutMs));
+                currentAttempt, _commandTimeoutMs));
 
         }
 
@@ -533,7 +532,7 @@ namespace Asv.Gnss
                 try
                 {
                     using var linkedCancel = CancellationTokenSource.CreateLinkedTokenSource(cancel);
-                    linkedCancel.CancelAfter(CommandTimeoutMs);
+                    linkedCancel.CancelAfter(_commandTimeoutMs);
                     var tcs = new TaskCompletionSource<TPacket>();
                     using var c1 = linkedCancel.Token.Register(() => tcs.TrySetCanceled());
 
@@ -557,7 +556,7 @@ namespace Asv.Gnss
 
             throw new TimeoutException(string.Format(
                 "Request response timeout '{0}' with '{1}' attempts (timeout {1} times by {2:g} )", typeof(TPacket).Name,
-                currentAttempt, CommandTimeoutMs));
+                currentAttempt, _commandTimeoutMs));
         }
 
         public Task<UbxNavPvt> GetUbxNavPvt(CancellationToken cancel = default)
