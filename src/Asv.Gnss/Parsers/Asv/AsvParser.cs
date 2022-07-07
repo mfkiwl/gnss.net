@@ -5,8 +5,9 @@ namespace Asv.Gnss
 {
     public class AsvParser:GnssParserWithMessagesBase<AsvMessageBase,ushort>
     {
-        public static byte Sync1 = 0xAA;
-        public static byte Sync2 = 0x44;
+        public const ushort MaxMessageSize = 1012/*DATA*/ + 10/*HEADER*/ + 2/*CRC16*/;
+        public const byte Sync1 = 0xAA;
+        public const byte Sync2 = 0x44;
 
         private enum State
         {
@@ -18,7 +19,7 @@ namespace Asv.Gnss
 
         private State _state;
         private int _bufferIndex;
-        private readonly byte[] _buffer = new byte[1024];
+        private readonly byte[] _buffer = new byte[MaxMessageSize];
         private int _stopIndex;
 
         public const string GnssProtocolId = "Asv";

@@ -11,7 +11,7 @@ namespace Asv.Gnss
 
         public override int GetMaxByteSize()
         {
-            return 1024;
+            return AsvParser.MaxMessageSize;
         }
 
         public override uint Serialize(byte[] buffer, uint offsetBits)
@@ -32,7 +32,7 @@ namespace Asv.Gnss
                 strm.Write(crc);
             }
 
-            return (uint) (startIndex + length + 12 /* header 10 + crc 2*/) * 8;
+            return (uint) (length + 12 /* header 10 + crc 2*/) * 8;
         }
 
         protected abstract int InternalSerialize(byte[] buffer, int offsetInBytes);
@@ -51,7 +51,7 @@ namespace Asv.Gnss
             var msgId = BitConverter.ToUInt16(buffer, startIndex + 8);
             if (MessageId != msgId) throw new Exception($"Message id not equals. Want '{MessageId}. Got '{msgId}''");
             var bytes = InternalDeserialize(buffer, startIndex + 10, msgLength);
-            return (uint) ((bytes + 10 - startIndex) * 8);
+            return (uint) ((bytes + 12/* header 10 + crc 2*/) * 8);
         }
 
         protected abstract int InternalDeserialize(byte[] buffer, int offsetInBytes, int length);

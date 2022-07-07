@@ -37,20 +37,20 @@ namespace Asv.Gnss
             return 120;
         }
 
-        public override void Deserialize(ref ReadOnlySpan<byte> buffer, ref uint bitPosition)
+        public override void Deserialize(ReadOnlySpan<byte> buffer, ref int bitPosition)
         {
-            Latitude = RtkRecordDataModelHelper.GetLatitude32Bit(ref buffer, ref bitPosition);
-            Longitude = RtkRecordDataModelHelper.GetLongitude32Bit(ref buffer, ref bitPosition);
-            Altitude = RtkRecordDataModelHelper.GetAltitude24Bit(ref buffer, ref bitPosition);
-            AccLimit = RtkRecordDataModelHelper.GetAccuracy32Bit(ref buffer, ref bitPosition);
+            Latitude = RtkRecordDataModelHelper.GetLatitude32Bit(buffer, ref bitPosition);
+            Longitude = RtkRecordDataModelHelper.GetLongitude32Bit(buffer, ref bitPosition);
+            Altitude = RtkRecordDataModelHelper.GetAltitude24Bit(buffer, ref bitPosition);
+            AccLimit = RtkRecordDataModelHelper.GetAccuracy32Bit(buffer, ref bitPosition);
         }
 
-        public override void Serialize(ref Span<byte> buffer, ref uint bitPosition)
+        public override void Serialize(Span<byte> buffer, ref int bitPosition)
         {
-            RtkRecordDataModelHelper.SetLatitude32Bit(ref buffer, ref bitPosition, Latitude);
-            RtkRecordDataModelHelper.SetLongitude32Bit(ref buffer, ref bitPosition, Longitude);
-            RtkRecordDataModelHelper.SetAltitude24Bit(ref buffer, ref bitPosition, Altitude);
-            RtkRecordDataModelHelper.SetAccuracy32Bit(ref buffer, ref bitPosition, AccLimit);
+            RtkRecordDataModelHelper.SetLatitude32Bit(buffer, ref bitPosition, Latitude);
+            RtkRecordDataModelHelper.SetLongitude32Bit(buffer, ref bitPosition, Longitude);
+            RtkRecordDataModelHelper.SetAltitude24Bit(buffer, ref bitPosition, Altitude);
+            RtkRecordDataModelHelper.SetAccuracy32Bit(buffer, ref bitPosition, AccLimit);
         }
     }
 
@@ -61,14 +61,14 @@ namespace Asv.Gnss
             return 8;
         }
 
-        public override void Deserialize(ref ReadOnlySpan<byte> buffer, ref uint bitPosition)
+        public override void Deserialize(ReadOnlySpan<byte> buffer, ref int bitPosition)
         {
-            IsSuccess = (SpanBitHelper.GetBitU(ref buffer, ref bitPosition, 8) & 0x01) != 0;
+            IsSuccess = (SpanBitHelper.GetBitU(buffer, ref bitPosition, 8) & 0x01) != 0;
         }
 
-        public override void Serialize(ref Span<byte> buffer, ref uint bitPosition)
+        public override void Serialize(Span<byte> buffer, ref int bitPosition)
         {
-            SpanBitHelper.SetBitU(ref buffer, ref bitPosition, 8, IsSuccess ? 1 : 0);
+            SpanBitHelper.SetBitU(buffer, ref bitPosition, 8, IsSuccess ? 1 : 0);
         }
 
         public bool IsSuccess { get; set; }
@@ -85,18 +85,18 @@ namespace Asv.Gnss
             return 64;
         }
 
-        public override void Deserialize(ref ReadOnlySpan<byte> buffer, ref uint bitPosition)
+        public override void Deserialize(ReadOnlySpan<byte> buffer, ref int bitPosition)
         {
-            IsActivate = SpanBitHelper.GetBitU(ref buffer, ref bitPosition, 8) != 0;
-            AccLimit = RtkRecordDataModelHelper.GetAccuracy32Bit(ref buffer, ref bitPosition);
-            Duration = RtkRecordDataModelHelper.GetDuration24Bit(ref buffer, ref bitPosition) ?? 60;
+            IsActivate = SpanBitHelper.GetBitU(buffer, ref bitPosition, 8) != 0;
+            AccLimit = RtkRecordDataModelHelper.GetAccuracy32Bit(buffer, ref bitPosition);
+            Duration = RtkRecordDataModelHelper.GetDuration24Bit(buffer, ref bitPosition) ?? 60;
         }
 
-        public override void Serialize(ref Span<byte> buffer, ref uint bitPosition)
+        public override void Serialize(Span<byte> buffer, ref int bitPosition)
         {
-            SpanBitHelper.SetBitU(ref buffer, ref bitPosition, 8, IsActivate ? 1 : 0);
-            RtkRecordDataModelHelper.SetAccuracy32Bit(ref buffer, ref bitPosition, AccLimit);
-            RtkRecordDataModelHelper.SetDuration24Bit(ref buffer, ref bitPosition, Duration);
+            SpanBitHelper.SetBitU(buffer, ref bitPosition, 8, IsActivate ? 1 : 0);
+            RtkRecordDataModelHelper.SetAccuracy32Bit(buffer, ref bitPosition, AccLimit);
+            RtkRecordDataModelHelper.SetDuration24Bit(buffer, ref bitPosition, Duration);
         }
     }
 
@@ -107,14 +107,14 @@ namespace Asv.Gnss
             return 8;
         }
 
-        public override void Deserialize(ref ReadOnlySpan<byte> buffer, ref uint bitPosition)
+        public override void Deserialize(ReadOnlySpan<byte> buffer, ref int bitPosition)
         {
-            IsSuccess = (SpanBitHelper.GetBitU(ref buffer, ref bitPosition, 8) & 0x01) != 0;
+            IsSuccess = (SpanBitHelper.GetBitU(buffer, ref bitPosition, 8) & 0x01) != 0;
         }
 
-        public override void Serialize(ref Span<byte> buffer, ref uint bitPosition)
+        public override void Serialize(Span<byte> buffer, ref int bitPosition)
         {
-            SpanBitHelper.SetBitU(ref buffer, ref bitPosition, 8, IsSuccess ? 1 : 0);
+            SpanBitHelper.SetBitU(buffer, ref bitPosition, 8, IsSuccess ? 1 : 0);
         }
 
         public bool IsSuccess { get; set; }
@@ -142,16 +142,16 @@ namespace Asv.Gnss
             return BaseStation.GetBitSize() + Observation.GetBitSize();
         }
 
-        public override void Deserialize(ref ReadOnlySpan<byte> buffer, ref uint bitPosition)
+        public override void Deserialize(ReadOnlySpan<byte> buffer, ref int bitPosition)
         {
-            BaseStation.Deserialize(ref buffer, ref bitPosition);
-            Observation.Deserialize(ref buffer, ref bitPosition);
+            BaseStation.Deserialize(buffer, ref bitPosition);
+            Observation.Deserialize(buffer, ref bitPosition);
         }
 
-        public override void Serialize(ref Span<byte> buffer, ref uint bitPosition)
+        public override void Serialize(Span<byte> buffer, ref int bitPosition)
         {
-            BaseStation.Serialize(ref buffer, ref bitPosition);
-            Observation.Serialize(ref buffer, ref bitPosition);
+            BaseStation.Serialize(buffer, ref bitPosition);
+            Observation.Serialize(buffer, ref bitPosition);
         }
     }
 
@@ -182,52 +182,52 @@ namespace Asv.Gnss
             return 200;
         }
 
-        public override void Deserialize(ref ReadOnlySpan<byte> buffer, ref uint bitPosition)
+        public override void Deserialize(ReadOnlySpan<byte> buffer, ref int bitPosition)
         {
-            IsEnabled = SpanBitHelper.GetBitU(ref buffer, ref bitPosition, 1) == 1;
-            Vehicle = (byte)SpanBitHelper.GetBitU(ref buffer, ref bitPosition, 7);
+            IsEnabled = SpanBitHelper.GetBitU(buffer, ref bitPosition, 1) == 1;
+            Vehicle = (byte)SpanBitHelper.GetBitU(buffer, ref bitPosition, 7);
             
-            Latitude = RtkRecordDataModelHelper.GetLatitude32Bit(ref buffer, ref bitPosition);
-            Longitude = RtkRecordDataModelHelper.GetLongitude32Bit(ref buffer, ref bitPosition);
-            Altitude = RtkRecordDataModelHelper.GetAltitude24Bit(ref buffer, ref bitPosition);
+            Latitude = RtkRecordDataModelHelper.GetLatitude32Bit(buffer, ref bitPosition);
+            Longitude = RtkRecordDataModelHelper.GetLongitude32Bit(buffer, ref bitPosition);
+            Altitude = RtkRecordDataModelHelper.GetAltitude24Bit(buffer, ref bitPosition);
             
-            Observations = RtkRecordDataModelHelper.GetObservationCount7Bit(ref buffer, ref bitPosition);
-            PDOP = RtkRecordDataModelHelper.GetGnssDop10Bit(ref buffer, ref bitPosition);
+            Observations = RtkRecordDataModelHelper.GetObservationCount7Bit(buffer, ref bitPosition);
+            PDOP = RtkRecordDataModelHelper.GetGnssDop10Bit(buffer, ref bitPosition);
 
-            TimeMode = RtkRecordDataModelHelper.GetTimeMode2Bit(ref buffer, ref bitPosition);
-            FixType = RtkRecordDataModelHelper.GetFixType3Bit(ref buffer, ref bitPosition);
+            TimeMode = RtkRecordDataModelHelper.GetTimeMode2Bit(buffer, ref bitPosition);
+            FixType = RtkRecordDataModelHelper.GetFixType3Bit(buffer, ref bitPosition);
 
-            Active = RtkRecordDataModelHelper.GetBoolean2Bit(ref buffer, ref bitPosition);
-            Valid = RtkRecordDataModelHelper.GetBoolean2Bit(ref buffer, ref bitPosition); bitPosition += 6;
+            Active = RtkRecordDataModelHelper.GetBoolean2Bit(buffer, ref bitPosition);
+            Valid = RtkRecordDataModelHelper.GetBoolean2Bit(buffer, ref bitPosition); bitPosition += 6;
 
-            Accuracy = RtkRecordDataModelHelper.GetAccuracy32Bit(ref buffer, ref bitPosition);
-            Duration = RtkRecordDataModelHelper.GetDuration24Bit(ref buffer, ref bitPosition);
+            Accuracy = RtkRecordDataModelHelper.GetAccuracy32Bit(buffer, ref bitPosition);
+            Duration = RtkRecordDataModelHelper.GetDuration24Bit(buffer, ref bitPosition);
 
-            RtkSpeedBps = SpanBitHelper.GetBitU(ref buffer, ref bitPosition, 16);
+            RtkSpeedBps = SpanBitHelper.GetBitU(buffer, ref bitPosition, 16);
         }
 
-        public override void Serialize(ref Span<byte> buffer, ref uint bitPosition)
+        public override void Serialize(Span<byte> buffer, ref int bitPosition)
         {
-            SpanBitHelper.SetBitU(ref buffer, ref bitPosition, 1, IsEnabled ? 1 : 0);
-            SpanBitHelper.SetBitU(ref buffer, ref bitPosition, 7, Vehicle);
+            SpanBitHelper.SetBitU(buffer, ref bitPosition, 1, IsEnabled ? 1 : 0);
+            SpanBitHelper.SetBitU(buffer, ref bitPosition, 7, Vehicle);
 
-            RtkRecordDataModelHelper.SetLatitude32Bit(ref buffer, ref bitPosition, Latitude);
-            RtkRecordDataModelHelper.SetLongitude32Bit(ref buffer, ref bitPosition, Longitude);
-            RtkRecordDataModelHelper.SetAltitude24Bit(ref buffer, ref bitPosition, Altitude);
+            RtkRecordDataModelHelper.SetLatitude32Bit(buffer, ref bitPosition, Latitude);
+            RtkRecordDataModelHelper.SetLongitude32Bit(buffer, ref bitPosition, Longitude);
+            RtkRecordDataModelHelper.SetAltitude24Bit(buffer, ref bitPosition, Altitude);
 
-            RtkRecordDataModelHelper.SetObservationCount7Bit(ref buffer, ref bitPosition, (byte?)Observations);
-            RtkRecordDataModelHelper.SetGnssDop10Bit(ref buffer, ref bitPosition, PDOP);
+            RtkRecordDataModelHelper.SetObservationCount7Bit(buffer, ref bitPosition, (byte?)Observations);
+            RtkRecordDataModelHelper.SetGnssDop10Bit(buffer, ref bitPosition, PDOP);
 
-            RtkRecordDataModelHelper.SetTimeMode2Bit(ref buffer, ref bitPosition, TimeMode);
-            RtkRecordDataModelHelper.SetFixType3Bit(ref buffer, ref bitPosition, FixType);
+            RtkRecordDataModelHelper.SetTimeMode2Bit(buffer, ref bitPosition, TimeMode);
+            RtkRecordDataModelHelper.SetFixType3Bit(buffer, ref bitPosition, FixType);
 
-            RtkRecordDataModelHelper.SetBoolean2Bit(ref buffer, ref bitPosition, Active);
-            RtkRecordDataModelHelper.SetBoolean2Bit(ref buffer, ref bitPosition, Valid); bitPosition += 6;
+            RtkRecordDataModelHelper.SetBoolean2Bit(buffer, ref bitPosition, Active);
+            RtkRecordDataModelHelper.SetBoolean2Bit(buffer, ref bitPosition, Valid); bitPosition += 6;
 
-            RtkRecordDataModelHelper.SetAccuracy32Bit(ref buffer, ref bitPosition, Accuracy);
-            RtkRecordDataModelHelper.SetDuration24Bit(ref buffer, ref bitPosition, Duration);
+            RtkRecordDataModelHelper.SetAccuracy32Bit(buffer, ref bitPosition, Accuracy);
+            RtkRecordDataModelHelper.SetDuration24Bit(buffer, ref bitPosition, Duration);
 
-            SpanBitHelper.SetBitU(ref buffer, ref bitPosition, 16, RtkSpeedBps);
+            SpanBitHelper.SetBitU(buffer, ref bitPosition, 16, RtkSpeedBps);
         }
     }
 
@@ -249,32 +249,32 @@ namespace Asv.Gnss
             return 104;
         }
 
-        public override void Deserialize(ref ReadOnlySpan<byte> buffer, ref uint bitPosition)
+        public override void Deserialize(ReadOnlySpan<byte> buffer, ref int bitPosition)
         {
-            Gps = RtkRecordDataModelHelper.GetObservationCount7Bit(ref buffer, ref bitPosition);
-            Sbas = RtkRecordDataModelHelper.GetObservationCount7Bit(ref buffer, ref bitPosition);
-            Glonass = RtkRecordDataModelHelper.GetObservationCount7Bit(ref buffer, ref bitPosition);
-            BeiDou = RtkRecordDataModelHelper.GetObservationCount7Bit(ref buffer, ref bitPosition);
-            Galileo = RtkRecordDataModelHelper.GetObservationCount7Bit(ref buffer, ref bitPosition);
-            Imes = RtkRecordDataModelHelper.GetObservationCount7Bit(ref buffer, ref bitPosition);
-            Qzss = RtkRecordDataModelHelper.GetObservationCount7Bit(ref buffer, ref bitPosition); bitPosition += 7;
-            Noise = RtkRecordDataModelHelper.GetUShort16Bit(ref buffer, ref bitPosition);
-            AgcMonitor = RtkRecordDataModelHelper.GetAgcJam14Bit(ref buffer, ref bitPosition);
-            JammingIndicator = RtkRecordDataModelHelper.GetAgcJam14Bit(ref buffer, ref bitPosition); bitPosition += 4;
+            Gps = RtkRecordDataModelHelper.GetObservationCount7Bit(buffer, ref bitPosition);
+            Sbas = RtkRecordDataModelHelper.GetObservationCount7Bit(buffer, ref bitPosition);
+            Glonass = RtkRecordDataModelHelper.GetObservationCount7Bit(buffer, ref bitPosition);
+            BeiDou = RtkRecordDataModelHelper.GetObservationCount7Bit(buffer, ref bitPosition);
+            Galileo = RtkRecordDataModelHelper.GetObservationCount7Bit(buffer, ref bitPosition);
+            Imes = RtkRecordDataModelHelper.GetObservationCount7Bit(buffer, ref bitPosition);
+            Qzss = RtkRecordDataModelHelper.GetObservationCount7Bit(buffer, ref bitPosition); bitPosition += 7;
+            Noise = RtkRecordDataModelHelper.GetUShort16Bit(buffer, ref bitPosition);
+            AgcMonitor = RtkRecordDataModelHelper.GetAgcJam14Bit(buffer, ref bitPosition);
+            JammingIndicator = RtkRecordDataModelHelper.GetAgcJam14Bit(buffer, ref bitPosition); bitPosition += 4;
         }
 
-        public override void Serialize(ref Span<byte> buffer, ref uint bitPosition)
+        public override void Serialize(Span<byte> buffer, ref int bitPosition)
         {
-            RtkRecordDataModelHelper.SetObservationCount7Bit(ref buffer, ref bitPosition, Gps);
-            RtkRecordDataModelHelper.SetObservationCount7Bit(ref buffer, ref bitPosition, Sbas);
-            RtkRecordDataModelHelper.SetObservationCount7Bit(ref buffer, ref bitPosition, Glonass);
-            RtkRecordDataModelHelper.SetObservationCount7Bit(ref buffer, ref bitPosition, BeiDou);
-            RtkRecordDataModelHelper.SetObservationCount7Bit(ref buffer, ref bitPosition, Galileo);
-            RtkRecordDataModelHelper.SetObservationCount7Bit(ref buffer, ref bitPosition, Imes);
-            RtkRecordDataModelHelper.SetObservationCount7Bit(ref buffer, ref bitPosition, Qzss); bitPosition += 7;
-            RtkRecordDataModelHelper.SetUShort16Bit(ref buffer, ref bitPosition, Noise);
-            RtkRecordDataModelHelper.SetAgcJam14Bit(ref buffer, ref bitPosition, AgcMonitor);
-            RtkRecordDataModelHelper.SetAgcJam14Bit(ref buffer, ref bitPosition, JammingIndicator); bitPosition += 4;
+            RtkRecordDataModelHelper.SetObservationCount7Bit(buffer, ref bitPosition, Gps);
+            RtkRecordDataModelHelper.SetObservationCount7Bit(buffer, ref bitPosition, Sbas);
+            RtkRecordDataModelHelper.SetObservationCount7Bit(buffer, ref bitPosition, Glonass);
+            RtkRecordDataModelHelper.SetObservationCount7Bit(buffer, ref bitPosition, BeiDou);
+            RtkRecordDataModelHelper.SetObservationCount7Bit(buffer, ref bitPosition, Galileo);
+            RtkRecordDataModelHelper.SetObservationCount7Bit(buffer, ref bitPosition, Imes);
+            RtkRecordDataModelHelper.SetObservationCount7Bit(buffer, ref bitPosition, Qzss); bitPosition += 7;
+            RtkRecordDataModelHelper.SetUShort16Bit(buffer, ref bitPosition, Noise);
+            RtkRecordDataModelHelper.SetAgcJam14Bit(buffer, ref bitPosition, AgcMonitor);
+            RtkRecordDataModelHelper.SetAgcJam14Bit(buffer, ref bitPosition, JammingIndicator); bitPosition += 4;
         }
     }
 
@@ -309,24 +309,24 @@ namespace Asv.Gnss
         public const double MinLon = -180.0;
         public const uint LatLonBitSize = 32;
 
-        public static double GetLatitude32Bit(ref ReadOnlySpan<byte> buffer, ref uint bitIndex)
+        public static double GetLatitude32Bit(ReadOnlySpan<byte> buffer, ref int bitIndex)
         {
-            return SpanBitHelper.GetFixedPointS32Bit(ref buffer, ref bitIndex, ArcSecond, 0, MaxLat, MinLat);
+            return SpanBitHelper.GetFixedPointS32Bit(buffer, ref bitIndex, ArcSecond, 0, MaxLat, MinLat);
         }
 
-        public static void SetLatitude32Bit(ref Span<byte> buffer, ref uint bitIndex, double latitude)
+        public static void SetLatitude32Bit(Span<byte> buffer, ref int bitIndex, double latitude)
         {
-            SpanBitHelper.SetFixedPointS32Bit(ref buffer, ref bitIndex, latitude, ArcSecond, 0, MaxLat, MinLat);
+            SpanBitHelper.SetFixedPointS32Bit(buffer, ref bitIndex, latitude, ArcSecond, 0, MaxLat, MinLat);
         }
 
-        public static double GetLongitude32Bit(ref ReadOnlySpan<byte> buffer, ref uint bitIndex)
+        public static double GetLongitude32Bit(ReadOnlySpan<byte> buffer, ref int bitIndex)
         {
-            return SpanBitHelper.GetFixedPointS32Bit(ref buffer, ref bitIndex, ArcSecond, 0, MaxLon, MinLon);
+            return SpanBitHelper.GetFixedPointS32Bit(buffer, ref bitIndex, ArcSecond, 0, MaxLon, MinLon);
         }
 
-        public static void SetLongitude32Bit(ref Span<byte> buffer, ref uint bitIndex, double longitude)
+        public static void SetLongitude32Bit(Span<byte> buffer, ref int bitIndex, double longitude)
         {
-            SpanBitHelper.SetFixedPointS32Bit(ref buffer, ref bitIndex, longitude, ArcSecond, 0, MaxLon, MinLon);
+            SpanBitHelper.SetFixedPointS32Bit(buffer, ref bitIndex, longitude, ArcSecond, 0, MaxLon, MinLon);
         }
 
         #endregion
@@ -338,14 +338,14 @@ namespace Asv.Gnss
         public const double MinAlt = SpanBitHelper.FixedPointS24Min * AltFraction;
         public const uint GnssAltitudeBitSize = 24;
 
-        public static double GetAltitude24Bit(ref ReadOnlySpan<byte> buffer, ref uint bitIndex)
+        public static double GetAltitude24Bit(ReadOnlySpan<byte> buffer, ref int bitIndex)
         {
-            return SpanBitHelper.GetFixedPointS24Bit(ref buffer, ref bitIndex, AltFraction);
+            return SpanBitHelper.GetFixedPointS24Bit(buffer, ref bitIndex, AltFraction);
         }
 
-        public static void SetAltitude24Bit(ref Span<byte> buffer, ref uint bitIndex, double altitude)
+        public static void SetAltitude24Bit(Span<byte> buffer, ref int bitIndex, double altitude)
         {
-            SpanBitHelper.SetFixedPointS24Bit(ref buffer, ref bitIndex, altitude, AltFraction);
+            SpanBitHelper.SetFixedPointS24Bit(buffer, ref bitIndex, altitude, AltFraction);
         }
 
         #endregion
@@ -356,14 +356,14 @@ namespace Asv.Gnss
         public const double MaxAgcJam = 2 * 5000.0 * AgcJamFraction;
         public const double MinAgcJam = 0.0;
         public const double AgcJamOffset = 5000.0 * AgcJamFraction;
-        public static double GetAgcJam14Bit(ref ReadOnlySpan<byte> buffer, ref uint bitIndex)
+        public static double GetAgcJam14Bit(ReadOnlySpan<byte> buffer, ref int bitIndex)
         {
-            return SpanBitHelper.GetFixedPointS14Bit(ref buffer, ref bitIndex, AgcJamFraction, AgcJamOffset, MaxAgcJam, 0.0);
+            return SpanBitHelper.GetFixedPointS14Bit(buffer, ref bitIndex, AgcJamFraction, AgcJamOffset, MaxAgcJam, 0.0);
         }
 
-        public static void SetAgcJam14Bit(ref Span<byte> buffer, ref uint bitIndex, double agcJam)
+        public static void SetAgcJam14Bit(Span<byte> buffer, ref int bitIndex, double agcJam)
         {
-            SpanBitHelper.SetFixedPointS14Bit(ref buffer, ref bitIndex, agcJam, AgcJamFraction, AgcJamOffset, MaxAgcJam, 0.0);
+            SpanBitHelper.SetFixedPointS14Bit(buffer, ref bitIndex, agcJam, AgcJamFraction, AgcJamOffset, MaxAgcJam, 0.0);
         }
 
         #endregion
@@ -375,14 +375,14 @@ namespace Asv.Gnss
         public const double MinAcc = 0.0;
         public const double AccOffset = SpanBitHelper.FixedPointS32Max * AccFraction;
 
-        public static double GetAccuracy32Bit(ref ReadOnlySpan<byte> buffer, ref uint bitIndex)
+        public static double GetAccuracy32Bit(ReadOnlySpan<byte> buffer, ref int bitIndex)
         {
-            return SpanBitHelper.GetFixedPointS32Bit(ref buffer, ref bitIndex, AccFraction, AccOffset, MaxAcc, MinAcc);
+            return SpanBitHelper.GetFixedPointS32Bit(buffer, ref bitIndex, AccFraction, AccOffset, MaxAcc, MinAcc);
         }
 
-        public static void SetAccuracy32Bit(ref Span<byte> buffer, ref uint bitIndex, double accuracy)
+        public static void SetAccuracy32Bit(Span<byte> buffer, ref int bitIndex, double accuracy)
         {
-            SpanBitHelper.SetFixedPointS32Bit(ref buffer, ref bitIndex, accuracy, AccFraction, AccOffset, MaxAcc, MinAcc);
+            SpanBitHelper.SetFixedPointS32Bit(buffer, ref bitIndex, accuracy, AccFraction, AccOffset, MaxAcc, MinAcc);
         }
 
         #endregion
@@ -391,15 +391,15 @@ namespace Asv.Gnss
 
         public const uint DurNull = 0xFFFFFF;
         public const uint MaxDur = 0xFFFFFE;
-        public const uint DurationBitSize = 24;
+        public const int DurationBitSize = 24;
 
-        public static uint? GetDuration24Bit(ref ReadOnlySpan<byte> buffer, ref uint bitIndex)
+        public static uint? GetDuration24Bit(ReadOnlySpan<byte> buffer, ref int bitIndex)
         {
-            var result = SpanBitHelper.GetBitU(ref buffer, ref bitIndex, DurationBitSize);
+            var result = SpanBitHelper.GetBitU(buffer, ref bitIndex, DurationBitSize);
             return result == DurNull ? null : result;
         }
 
-        public static void SetDuration24Bit(ref Span<byte> buffer, ref uint bitIndex, uint? duration)
+        public static void SetDuration24Bit(Span<byte> buffer, ref int bitIndex, uint? duration)
         {
             duration = duration switch
             {
@@ -407,7 +407,7 @@ namespace Asv.Gnss
                 > MaxDur => MaxDur,
                 _ => duration
             };
-            SpanBitHelper.SetBitU(ref buffer, ref bitIndex, DurationBitSize, duration.Value);
+            SpanBitHelper.SetBitU(buffer, ref bitIndex, DurationBitSize, duration.Value);
         }
 
         #endregion
@@ -420,15 +420,15 @@ namespace Asv.Gnss
         public const double DopOffset = SpanBitHelper.FixedPointS10Max * DopFraction;
         public const uint DopBitSize = 7;
 
-        public static double GetGnssDop10Bit(ref ReadOnlySpan<byte> buffer, ref uint bitIndex)
+        public static double GetGnssDop10Bit(ReadOnlySpan<byte> buffer, ref int bitIndex)
         {
-            return SpanBitHelper.GetFixedPointS10Bit(ref buffer, ref bitIndex, DopFraction, DopOffset, MaxDop, MinDop);
+            return SpanBitHelper.GetFixedPointS10Bit(buffer, ref bitIndex, DopFraction, DopOffset, MaxDop, MinDop);
         }
 
-        public static void SetGnssDop10Bit(ref Span<byte> buffer, ref uint bitIndex, double dop)
+        public static void SetGnssDop10Bit(Span<byte> buffer, ref int bitIndex, double dop)
         {
             if (dop < 0) throw new ArgumentOutOfRangeException(nameof(dop));
-                        SpanBitHelper.SetFixedPointS10Bit(ref buffer, ref bitIndex, dop, DopFraction, DopOffset, MaxDop, MinDop);
+                        SpanBitHelper.SetFixedPointS10Bit(buffer, ref bitIndex, dop, DopFraction, DopOffset, MaxDop, MinDop);
         }
         #endregion
 
@@ -436,15 +436,15 @@ namespace Asv.Gnss
 
         public const byte ObservationCountNull = 0x7F;
         public const byte MaxObservationCount = 0x7E;
-        public const uint ObservationCountBitSize = 7;
+        public const int ObservationCountBitSize = 7;
 
-        public static byte? GetObservationCount7Bit(ref ReadOnlySpan<byte> buffer, ref uint bitIndex)
+        public static byte? GetObservationCount7Bit(ReadOnlySpan<byte> buffer, ref int bitIndex)
         {
-            var result = (byte)SpanBitHelper.GetBitU(ref buffer, ref bitIndex, ObservationCountBitSize);
+            var result = (byte)SpanBitHelper.GetBitU(buffer, ref bitIndex, ObservationCountBitSize);
             return result == ObservationCountNull ? null : result;
         }
 
-        public static void SetObservationCount7Bit(ref Span<byte> buffer, ref uint bitIndex, byte? count)
+        public static void SetObservationCount7Bit(Span<byte> buffer, ref int bitIndex, byte? count)
         {
             count = count switch
             {
@@ -452,39 +452,39 @@ namespace Asv.Gnss
                 > MaxObservationCount => MaxObservationCount,
                 _ => count
             };
-            SpanBitHelper.SetBitU(ref buffer, ref bitIndex, ObservationCountBitSize, count.Value);
+            SpanBitHelper.SetBitU(buffer, ref bitIndex, ObservationCountBitSize, count.Value);
         }
 
         #endregion
 
         #region Time mode
 
-        public const uint TimeModeBitSize = 2;
+        public const int TimeModeBitSize = 2;
 
-        public static TimeModeEnum GetTimeMode2Bit(ref ReadOnlySpan<byte> buffer, ref uint bitIndex)
+        public static TimeModeEnum GetTimeMode2Bit(ReadOnlySpan<byte> buffer, ref int bitIndex)
         {
-            return (TimeModeEnum)SpanBitHelper.GetBitU(ref buffer, ref bitIndex, TimeModeBitSize);
+            return (TimeModeEnum)SpanBitHelper.GetBitU(buffer, ref bitIndex, TimeModeBitSize);
         }
 
-        public static void SetTimeMode2Bit(ref Span<byte> buffer, ref uint bitIndex, TimeModeEnum mode)
+        public static void SetTimeMode2Bit(Span<byte> buffer, ref int bitIndex, TimeModeEnum mode)
         {
-            SpanBitHelper.SetBitU(ref buffer, ref bitIndex, TimeModeBitSize, (uint)mode);
+            SpanBitHelper.SetBitU(buffer, ref bitIndex, TimeModeBitSize, (uint)mode);
         }
 
         #endregion
 
         #region GNSS Fix type
 
-        public const uint FixTypeBitSize = 3;
+        public const int FixTypeBitSize = 3;
 
-        public static GnssFixType GetFixType3Bit(ref ReadOnlySpan<byte> buffer, ref uint bitIndex)
+        public static GnssFixType GetFixType3Bit(ReadOnlySpan<byte> buffer, ref int bitIndex)
         {
-            return (GnssFixType)SpanBitHelper.GetBitU(ref buffer, ref bitIndex, FixTypeBitSize);
+            return (GnssFixType)SpanBitHelper.GetBitU(buffer, ref bitIndex, FixTypeBitSize);
         }
 
-        public static void SetFixType3Bit(ref Span<byte> buffer, ref uint bitIndex, GnssFixType type)
+        public static void SetFixType3Bit(Span<byte> buffer, ref int bitIndex, GnssFixType type)
         {
-            SpanBitHelper.SetBitU(ref buffer, ref bitIndex, FixTypeBitSize, (uint)type);
+            SpanBitHelper.SetBitU(buffer, ref bitIndex, FixTypeBitSize, (uint)type);
         }
 
         #endregion
@@ -492,19 +492,19 @@ namespace Asv.Gnss
         #region UShort16Bit?
 
         public const ushort UShortNull = 0xFFFF;
-        public const uint UShortBitSize = 16;
+        public const int UShortBitSize = 16;
 
-        public static ushort? GetUShort16Bit(ref ReadOnlySpan<byte> buffer, ref uint bitIndex)
+        public static ushort? GetUShort16Bit(ReadOnlySpan<byte> buffer, ref int bitIndex)
         {
-            var result = (ushort)SpanBitHelper.GetBitU(ref buffer, ref bitIndex, UShortBitSize);
+            var result = (ushort)SpanBitHelper.GetBitU(buffer, ref bitIndex, UShortBitSize);
             if (result == UShortNull) return null;
             return result;
         }
 
-        public static void SetUShort16Bit(ref Span<byte> buffer, ref uint bitIndex, ushort? value)
+        public static void SetUShort16Bit(Span<byte> buffer, ref int bitIndex, ushort? value)
         {
             value ??= UShortNull;
-            SpanBitHelper.SetBitU(ref buffer, ref bitIndex, UShortBitSize, value.Value);
+            SpanBitHelper.SetBitU(buffer, ref bitIndex, UShortBitSize, value.Value);
         }
 
         #endregion
@@ -512,19 +512,19 @@ namespace Asv.Gnss
         #region Bool?
 
         public const uint BooleanNull = 0x3;
-        public const uint BooleanBitSize = 2;
+        public const int BooleanBitSize = 2;
 
-        public static bool? GetBoolean2Bit(ref ReadOnlySpan<byte> buffer, ref uint bitIndex)
+        public static bool? GetBoolean2Bit(ReadOnlySpan<byte> buffer, ref int bitIndex)
         {
-            var result = SpanBitHelper.GetBitU(ref buffer, ref bitIndex, BooleanBitSize);
+            var result = SpanBitHelper.GetBitU(buffer, ref bitIndex, BooleanBitSize);
             if (result == BooleanNull) return null;
             return result != 0;
         }
 
-        public static void SetBoolean2Bit(ref Span<byte> buffer, ref uint bitIndex, bool? value)
+        public static void SetBoolean2Bit(Span<byte> buffer, ref int bitIndex, bool? value)
         {
             var v = value == null ? BooleanNull : value.Value ? 1u : 0;
-            SpanBitHelper.SetBitU(ref buffer, ref bitIndex, BooleanBitSize, v);
+            SpanBitHelper.SetBitU(buffer, ref bitIndex, BooleanBitSize, v);
         }
 
         #endregion
