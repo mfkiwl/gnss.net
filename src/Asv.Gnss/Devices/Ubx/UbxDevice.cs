@@ -81,7 +81,7 @@ namespace Asv.Gnss
             return new FixedPoint{
                 Latitude = src.Latitude,
                 Longitude = src.Longitude,
-                Altitude = src.Altitude ?? 0
+                Altitude = src.Altitude
             };
         }
     }
@@ -351,7 +351,7 @@ namespace Asv.Gnss
                     IsEnabled = true,
                     Latitude = location.Latitude,
                     Longitude = location.Longitude,
-                    Altitude = location.Altitude ?? double.NaN,
+                    Altitude = location.Altitude,
                     Observations = navPvt?.NumberOfSatellites,
                     PDOP = navPvt?.PositionDOP ?? double.NaN,
                     TimeMode = ModeConv(timeMode.Mode),

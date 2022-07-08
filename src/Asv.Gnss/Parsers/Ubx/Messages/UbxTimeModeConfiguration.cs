@@ -60,10 +60,10 @@ namespace Asv.Gnss
                 // ReSharper disable once PossibleInvalidOperationException
                 var lat = (int)Math.Round(Location.Value.Latitude * 1e7);
                 var lon = (int)Math.Round(Location.Value.Longitude * 1e7);
-                var alt = (int)Math.Round((Location.Value.Altitude ?? 0) * 100.0);
+                var alt = (int)Math.Round((Location.Value.Altitude) * 100.0);
                 var xpX = (long)Math.Round(Location.Value.Latitude * 1e9);
                 var xpY = (long)Math.Round(Location.Value.Longitude * 1e9);
-                var xpZ = (long)Math.Round((Location.Value.Altitude ?? 0) * 10000.0);
+                var xpZ = (long)Math.Round((Location.Value.Altitude) * 10000.0);
                 var latHp = (byte)(xpX - (long)lat * 100);
                 var lonHp = (byte)(xpY - (long)lon * 100);
                 var altHp = (byte)(xpZ - (long)alt * 100);
