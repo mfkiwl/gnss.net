@@ -62,7 +62,7 @@ namespace Asv.Gnss
             
             Logger.Info($"GNSS connection string: {connectionString}");
 
-            _diag = diag[DataStream.ToString()];
+            _diag = diag[DataStream.Name];
             // diagnostic
             _diag.Str["conn"] = connectionString;
             _diag.Rate["rx", "# ##0 b/s"].Increment(0);
